@@ -1,0 +1,13 @@
+# Mac system files
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment files
+.env
+.venv
+env/
+venv/
+ENV/
+
