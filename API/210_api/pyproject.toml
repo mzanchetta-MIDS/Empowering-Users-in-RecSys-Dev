@@ -1,14 +1,20 @@
 [tool.poetry]
-name = "210-api"
+name = "210_api"
 version = "0.1.0"
 description = ""
 authors = ["zfenton <zacharytfenton@berkeley.edu>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 fastapi = "^0.115.8"
+joblib = "^1.4.2"
 
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.0"
+ruff = "^0.4.3"
 
 [build-system]
 requires = ["poetry-core"]

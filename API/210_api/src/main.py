@@ -1,5 +1,6 @@
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
+from src.rec import rec
 
 app = FastAPI()
 
@@ -7,7 +8,7 @@ app = FastAPI()
 async def root():
     return {"message": "Hello World"}
 
-app.mount("/")
+app.mount("/rec", rec)
 
 # """ 
 # 1 - register new user
