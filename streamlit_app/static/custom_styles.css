@@ -1,0 +1,64 @@
+/* Style for recommendation cards */
+.recommendation-card {
+    background-color: #2C2C2C;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.1);
+    border: 1px solid #555;
+    text-align: center;
+}
+
+/* Button styles */
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.save-btn {
+    background-color: #007ACC;
+    color: white;
+}
+
+.save-btn:hover {
+    background-color: #005C99;
+}
+
+.read-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.read-btn:hover {
+    background-color: #3E8E41;
+}
+
+.not-interested-btn {
+    background-color: #E74C3C;
+    color: white;
+}
+
+.not-interested-btn:hover {
+    background-color: #C0392B;
+}
+
+.info-btn {
+    background-color: #F39C12;
+    color: white;
+}
+
+.info-btn:hover {
+    background-color: #D68910;
+}

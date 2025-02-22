@@ -1,0 +1,117 @@
+/* Hide the sidebar completely */
+[data-testid="stSidebar"] {
+    display: none;
+}
+
+/* Make a top banner (full-width) for your header */
+.app-header {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: #2C2C2C;
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.header-icon {
+    width: 70px;
+    height: 70px;
+    margin-right: 15px;
+}
+
+/* Increase font size of question labels */
+div.stTextInput label, div.stMultiSelect label, div.stTextArea label {
+    font-size: 18px !important;
+    font-weight: 500;
+}
+
+/* Style for multiselect tags and dropdown */
+div[data-baseweb="select"] {
+    background-color: #1E1E1E;
+}
+
+div[data-baseweb="tag"] {
+    background-color: #007ACC !important;
+    border: none !important;
+    border-radius: 4px !important;
+}
+
+div[data-baseweb="tag"]:hover {
+    background-color: #005c99 !important;
+}
+
+/* Style for tag text and close button */
+div[data-baseweb="tag"] span {
+    color: #FFFFFF !important;
+}
+
+div[data-baseweb="tag"] button {
+    color: #FFFFFF !important;
+}
+
+/* Style for the multiselect dropdown */
+div[role="listbox"] {
+    background-color: #2C2C2C !important;
+    border-color: #007ACC !important;
+}
+
+/* Style for dropdown options */
+div[role="option"] {
+    background-color: #2C2C2C !important;
+}
+
+div[role="option"]:hover {
+    background-color: #007ACC !important;
+}
+
+/* Style for selected options in dropdown */
+div[aria-selected="true"] {
+    background-color: #007ACC !important;
+}
+
+/* Increase size of regular text */
+.stMarkdown div {
+    font-size: 18px !important;
+}
+
+/* Make sure multiselect options are also larger */
+.stMultiSelect div[role="option"] {
+    font-size: 18px !important;
+}
+
+/* Increase text input and text area font sizes */
+.stTextInput input, .stTextArea textarea {
+    font-size: 18px !important;
+}
+
+/* Ensure st.button is full width, block-level, and consistently styled. */
+.stButton > button {
+    width: 100% !important;
+    margin: 8px 0 !important;
+    border-radius: 5px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    border: none !important;
+    cursor: pointer;
+    transition: 0.3s;
+    background-color: #007ACC !important; /* Example default color */
+    color: #FFFFFF !important;
+}
+
+/* Optional: If you want a hover effect for all st.button */
+.stButton > button:hover {
+    background-color: #005C99 !important;
+}
+/* Make user inputs larger */
+div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="tag"] {
+    font-size: 16px !important;
+}
+
+/* Increase size of Streamlit's tab labels */
+[data-testid="stTabs"] button div[data-testid="stMarkdownContainer"] {
+    font-size: 20px !important; /* or whatever size you like */
+    font-weight: 600 !important;
+}
+
+
