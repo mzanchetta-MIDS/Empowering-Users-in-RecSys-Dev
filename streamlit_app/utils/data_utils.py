@@ -57,6 +57,23 @@ def get_unique_authors():
         "Agatha Christie", "Neil Gaiman", "George R.R. Martin"
     ]
 
+def get_reading_goals(): 
+    """
+    Example function to return all unique authors from training data.
+    """
+    # Placeholder:
+    return [
+        "Older classics",
+        "The latest best-sellers",
+        "Award-winning books",
+        "New genres I haven't explored",
+        "Books similar to my favorites",
+        "Less-reviewed gems",
+        "Highly-rated selections",
+        "Quick reads",
+        "Long, immersive reads"
+    ] 
+
 def get_sample_recommendations():
     """
     Return a list of 3 recommended books, each with

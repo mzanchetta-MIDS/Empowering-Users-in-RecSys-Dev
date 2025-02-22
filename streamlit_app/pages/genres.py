@@ -4,27 +4,42 @@ from utils.data_utils import get_unique_genres
 from utils.profile_utils import save_genres
 
 def show_genres():
-    st.write("DEBUG: We are in show_genres()!")
     st.title("Select Your Favorite Genres")
 
-    # We load unique genres from data_utils 
+    # Load unique genres (avoiding hard-coded values)
     default_genres = get_unique_genres()
 
-    # Retrieve current session values, if exist
+    # Current selections
     current_genres = st.session_state.user_profile.get("genres", [])
     current_other_genre = st.session_state.user_profile.get("other_genre", "")
 
-    # Multi-select
-    selected_genres = st.multiselect(
-        "Choose the book genres you enjoy reading:",
-        default_genres,
-        default=current_genres
-    )
+    # --- FORM: Select multiple genres + optionally add a new one ---
+    with st.form("genres_form", clear_on_submit=False):
+        st.write("Pick or add your favorite genres, then click 'Submit' to apply.")
+        
+        # Multi-select for known genres
+        selected_genres = st.multiselect(
+            "What genres do you enjoy reading?",
+            options=default_genres + current_genres,  # combine known + user-added
+            default=current_genres
+        )
 
-    # "Other" genre text input
-    other_genre = st.text_input("Other genre (optional):", value=current_other_genre)
+        # Text input for manually adding a new genre
+        new_genre = st.text_input("Add a new genre (optional)", value="")
 
-    # Navigation
+        submitted = st.form_submit_button("Submit Genres")
+
+    # Only re-run & update after "Submit Genres" is clicked
+    if submitted:
+        # If user typed a new genre, add it if not already in the list
+        if new_genre.strip() and new_genre not in selected_genres:
+            selected_genres.append(new_genre.strip())
+
+        # Save to session state
+        save_genres(selected_genres, "")  # We won't use 'other_genre' now, or you can keep it if you prefer
+        st.rerun()
+
+    # --- NAVIGATION BUTTONS ---
     col1, col2 = st.columns([1, 5])
     with col1:
         if st.button("← Back"):
@@ -32,10 +47,7 @@ def show_genres():
             st.rerun()
 
     with col2:
+        # You can proceed even with an empty selection if you want
         if st.button("Next →"):
-            save_genres(selected_genres, other_genre)
-            
-            # Only proceed if they selected at least something
-            if selected_genres or other_genre.strip():
-                st.session_state.page = "authors"
-                st.rerun()
+            st.session_state.page = "authors"
+            st.rerun()

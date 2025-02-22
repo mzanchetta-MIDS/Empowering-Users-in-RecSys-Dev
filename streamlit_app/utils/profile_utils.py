@@ -59,7 +59,6 @@ def save_reading_goals(reading_goals, other_goals=""):
     Saves the user's reading goals.
     """
     st.session_state.user_profile["reading_goals"] = reading_goals
-    st.session_state.user_profile["other_goals"] = other_goals
     save_profile()
 
 def get_user_profile_json():

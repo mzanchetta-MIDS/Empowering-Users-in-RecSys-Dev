@@ -1,4 +1,3 @@
-# pages/authors.py
 import streamlit as st
 from utils.data_utils import get_unique_authors
 from utils.profile_utils import save_authors
@@ -6,43 +5,41 @@ from utils.profile_utils import save_authors
 def show_authors():
     st.title("Favorite Authors")
 
-    # Load unique authors (avoiding hard-coded values)
     default_authors = get_unique_authors()
-
-    # Ensure existing selections persist
     current_authors = st.session_state.user_profile.get("authors", [])
 
-    # MULTI-SELECT for known authors
-    selected_authors = st.multiselect(
-        "Who are some of your favorite authors?",
-        options=default_authors + current_authors,  # Combine known authors + any previously added ones
-        default=current_authors
-    )
+    # --- FORM: multi-select + optional new author ---
+    with st.form("authors_form", clear_on_submit=False):
+        st.write("Select or add your favorite authors, then click 'Submit' to apply.")
 
-    # -- FORM to handle "Add another author" --
-    with st.form("add_author_form"):
-        new_author = st.text_input("Add another author (Press Enter to apply)", value="")
-        add_author_button = st.form_submit_button("Add Author")
+        selected_authors = st.multiselect(
+            "Who are some of your favorite authors?",
+            options=default_authors + current_authors,
+            default=current_authors
+        )
 
-    # If the form is submitted with a valid author
-    if add_author_button and new_author.strip():
-        if new_author not in selected_authors:
-            selected_authors.append(new_author)
-        st.session_state.user_profile["authors"] = selected_authors
-        st.rerun()  
+        new_author = st.text_input("Add a new author (optional)")
 
-    # Save to profile storage
-    save_authors(selected_authors)
+        submitted = st.form_submit_button("Submit Authors")
 
-    # -- NAVIGATION BUTTONS --
+    if submitted:
+        # If user typed a new author, add it if not already in the list
+        if new_author.strip() and new_author.strip() not in selected_authors:
+            selected_authors.append(new_author.strip())
+
+        # Save authors
+        save_authors(selected_authors)
+        st.rerun()
+
+    # --- NAVIGATION ---
     col1, col2 = st.columns([1, 5])
-
     with col1:
         if st.button("← Back"):
-            st.session_state.page = 'genres'
+            st.session_state.page = "genres"
             st.rerun()
 
     with col2:
-        if st.button("Next →") and selected_authors:
-            st.session_state.page = 'recent_book'
+        # Let them move on even if they picked 0 authors or only from the list
+        if st.button("Next →"):
+            st.session_state.page = "recent_book"
             st.rerun()
