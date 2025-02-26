@@ -2,18 +2,6 @@ import streamlit as st
 from utils.data_utils import get_unique_books
 from utils.profile_utils import save_favorite_books
 
-def save_current_selection(selected_books, new_book):
-    """
-    Helper function to unify how we store the user's selection.
-    Called on form submit, Next →, or Back.
-    """
-    # If user typed a new book, append if not already in the list
-    if new_book.strip() and new_book.strip() not in selected_books:
-        selected_books.append(new_book.strip())
-
-    # Now save to session state (or via a helper in profile_utils)
-    save_favorite_books(selected_books)
-    
 def show_favorite_books():
     st.title("Favorite Books")
 
@@ -57,3 +45,15 @@ def show_favorite_books():
             st.rerun()
 
 
+def save_current_selection(selected_books, new_book):
+    """
+    Helper function to unify how we store the user's selection.
+    Called on form submit, Next →, or Back.
+    """
+    # If user typed a new book, append if not already in the list
+    if new_book.strip() and new_book.strip() not in selected_books:
+        selected_books.append(new_book.strip())
+
+    # Now save to session state (or via a helper in profile_utils)
+    save_favorite_books(selected_books)
+    
