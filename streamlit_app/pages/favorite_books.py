@@ -8,52 +8,30 @@ def show_favorite_books():
     default_books = get_unique_books()
     current_books = st.session_state.user_profile.get("favorite_books", [])
 
-    # --- FORM: multi-select + optional typed book ---
-    with st.form("favorite_books_form", clear_on_submit=False):
-        st.write("Select or add your favorite books, then click 'Submit' or proceed with 'Next →'.")
+    with st.form("favorite_books_form"):
+        st.write("Pick your favorite books, then click a button to proceed.")
 
+        # Multi-select with no typed input
         selected_books = st.multiselect(
-            "What are some of your favorite books?",
-            options=default_books + current_books,
+            "Which books do you enjoy?",
+            options=default_books,
             default=current_books
         )
 
-        new_book = st.text_input("Add another favorite book (optional)")
+        col1, col2 = st.columns([1,1])
+        with col1:
+            back_clicked = st.form_submit_button("← Back")
+        with col2:
+            next_clicked = st.form_submit_button("Next →")
 
-        # If the user clicks this, we store the results immediately
-        submitted = st.form_submit_button("Submit Books")
-
-    # 1) If the user clicked "Submit Books" inside the form
-    if submitted:
-        save_current_selection(selected_books, new_book)
+    # If user clicked "← Back"
+    if back_clicked:
+        save_favorite_books(selected_books)
+        st.session_state.page = "recent_book"
         st.rerun()
 
-    # --- NAVIGATION BUTTONS (OUTSIDE THE FORM) ---
-    col1, col2 = st.columns([1, 5])
-    with col1:
-        if st.button("← Back"):
-            # 2) Also store data if user clicked Back (in case they never clicked Submit)
-            save_current_selection(selected_books, new_book)
-            st.session_state.page = "recent_book"
-            st.rerun()
-
-    with col2:
-        if st.button("Next →"):
-            # 3) Also store data if user clicked Next → (again, if they skipped 'Submit')
-            save_current_selection(selected_books, new_book)
-            st.session_state.page = "reading_goals"
-            st.rerun()
-
-
-def save_current_selection(selected_books, new_book):
-    """
-    Helper function to unify how we store the user's selection.
-    Called on form submit, Next →, or Back.
-    """
-    # If user typed a new book, append if not already in the list
-    if new_book.strip() and new_book.strip() not in selected_books:
-        selected_books.append(new_book.strip())
-
-    # Now save to session state (or via a helper in profile_utils)
-    save_favorite_books(selected_books)
-    
+    # If user clicked "Next →"
+    if next_clicked:
+        save_favorite_books(selected_books)
+        st.session_state.page = "reading_goals"
+        st.rerun()

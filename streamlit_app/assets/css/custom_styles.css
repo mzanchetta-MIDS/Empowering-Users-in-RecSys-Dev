@@ -114,4 +114,25 @@ div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="tag"] {
     font-weight: 600 !important;
 }
 
+/* Make all form submit buttons big & blue */
+[data-testid="stFormSubmitButton"] > button {
+    background-color: #007ACC !important; /* Blue */
+    color: white !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    border-radius: 5px !important;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 100% !important; /* If you want them full-width columns */
+    margin-top: 10px !important;
+}
+
+/* Optional hover effect */
+[data-testid="stFormSubmitButton"] > button:hover {
+    background-color: #005C99 !important;
+}
+
+
 

@@ -9,11 +9,6 @@ def initialize_session_state():
     if "selected_tab" not in st.session_state:
         st.session_state.selected_tab = "Recommendations"  # Default landing tab
 
-def reset_session_state():
-    """Clear session state and verify reset (for local development only)."""
-    st.session_state.clear()
-    initialize_session_state()  # Reinitialize after clearing
-
 # ✅ Initialize session state at the start
 initialize_session_state()
 
