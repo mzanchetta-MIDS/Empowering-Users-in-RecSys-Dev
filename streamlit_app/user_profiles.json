@@ -1,10 +1,33 @@
 {
-  "saved_for_later": [],
+  "saved_for_later": [
+    {
+      "title": "The Haunted Lighthouse",
+      "author": "Stephen King",
+      "description": "A chilling tale of an abandoned lighthouse haunted by past tragedies, perfect for lovers of suspense and horror.",
+      "explanation": "Recommended because you enjoyed horror with strong atmospheric tension."
+    }
+  ],
   "ratings": {},
   "not_interested": [],
-  "name": "Ben",
-  "genres": [],
+  "name": "Benjamin",
+  "genres": [
+    "Non-Fiction",
+    "Mystery",
+    "Romance",
+    "Fantasy"
+  ],
   "other_genre": "",
-  "authors": [],
-  "favorite_books": []
+  "authors": [
+    "Jane Austen",
+    "J.K. Rowling",
+    "Neil Gaiman",
+    "Stephen King"
+  ],
+  "favorite_books": [
+    "1984 - George Orwell",
+    "The Catcher in the Rye - J.D. Salinger",
+    "War and Peace - Leo Tolstoy",
+    "Moby Dick - Herman Melville"
+  ],
+  "additional_preferences": "I like to read books."
 }

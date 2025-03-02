@@ -1,15 +1,295 @@
-/* Style for recommendation cards */
+/* Global app styling */
+body, .stApp {
+    background-color: #E6E3DC;
+    color: #080603;
+}
+
+/* Hide the sidebar completely */
+[data-testid="stSidebar"] {
+    display: none;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 15px 20px;
+    background-color: #9C897E;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.header-right {
+    margin-left: auto; 
+}
+
+.header-icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+}
+
+/* Custom font for header */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap'); 
+
+/* Header styling */
+.app-header h2 {
+    color: #E6E3DC !important;
+    margin: 0; 
+    font-size: 48px !important; 
+    font-weight: 700;
+    font-family: 'Noto Serif', serif !important;
+}
+
+/* Header navigation */
+.header-nav {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-item {
+    color: #E6E3DC;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Text styling */
+p, h1, h2, h3, h4, h5, h6, span, div {
+    color: #080603;
+}
+
+/* Increase font size of question labels */
+div.stTextInput label, div.stMultiSelect label, div.stTextArea label {
+    font-size: 18px !important;
+    font-weight: 500;
+    color: #080603 !important;
+}
+
+/* Increase size of regular text */
+.stMarkdown div {
+    font-size: 18px !important;
+    color: #080603 !important;
+}
+
+/* Style for multiselect tags and dropdown */
+div[data-baseweb="select"] {
+    background-color: #F5F2EB;
+    border-color: #9C897E !important;
+}
+
+div[data-baseweb="tag"] {
+    background-color: #9C897E !important;
+    border: none !important;
+    border-radius: 4px !important;
+}
+
+div[data-baseweb="tag"]:hover {
+    background-color: #8A7A6E !important;
+}
+
+/* Style for tag text and close button */
+div[data-baseweb="tag"] span {
+    color: #E6E3DC !important;
+}
+
+div[data-baseweb="tag"] button {
+    color: #E6E3DC !important;
+}
+
+/* Style for the multiselect dropdown */
+div[role="listbox"] {
+    background-color: #F5F2EB !important;
+    border-color: #9C897E !important;
+}
+
+/* Style for dropdown options */
+div[role="option"] {
+    background-color: #F5F2EB !important;
+    color: #080603 !important;
+}
+
+div[role="option"]:hover {
+    background-color: #9C897E !important;
+    color: #E6E3DC !important;
+}
+
+/* Style for selected options in dropdown */
+div[aria-selected="true"] {
+    background-color: #9C897E !important;
+    color: #E6E3DC !important;
+}
+
+/* Multiselect options are also larger */
+.stMultiSelect div[role="option"] {
+    font-size: 18px !important;
+}
+
+/* Make user inputs larger */
+div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="tag"] {
+    font-size: 16px !important;
+}
+
+/* Increase text input and text area font sizes */
+.stTextInput input, .stTextArea textarea {
+    font-size: 18px !important;
+    background-color: #F5F2EB !important;
+    border-color: #9C897E !important;
+    color: #080603 !important;
+}
+
+
+/* Target the default state */
+.stButton > button {
+    color: #F5F2ED !important;
+}
+
+/* Target hover */
+.stButton > button:hover {
+    color: #F5F2ED !important;
+}
+
+/* Target focus */
+.stButton > button:focus {
+    color: #F5F2ED !important;
+}
+
+/* Target active/clicked */
+.stButton > button:active {
+    color: #F5F2ED !important;
+}
+
+/* Force override in all states */
+.stButton > button,
+.stButton > button:hover,
+.stButton > button:focus,
+.stButton > button:active {
+    color: #F5F2ED !important;
+}
+
+
+/* Button styling */
+button {
+    border-radius: 5px !important;
+    border: none !important;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* st.button is full width and block-level. */
+.stButton > button {
+    width: 100% !important;
+    margin: 4px 0 !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    background-color: #9C897E !important; 
+    color: #F5F2ED !important;
+}
+
+/* Button hover effect */
+.stButton > button:hover {
+    background-color: #8A7A6E !important;
+}
+
+/* Make tab buttons much more prominent */
+.tab-button {
+    font-size: 28px !important; 
+    font-weight: 700 !important;
+    padding: 12px 15px !important;
+    background-color: #9C897E !important;
+    color: #E6E3DC !important;
+    border-radius: 5px !important;
+    text-align: center !important;
+    margin: 0 5px !important;
+}
+
+.tab-button[type="primary"] {
+    background-color: #8A7A6E !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+}
+
+/* Style the tab buttons */
+button[data-baseweb="tab"] {
+    background-color: #E6E3DC !important;
+    color: #080603 !important;
+    font-size: 18px !important;
+}
+
+button[data-baseweb="tab"][aria-selected="true"] {
+    background-color: #9C897E !important;
+    color: #E6E3DC !important;
+}
+
+/* More consistent spacing overall */
+.book-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+/* Make all form submit buttons bronze */
+[data-testid="stFormSubmitButton"] > button {
+    background-color: #9C897E !important;
+    color: #E6E3DC !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    padding: 10px 20px !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+}
+
+/* Form submit button hover effect */
+[data-testid="stFormSubmitButton"] > button:hover {
+    background-color: #8A7A6E !important;
+}
+
 .recommendation-card {
-    background-color: #2C2C2C;
+    background-color: #F5F2EB;
     border-radius: 10px;
     padding: 15px;
     margin: 10px 0;
-    box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.1);
-    border: 1px solid #555;
-    text-align: center;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #080603 !important;
+
+    /* Force a fixed or minimum height so they align */
+    min-height: 380px; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between;
 }
 
-/* Button styles */
+/* Inside each card, wrap text in a container that can scroll. */
+.card-content {
+    flex: 1; /* Takes up remaining vertical space */
+    overflow-y: auto; /* If the text is too long, overflows */
+}
+
+/* Book card styling */
+div[style*="background-color:#F5F2EB"] {
+    margin-bottom: 10px !important;
+    border: 1px solid #080603 !important;
+    background-color: #F5F2EB !important;
+}
+
+/* Button groups */
 .button-group {
     display: flex;
     flex-direction: column;
@@ -17,48 +297,91 @@
     margin-top: 10px;
 }
 
-button {
-    width: 100%;
-    padding: 8px;
-    border-radius: 5px;
-    font-size: 14px;
-    border: none;
-    cursor: pointer;
-    transition: 0.3s;
+/* Specific button styles */
+.save-btn, .read-btn, .not-interested-btn, .info-btn {
+    background-color: #9C897E;
+    color: #E6E3DC;
 }
 
-.save-btn {
-    background-color: #007ACC;
-    color: white;
+.save-btn:hover, .read-btn:hover, .not-interested-btn:hover, .info-btn:hover {
+    background-color: #8A7A6E;
 }
 
-.save-btn:hover {
-    background-color: #005C99;
+/* Style book cards in HTML */
+div[style*="background-color:#2C2C2C"], 
+div[style*="background-color:#F5F2EB"] {
+    background-color: #F5F2EB !important;
+    border: 1px solid #080603 !important; 
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 
-.read-btn {
-    background-color: #4CAF50;
-    color: white;
+div[style*="background-color:#2C2C2C"] h4,
+div[style*="background-color:#F5F2EB"] h4 {
+    color: #080603 !important;
 }
 
-.read-btn:hover {
-    background-color: #3E8E41;
+div[style*="background-color:#2C2C2C"] p,
+div[style*="background-color:#F5F2EB"] p {
+    color: #080603 !important;
 }
 
-.not-interested-btn {
-    background-color: #E74C3C;
-    color: white;
+/* Star rating component  */
+.react-stars {
+    color: #9C897E !important;
+    margin-top: -15px;
+    background-color: #E6E3DC !important; 
+    padding: 10px !important;
+    border-radius: 5px !important;
 }
 
-.not-interested-btn:hover {
-    background-color: #C0392B;
+div.st-stars {
+    background-color: #E6E3DC !important;
 }
 
-.info-btn {
-    background-color: #F39C12;
-    color: white;
+/* Style expander */
+div.streamlit-expanderHeader {
+    background-color: #9C897E !important;
+    color: #E6E3DC !important;
 }
 
-.info-btn:hover {
-    background-color: #D68910;
+/* Style info boxes */
+div.stAlert {
+    background-color: #F5F2EB !important;
+    color: #080603 !important;
+    border: 1px solid #9C897E !important;
+}
+
+/* Override main app background */
+.main .block-container {
+    background-color: #E6E3DC;
+}
+
+/* Make tab buttons much more prominent */
+button[key^="tab_"] {
+    background-color: #9C897E !important;
+    color: #F5F2EB !important; 
+    font-size: 22px !important;
+    font-weight: 800 !important; 
+    padding: 12px 15px !important;
+    border-radius: 8px !important;
+    height: auto !important;
+    min-height: 60px !important;
+    text-transform: uppercase !important; 
+    letter-spacing: 1px !important; /* Improves readability of uppercase text */
+}
+
+button[key^="tab_"]:hover {
+    background-color: #8A7A6E !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+}
+
+/* Specific styles for the navigation tabs */
+button[key="tab_Recommendations"],
+button[key="tab_Profile"], 
+button[key="tab_Library"] {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    margin-bottom: 20px !important;
+    text-transform: uppercase !important;
 }

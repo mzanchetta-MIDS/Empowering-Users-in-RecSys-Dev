@@ -1,4 +1,5 @@
 import streamlit as st
+from utils.profile_utils import save_profile
 
 def show_additional_preferences():
     st.title("Additional Reading Preferences")
@@ -6,10 +7,10 @@ def show_additional_preferences():
     current_preferences = st.session_state.user_profile.get("additional_preferences", "")
     
     preferences = st.text_area(
-        "Is there anything else you'd like to tell us about your reading preferences?",
+        "Is there anything else you'd like to tell us about your reading preferences? Share as much as you'd like.",
         value=current_preferences,
         height=150,
-        placeholder="For example: I prefer books with happy endings, I like books that make me think, I enjoy books with strong female protagonists, etc."
+        placeholder="For example: I prefer books with happy endings, I like books that are considered literary classics, I enjoy books with strong female protagonists, etc."
     )
     
     # Navigation buttons
@@ -24,5 +25,6 @@ def show_additional_preferences():
         if st.button("Next →"):
             # Save preferences
             st.session_state.user_profile["additional_preferences"] = preferences
+            save_profile()
             st.session_state.page = "completion"
             st.rerun()

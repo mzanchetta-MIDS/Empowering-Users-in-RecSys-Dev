@@ -29,7 +29,7 @@ def show_authors():
     if back_clicked:
         # Save the updated picks
         save_authors(selected_authors)
-        st.session_state.page = "genres"  # or whichever page you want to go back to
+        st.session_state.page = "genres" 
         st.rerun()
 
     # If user clicked "Next →" in the form

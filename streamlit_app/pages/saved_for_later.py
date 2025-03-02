@@ -1,69 +1,66 @@
-# pages/saved_for_later.py
 import streamlit as st
+from streamlit_star_rating import st_star_rating
 
 def show_saved_for_later():
-    st.subheader("Your library")
-    
-    # Make sure saved_for_later exists
+    st.subheader("Your Library")
+
+    # Ensure user_profile and saved_for_later exist
+    if "user_profile" not in st.session_state:
+        st.session_state.user_profile = {}
     if "saved_for_later" not in st.session_state.user_profile:
         st.session_state.user_profile["saved_for_later"] = []
-    
+
     saved_books = st.session_state.user_profile["saved_for_later"]
 
     if not saved_books:
-        st.info("You haven't saved any books yet!")
+        st.info("You haven't saved any books yet! Go to the 'Recommendations' tab to add books to your library.")
         return
-    
+
     # Display saved books in columns (up to 3 per row)
     max_cols = min(len(saved_books), 3)
     cols = st.columns(max_cols)
-    
+
     for idx, book in enumerate(saved_books):
-        col_num = idx % max_cols
-        with cols[col_num]:
+        with cols[idx % max_cols]:
             with st.container():
-                # Card styling with HTML
+                # Uniform card height 
                 st.markdown(f"""
-                <div style="background-color:#2C2C2C; 
-                            padding:15px; 
-                            border-radius:10px;
-                            margin-bottom:20px;">
-                    <h4>📖 {book['title']}</h4>
-                    <p><strong>Author:</strong> {book['author']}</p>
-                    <p><strong>Description:</strong> {book['description']}</p>
-                    <p><strong>Why this was recommended:</strong> {book['explanation']}</p>
+                <div class="recommendation-card">
+                    <div class="card-content">
+                        <h4 style="margin-top:5px;"><span style="color:#EC5A53;">♦</span> {book['title']}</h4>
+                        <p><strong>Author:</strong> {book['author']}</p>
+                        <p><strong>Description:</strong> {book['description']}</p>
+                        <p><strong>Why this was recommended:</strong> {book['explanation']}</p>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
-                
-                # Read it? Provide a rating
+
+                # Show star rating for "Read it?"
                 st.write("✓ Read it? Provide a rating:")
-                
-                # Show 5-star rating system
-                rating_cols = st.columns(5)
-                for i in range(5):
-                    star_num = i + 1
-                    with rating_cols[i]:
-                        if st.button("★", key=f"lib_rate_{star_num}_{book['title']}"):
-                            # Initialize ratings dictionary if needed
-                            if "ratings" not in st.session_state.user_profile:
-                                st.session_state.user_profile["ratings"] = {}
-                            
-                            # Save the rating
-                            st.session_state.user_profile["ratings"][book["title"]] = star_num
-                            
-                            # Remove from library
-                            st.session_state.user_profile["library"] = [
-                                b for b in library_books if b["title"] != book["title"]
-                            ]
-                            st.rerun()
-                
-                if st.button("✗ No Longer Interested", key=f"not_int_saved_{book['title']}"):
+                rating = st_star_rating(
+                    label="",
+                    maxValue=5,
+                    defaultValue=0,
+                    key=f"rating_{book['title']}",
+                    dark_theme=False,
+                    customCSS=".react-stars {margin-top: -15px; background-color: #E6E3DC !important; color: #9C897E;}"
+                )
+                if rating > 0:
+                    # Save the rating
+                    if "ratings" not in st.session_state.user_profile:
+                        st.session_state.user_profile["ratings"] = {}
+                    st.session_state.user_profile["ratings"][book["title"]] = rating
+                    st.session_state.user_profile["saved_for_later"] = [
+                        b for b in saved_books if b["title"] != book["title"]
+                    ]
+                    st.rerun()
+
+                # "No Longer Interested" button
+                if st.button("✗ No Longer Interested", key=f"lib_not_int_{book['title']}"):
                     if "not_interested" not in st.session_state.user_profile:
                         st.session_state.user_profile["not_interested"] = []
-                    
-                    # Add to not_interested
                     st.session_state.user_profile["not_interested"].append(book["title"])
-                    
+
                     # Remove from saved_for_later
                     st.session_state.user_profile["saved_for_later"] = [
                         b for b in saved_books if b["title"] != book["title"]
