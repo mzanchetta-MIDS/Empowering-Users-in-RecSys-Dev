@@ -9,7 +9,7 @@ def show_genres():
     current_genres = st.session_state.user_profile.get("genres", [])
 
     with st.form("genres_form", clear_on_submit=False):
-        st.write("Pick your favorite genres, then click a button to proceed.")
+        st.write("Choose your preferred genres from our available categories, then click to proceed.")
 
         # Multi-select with no typed input
         selected_genres = st.multiselect(
@@ -19,7 +19,7 @@ def show_genres():
         )
 
         # Two big form-submit buttons
-        col1, col2 = st.columns([1,1])
+        col1, col2 = st.columns([1,3])
         with col1:
             back_clicked = st.form_submit_button("← Back")
         with col2:

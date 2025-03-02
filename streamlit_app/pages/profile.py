@@ -3,16 +3,13 @@ import streamlit as st
 import json
 
 def show_profile():
-    st.title("Your Reading Profile")
+    st.subheader("Your Reading Profile")
     
     if "user_profile" not in st.session_state:
         st.warning("Profile data not found. Please complete the onboarding process.")
         return
     
     profile = st.session_state.user_profile
-    
-    # Display profile in a formatted way
-    st.subheader("📚 Reading Preferences")
     
     # Genres
     if profile.get("genres"):
@@ -26,26 +23,28 @@ def show_profile():
         for author in profile.get("authors", []):
             st.write(f"- {author}")
     
-    # Recent book
-    if profile.get("recent_book"):
-        st.write("**Recently Captivating Book:**")
-        st.write(profile.get("recent_book"))
-        
-        if profile.get("why_captivating"):
-            st.write("**What made it captivating:**")
-            st.write(profile.get("why_captivating"))
-    
     # Favorite books
     if profile.get("favorite_books"):
         st.write("**Favorite Books:**")
         for book in profile.get("favorite_books", []):
             st.write(f"- {book}")
     
-    # Reading goals
-    if profile.get("reading_goals"):
-        st.write("**Reading Goals:**")
-        for goal in profile.get("reading_goals", []):
-            st.write(f"- {goal}")
+    # Additional preferences
+    if profile.get("additional_preferences"):
+        st.write("**Additional Reading Preferences:**")
+        st.write(profile.get("additional_preferences"))
+
+    # Books with Ratings
+    if profile.get("ratings") and len(profile.get("ratings")) > 0:
+        st.write("**Books You've Rated:**")
+        for book_title, rating in profile.get("ratings").items():
+            st.write(f"- {book_title}: {'★' * rating}")
+        
+    # Not Interested Books
+    if profile.get("not_interested"):
+        st.write("**Books You're Not Interested In:**")
+        for book in profile.get("not_interested", []):
+            st.write(f"- {book}")
     
     # Display raw JSON for debugging/verification
     with st.expander("View Raw Profile Data (JSON)"):
@@ -59,10 +58,9 @@ def show_profile():
             "other_genre": "",
             "authors": [],
             "favorite_books": [],
-            "recent_book": "",
-            "why_captivating": "",
-            "reading_goals": [],
-            "other_goals": ""
+            "additional_preferences": "",
+            "ratings": {},
+            "not_interested": []
         }
         st.session_state.profile_completed = False
         st.rerun()

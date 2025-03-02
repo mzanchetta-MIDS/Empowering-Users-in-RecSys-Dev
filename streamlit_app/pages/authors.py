@@ -10,7 +10,7 @@ def show_authors():
 
     # Single form with two form_submit_buttons:
     with st.form("authors_form"):
-        st.write("Pick your favorite authors, then click a button to proceed.")
+        st.write("Pick your favorites from our available authors, then click a button to proceed.")
 
         # Multi-select with no typed input allowed
         selected_authors = st.multiselect(
@@ -19,7 +19,7 @@ def show_authors():
             default=current_authors
         )
 
-        col1, col2 = st.columns([1,1])
+        col1, col2 = st.columns([1,3])
         with col1:
             back_clicked = st.form_submit_button("← Back")
         with col2:
@@ -36,5 +36,5 @@ def show_authors():
     if next_clicked:
         save_authors(selected_authors)
         # Navigate to the next page
-        st.session_state.page = "recent_book"
+        st.session_state.page = "favorite_books"
         st.rerun()

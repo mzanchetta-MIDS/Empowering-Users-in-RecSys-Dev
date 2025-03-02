@@ -1,4 +1,3 @@
-# pages/completion.py
 import streamlit as st
 import time
 
@@ -16,11 +15,10 @@ def show_completion():
 
     st.write("Click below to continue to your personalized interface!")
 
-    # Force default tab to be "Recommendations"
-    st.session_state.default_tab = "Recommendations"
-
-
     if st.button("Enter Bookwise.ai!"):
         # Mark the profile as completed
         st.session_state.profile_completed = True
+        # Force the active tab to be "Recommendations"
+        st.session_state.selected_tab = "Recommendations"
+
         st.rerun()

@@ -3,13 +3,13 @@ from utils.data_utils import get_unique_books
 from utils.profile_utils import save_favorite_books
 
 def show_favorite_books():
-    st.title("Favorite Books")
+    st.title("Select Your Favorite Books")
 
     default_books = get_unique_books()
     current_books = st.session_state.user_profile.get("favorite_books", [])
 
     with st.form("favorite_books_form"):
-        st.write("Pick your favorite books, then click a button to proceed.")
+        st.write("Select multiple favorite books from our available titles - adding more helps us find better matches for you.")
 
         # Multi-select with no typed input
         selected_books = st.multiselect(
@@ -18,7 +18,7 @@ def show_favorite_books():
             default=current_books
         )
 
-        col1, col2 = st.columns([1,1])
+        col1, col2 = st.columns([1,3])
         with col1:
             back_clicked = st.form_submit_button("← Back")
         with col2:
@@ -27,11 +27,11 @@ def show_favorite_books():
     # If user clicked "← Back"
     if back_clicked:
         save_favorite_books(selected_books)
-        st.session_state.page = "recent_book"
+        st.session_state.page = "authors" 
         st.rerun()
 
     # If user clicked "Next →"
     if next_clicked:
         save_favorite_books(selected_books)
-        st.session_state.page = "reading_goals"
+        st.session_state.page = "additional_preferences" 
         st.rerun()
