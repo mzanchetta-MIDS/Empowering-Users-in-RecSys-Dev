@@ -1,34 +1,33 @@
 # pages/recommendations.py
 import streamlit as st
+from streamlit_star_rating import st_star_rating
 from utils.data_utils import get_sample_recommendations
 from utils.profile_utils import save_profile
-from streamlit_star_rating import st_star_rating
+
 
 def get_new_recommendations():
     """Get new recommendations the user hasn't seen yet"""
     all_recommendations = get_sample_recommendations()
     
-    # Filter out books the user has already interacted with
-    already_seen = []
+    # Track already seen books by title
+    already_seen_titles = []
     
-    # Add books from already_read list to already_seen
-    if "already_read" in st.session_state.user_profile:
-        already_seen.extend(st.session_state.user_profile["already_read"])
-    
-    # Add books from not_interested list to already_seen
+    # Add books from not_interested list
     if "not_interested" in st.session_state.user_profile:
-        already_seen.extend(st.session_state.user_profile["not_interested"])
+        already_seen_titles.extend(st.session_state.user_profile["not_interested"])
     
-    # Add books currently in saved_for_later
+    # Add books from ratings
+    if "ratings" in st.session_state.user_profile:
+        already_seen_titles.extend(st.session_state.user_profile["ratings"].keys())
+    
+    # Add books from saved_for_later
     if "saved_for_later" in st.session_state.user_profile:
         for book in st.session_state.user_profile["saved_for_later"]:
             if "title" in book:
-                already_seen.append(book["title"])
+                already_seen_titles.append(book["title"])
     
-    # Get books the user hasn't seen
-    new_recommendations = [r for r in all_recommendations if r["title"] not in already_seen]
-    
-    # Take up to 3 new recommendations
+    # Filter by book title
+    new_recommendations = [r for r in all_recommendations if r["title"] not in already_seen_titles]
     return new_recommendations[:3]
 
 def show_ratings(book_title, key_prefix):
@@ -115,9 +114,8 @@ def show_recommendations():
                     if "not_interested" not in st.session_state.user_profile:
                         st.session_state.user_profile["not_interested"] = []
                     
-                    # Add to not_interested with author
-                    formatted_title = f"{rec['title']} - {rec['author']}"
-                    st.session_state.user_profile["not_interested"].append(formatted_title)
+                    # Add just the title for consistency
+                    st.session_state.user_profile["not_interested"].append(rec["title"])
                     
                     # Then also call save_profile to persist changes
                     from utils.profile_utils import save_profile
@@ -152,8 +150,9 @@ def show_recommendations():
                     if rating > 0:
                         if "ratings" not in st.session_state.user_profile:
                             st.session_state.user_profile["ratings"] = {}
-                        formatted_title = f"{rec['title']} - {rec['author']}"
-                        st.session_state.user_profile["ratings"][formatted_title] = rating
+                        
+                        # Use just the title for the key
+                        st.session_state.user_profile["ratings"][rec["title"]] = rating
                         
                         # Save to profile 
                         from utils.profile_utils import save_profile
@@ -164,4 +163,3 @@ def show_recommendations():
                             book for book in recommendations if book["title"] != rec["title"]
                         ]
                         st.rerun()
-

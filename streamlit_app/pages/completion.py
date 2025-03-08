@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+from utils.profile_utils import save_profile
 
 def show_completion():
     st.success("""
@@ -9,6 +10,7 @@ def show_completion():
 
     # Simple loading animation
     with st.spinner('Preparing your personalized recommendations...'):
+        save_profile()
         time.sleep(1)
 
     st.balloons()

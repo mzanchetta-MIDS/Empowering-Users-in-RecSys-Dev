@@ -2,6 +2,8 @@
 import streamlit as st
 import json
 import os
+from utils.api_client import submit_user_profile
+
 
 PROFILE_PATH = "user_profiles.json"  # We will change this to a DB/API later
 
@@ -15,13 +17,8 @@ def initialize_user_profile():
     if "user_profile" not in st.session_state:
         st.session_state.user_profile = {
             "genres": [],
-            "other_genre": "",
             "authors": [],
-            "favorite_books": [],
-            "recent_book": "",
-            "why_captivating": "",
-            "reading_goals": [],
-            "other_goals": ""
+            "favorite_books": []
         }
 
 def save_genres(selected_genres, other_genre=""):
@@ -29,7 +26,6 @@ def save_genres(selected_genres, other_genre=""):
     Saves the selected genres and any manually entered genre.
     """
     st.session_state.user_profile["genres"] = selected_genres
-    st.session_state.user_profile["other_genre"] = other_genre
     save_profile()  # Persist profile changes
 
 def save_authors(selected_authors):
@@ -39,26 +35,11 @@ def save_authors(selected_authors):
     st.session_state.user_profile["authors"] = selected_authors
     save_profile()
 
-def save_recent_book(recent_book, why_captivating=""):
-    """
-    Saves the most recent book and why it was captivating.
-    """
-    st.session_state.user_profile["recent_book"] = recent_book
-    st.session_state.user_profile["why_captivating"] = why_captivating
-    save_profile()
-
 def save_favorite_books(favorite_books):
     """
     Saves the user's list of favorite books.
     """
     st.session_state.user_profile["favorite_books"] = favorite_books
-    save_profile()
-
-def save_reading_goals(reading_goals, other_goals=""):
-    """
-    Saves the user's reading goals.
-    """
-    st.session_state.user_profile["reading_goals"] = reading_goals
     save_profile()
 
 def get_user_profile_json():
@@ -69,10 +50,15 @@ def get_user_profile_json():
 
 def save_profile():
     """
-    Saves the current user profile from session state to a JSON file.
+    Saves the current user profile from session state to a JSON file
+    and sends it to the API.
     """
+    # Save locally
     with open(PROFILE_PATH, "w") as f:
         json.dump(st.session_state.user_profile, f, indent=2)
+    
+    # Send to API
+    submit_user_profile(st.session_state.user_profile)
 
 def load_profile():
     """

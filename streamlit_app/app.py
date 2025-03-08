@@ -59,21 +59,6 @@ def get_image_base64(image_path: str) -> str:
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode()
 
-def show_custom_header():
-    image_path = os.path.join("assets", "book_icon.png")
-    image_base64 = get_image_base64(image_path)
-    st.markdown(f"""
-        <div class="app-header">
-            <div class="header-left">
-                <img src="data:image/png;base64,{image_base64}" class="header-icon"/>
-                <h2 style="color: #FFF;">Bookwise</h2>
-            </div>
-            <div class="header-right">
-                <!-- Space for future nav items if needed -->
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-
 # TAB CALLBACKS
 def switch_to_tab(tab_name):
     st.session_state.selected_tab = tab_name
@@ -97,6 +82,39 @@ def save_book_for_later(book_title):
         # Update recommendations list
         st.session_state.recommendations_list = new_recommendations
         save_profile()
+
+def check_api_connection():
+    """Check if API is accessible"""
+    import requests
+    try:
+        response = requests.get("http://localhost:8000")
+        return response.status_code == 200
+    except:
+        return False
+
+def show_custom_header():
+    # Check API connection
+    api_connected = check_api_connection()
+    
+    image_path = os.path.join("assets", "book_icon.png")
+    image_base64 = get_image_base64(image_path)
+    
+    # Add API connection indicator to header
+    connection_status = "🟢 API Connected" if api_connected else "🔴 API Offline"
+    
+    st.markdown(f"""
+        <div class="app-header">
+            <div class="header-left">
+                <img src="data:image/png;base64,{image_base64}" class="header-icon"/>
+                <h2 style="color: #FFF;">Bookwise</h2>
+            </div>
+            <div class="header-right">
+                <div style="color: {'#E6E3DC' if api_connected else '#FF6B6B'}; font-size: 14px;">
+                    {connection_status}
+                </div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
         
 def main():
     
