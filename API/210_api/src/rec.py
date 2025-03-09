@@ -1,12 +1,18 @@
 from pydantic import BaseModel, field_validator
 from typing import List, Optional
-
 from fastapi import FastAPI, status, Request
 from fastapi.responses import JSONResponse
 from datetime import datetime
+from fastapi.staticfiles import StaticFiles
 import joblib
-#import numpy as np
+import requests
+import numpy as np
 from datetime import datetime
+import json
+
+
+#from recommend import recommend
+from src.small_recommend import small_recommend
 
 # load the rec model
 #rec_model = joblib.load('rec_model.pkl')
@@ -16,7 +22,7 @@ from datetime import datetime
 
 rec = FastAPI()
 
-
+rec.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 class User(BaseModel):
     user_id: int
@@ -43,10 +49,8 @@ class UserDelete(BaseModel):
 class UserHistory(BaseModel):
     user_id: int
     
-class UserRecommended(BaseModel):
-    user_id: int
-    title: str
-    review_score: int
+# class UserRecommended(BaseModel):
+#     user: JSONResponse
     
 class UserRecommendedResponse(BaseModel):
     recommendations: List[str]
@@ -111,10 +115,35 @@ async def history(user: UserHistory):
     return {"message": "User history retrieved successfully"}
 
 @rec.post("/recommended", response_model=UserRecommendedResponse)
-async def recommended(user: UserRecommended):
-    recommendation = rec_model.predict(user.user_id, user.title, user.review_score)
-    return_val = UserRecommendedResponse(recommendations=recommendation)
+#@rec.post("/recommended", response_model=UserRecommendedResponse)
+async def recommended(user): # Need to figure out the input type :UserRecommended
+    # Load unique_titles and book_embeddings to pass to small_recommend function
+    # unique_titles = np.load('data/unique_titles.npy', allow_pickle=True)
+    # book_embeddings = np.load("data/book_embeddings.npy", allow_pickle=True)
+    
+    # Make request to API Gateway
+
+    user_json = json.loads(user)
+    #myJSON = json.dumps(user_json)
+    
+    model_request = requests.post('https://f1bfm11ckf.execute-api.us-east-1.amazonaws.com/dev', json=user_json)
+    test = json.loads(model_request.text)
+    tset = json.loads(test["body"])
+    pred = tset["result"]["predictions"][0][0]
+    # print(model_request.text)
+    # return_value = json.loads(model_request.text)
+    ### Big model: pass model reqeust to recommend function
+    # recommendation = recommend(model_request, filter)
+    ### return recommendation
+    # return recommendation
+    ###
+    
+    ### Small model: pass model_request to small_recommend function
+    recommendations = small_recommend(pred)
+    return_val = UserRecommendedResponse(recommendations=recommendations)
+
     return return_val
+    #return return_val
 
 @rec.get("/llm")
 async def llm(user: UserLLM):
