@@ -1,40 +1,21 @@
 {
-  "saved_for_later": [
-    {
-      "id": "book-001",
-      "title": "The Haunted Lighthouse",
-      "author": "Stephen King",
-      "description": "A chilling tale of an abandoned lighthouse haunted by past tragedies.",
-      "explanation": "Recommended because you enjoy horror with strong atmospheric tension."
-    },
-    {
-      "id": "book-004",
-      "title": "The Great Gatsby",
-      "author": "F. Scott Fitzgerald",
-      "description": "A tale of wealth, love, and disillusionment during the Jazz Age, exploring the American Dream and its corruptions.",
-      "explanation": "Based on your preference for classics with rich symbolism and complex characters."
-    }
-  ],
-  "ratings": {
-    "American Gods": 2,
-    "1984": 5
-  },
-  "not_interested": [
-    "Pride and Prejudice",
-    "To Kill a Mockingbird"
-  ],
-  "name": "Benjamin Heuberger",
+  "saved_for_later": [],
+  "ratings": {},
+  "not_interested": [],
+  "name": "Benjamin",
   "genres": [
-    "History",
-    "Business"
+    "Bibles",
+    "Business & Economics",
+    "Architecture"
   ],
   "authors": [
-    "Michael Lewis",
-    "Neil Gaiman"
+    "Agatha Christie",
+    "Michael Lewis"
   ],
   "favorite_books": [
-    "Pride and Prejudice - Jane Austen",
-    "Moby Dick - Herman Melville"
+    "To Kill a Mockingbird - Harper Lee",
+    "The Great Gatsby - F. Scott Fitzgerald",
+    "One Hundred Years of Solitude - Gabriel Garc\u00eda M\u00e1rquez"
   ],
-  "additional_preferences": "I like to read long books about history."
+  "additional_preferences": ""
 }

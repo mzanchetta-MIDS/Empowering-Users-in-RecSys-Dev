@@ -270,7 +270,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border: 1px solid #080603 !important;
 
     /* Force a fixed or minimum height so they align */
-    min-height: 380px; 
+    min-height: 600px; 
     display: flex; 
     flex-direction: column; 
     justify-content: space-between;
