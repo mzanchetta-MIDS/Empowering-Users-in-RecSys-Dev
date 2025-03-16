@@ -1,12 +1,21 @@
 # Embeddings to Recommendations
 
 # Imports
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import os
+import logging
+from src.bookEmbeddings import load_book_embeddings
+import sagemaker
+import boto3
+import pandas as pd
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
 
 
-filter = {'keep': {'title': set(), 'authors': set(), 'categories': set()},
-          'remove': {'title': set(), 'authors': set(), 'categories': set([i for i in range(100)])}}
-
-def recommend(self, session_info, filter=filter, top_k=10, path='embeddings/book_embeddings.npy'):
+def recommend(user_embedding, filter=filter, top_k=10, path='embeddings/book_embeddings.npy'):
     """
     Recommend top_k books based on cosine similarity using book embeddings.
     :param filter: Dictionary with 'keep' and 'remove' filters.
@@ -15,40 +24,44 @@ def recommend(self, session_info, filter=filter, top_k=10, path='embeddings/book
     :param path: Path to embeddings if they need to be loaded.
     :return: DataFrame with top_k recommendations.
     """
-    from sklearn.metrics.pairwise import cosine_similarity
-
-    # Ensure that embeddings are loaded
-    if self.full_book_embeddings is None:
-        self.load_book_embeddings(path, self.full_book_embeddings_copy)
-
+    s3_bucket = "w210recsys"
+    aws_book_embeddings_path = "model/recModel/modelFiles/book_embeddings.npy" 
+    aws_books_df_path = "model/recModel/modelFiles/books_df.csv"
+    
+    full_book_embeddings = None
+    
+    if os.path.exists("src/static/full_book_embeddings.pkl"):
+        full_book_embeddings = pd.read_pickle('src/static/full_book_embeddings.pkl')
+        print("File exists at src/static/book_embeddings.pkl")
+    else:
+        full_book_embeddings = load_book_embeddings(s3_bucket, aws_book_embeddings_path, aws_books_df_path)
+   
     # Apply filtering logic
-    self.full_book_embeddings_copy = self.full_book_embeddings.copy()
+    full_book_embeddings_copy = full_book_embeddings.copy()
     
     # Apply 'keep' filters
     for key, value_set in filter.get('keep', {}).items():
         if value_set:
-            self.full_book_embeddings_copy = self.full_book_embeddings_copy[
-                self.full_book_embeddings_copy[key].isin(value_set)]
+            full_book_embeddings_copy = full_book_embeddings_copy[
+                full_book_embeddings_copy[key].isin(value_set)]
     
     # Apply 'remove' filters
     for key, value_set in filter.get('remove', {}).items():
         if value_set:
-            self.full_book_embeddings_copy = self.full_book_embeddings_copy[
-                ~self.full_book_embeddings_copy[key].isin(value_set)]
-
-    # Get user embeddings
-    user_embeddings = self.user_model(session_info)
+            full_book_embeddings_copy = full_book_embeddings_copy[
+                ~full_book_embeddings_copy[key].isin(value_set)]
     
     # Get book embeddings (make sure to extract relevant embeddings)
-    book_embeddings = np.vstack(self.full_book_embeddings_copy['embeddings'].values)
+    book_embeddings = np.vstack(full_book_embeddings_copy['embeddings'].values)
+    user_embedding_2d = np.expand_dims(user_embedding, axis=0)
 
     # Compute Cosine Similarity between user and book embeddings
-    similarity_scores = cosine_similarity(user_embeddings, book_embeddings)
+    similarity_scores = cosine_similarity(user_embedding_2d, book_embeddings)
 
     # Add similarity scores to the dataframe
-    self.full_book_embeddings_copy['similarity'] = similarity_scores.mean(axis=0)
+    full_book_embeddings_copy['similarity'] = similarity_scores.mean(axis=0)
 
     # Get Top-K Recommendations
-    recommendations = self.full_book_embeddings_copy.sort_values(by='similarity', ascending=False).head(top_k)
+    recommendations = full_book_embeddings_copy.sort_values(by='similarity', ascending=False).head(top_k)
 
     return recommendations[['title', 'authors', 'categories', 'similarity']]

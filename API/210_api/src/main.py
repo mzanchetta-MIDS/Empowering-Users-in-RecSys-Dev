@@ -1,5 +1,9 @@
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
+#import boto3
+#import botocore
+#import boto3.session
+import os
 from src.rec import rec
 
 app = FastAPI()
