@@ -12,7 +12,6 @@ def get_unique_books():
             "To Kill a Mockingbird - Harper Lee",
             "1984 - George Orwell",
             "Pride and Prejudice - Jane Austen",
-            # ... keep your existing hardcoded list here as fallback
         ]
     return books
 
