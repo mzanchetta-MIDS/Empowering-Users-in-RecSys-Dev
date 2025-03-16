@@ -2,15 +2,18 @@ import streamlit as st
 import os
 import base64
 
-from pages.welcome import show_welcome
-from pages.genres import show_genres
-from pages.authors import show_authors
-from pages.favorite_books import show_favorite_books
-from pages.additional_preferences import show_additional_preferences
-from pages.completion import show_completion
-from pages.profile import show_profile
-from pages.saved_for_later import show_saved_for_later
-from pages.recommendations import show_recommendations
+# Import your page modules
+from sections.welcome import show_welcome
+from sections.genres import show_genres
+from sections.authors import show_authors
+from sections.favorite_books import show_favorite_books
+from sections.additional_preferences import show_additional_preferences
+from sections.completion import show_completion
+from sections.profile import show_profile
+from sections.saved_for_later import show_saved_for_later
+from sections.recommendations import show_recommendations
+from sections.how_it_works import show_how_it_works
+
 
 from utils.profile_utils import load_profile, save_profile, initialize_user_profile
 
@@ -38,7 +41,7 @@ st.set_page_config(
     page_title="Bookwise.ai",
     page_icon="assets/book_icon.png",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collapsed" if not st.session_state.profile_completed else "expanded"
 )
 
 # LOAD CSS
@@ -54,18 +57,57 @@ def load_css():
 
 load_css()
 
+st.markdown("""
+<style>
+/* Target all sidebar navigation buttons */
+[data-testid="stSidebar"] [data-testid="baseButton-secondary"] {
+    background-color: #9C897E !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 500 !important;
+}
+
+/* Make the active button red */
+[data-testid="stSidebar"] [data-testid="baseButton-primary"] {
+    background-color: #EC5A53 !important;
+    color: white !important;
+    font-weight: 600 !important;
+    border: none !important;
+}
+
+/* Make the sidebar BookWise logo larger */
+[data-testid="stSidebar"] div[style*="display: flex; align-items: center"] h2 {
+    font-size: 24px !important;
+}
+
+[data-testid="stSidebar"] div[style*="display: flex; align-items: center"] img {
+    width: 50px !important;
+    height: 50px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # HELPER: HEADER
 def get_image_base64(image_path: str) -> str:
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode()
 
-# TAB CALLBACKS
-def switch_to_tab(tab_name):
-    st.session_state.selected_tab = tab_name
+# API Status Display
+def show_api_status():
+    """Show API connection status in a small badge"""
+    api_connected = check_api_connection()
+    connection_status = "🟢 API Connected" if api_connected else "🔴 API Offline"
+    
+    st.markdown(f"""
+        <div style="position: absolute; top: 10px; right: 10px; 
+                    background-color: {'rgba(46, 204, 113, 0.2)' if api_connected else 'rgba(231, 76, 60, 0.2)'};
+                    padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+            {connection_status}
+        </div>
+    """, unsafe_allow_html=True)
 
 # BOOK ACTION CALLBACKS
 def save_book_for_later(book_title):
-    
     # Find the book in recommendations
     book_to_save = None
     new_recommendations = []
@@ -91,33 +133,9 @@ def check_api_connection():
         return response.status_code == 200
     except:
         return False
-
-def show_custom_header():
-    # Check API connection
-    api_connected = check_api_connection()
-    
-    image_path = os.path.join("assets", "book_icon.png")
-    image_base64 = get_image_base64(image_path)
-    
-    # Add API connection indicator to header
-    connection_status = "🟢 API Connected" if api_connected else "🔴 API Offline"
-    
-    st.markdown(f"""
-        <div class="app-header">
-            <div class="header-left">
-                <img src="data:image/png;base64,{image_base64}" class="header-icon"/>
-                <h2 style="color: #FFF;">Bookwise</h2>
-            </div>
-            <div class="header-right">
-                <div style="color: {'#E6E3DC' if api_connected else '#FF6B6B'}; font-size: 14px;">
-                    {connection_status}
-                </div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
         
 def main():
-    
+
     # Process any pending actions
     if "pending_action" in st.session_state and st.session_state.pending_action:
         action = st.session_state.pending_action
@@ -129,15 +147,37 @@ def main():
     # Keep load_profile() commented out for local development:
     # load_profile()
 
-    # Always show the header 
-    show_custom_header()
+    # Show API status in the corner
+    show_api_status()
 
     # STEP-BASED ONBOARDING
     if not st.session_state.profile_completed:
+        # For onboarding, we'll show a header since sidebar is hidden
+        image_path = os.path.join("assets", "book_icon.png")
+        if os.path.exists(image_path):
+            image_base64 = get_image_base64(image_path)
+            st.markdown(f"""
+                <div class="app-header">
+                    <div class="header-left">
+                        <img src="data:image/png;base64,{image_base64}" class="header-icon"/>
+                        <h2 style="color: #FFF;">Bookwise</h2>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        # Hide sidebar during onboarding
+        st.markdown("""
+        <style>
+        [data-testid="stSidebar"] {
+            display: none !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
         if "page" not in st.session_state:
             st.session_state.page = "welcome"
 
-        pages = {
+        sections = {
             "welcome": show_welcome,
             "genres": show_genres,
             "authors": show_authors,
@@ -146,70 +186,74 @@ def main():
             "completion": show_completion
         }
 
-        pages[st.session_state.page]()
+        sections[st.session_state.page]()
 
-    # TABBED INTERFACE (POST-ONBOARDING)
+    # POST-ONBOARDING INTERFACE WITH SIDEBAR
     else:
-        
-        # Show personalized welcome message with user's name
-        user_name = st.session_state.user_profile.get("name", "")
-        if user_name:
-            st.subheader(f"Welcome Back, {user_name}!")
-        else:
-            st.subheader("Welcome Back!")
-
-        # Create tab buttons 
-        tab_titles = ["Recommendations", "Profile", "Library"]
-        cols = st.columns(len(tab_titles))
-
-        # Add custom CSS for the buttons
-        st.markdown("""
-        <style>
-            div[data-testid="stHorizontalBlock"] > div[data-testid="column"] button {
-                background-color: #9C897E !important;
-                color: #F5F2EB !important; 
-                font-size: 22px !important;
-                font-weight: 800 !important;
-                padding: 12px 15px !important;
-                border-radius: 8px !important;
-                width: 100% !important;
-                text-transform: uppercase !important;
-                letter-spacing: 1px !important;
-            }
+        # Create our custom sidebar
+        # In your sidebar section
+        with st.sidebar:
+            # Add the BookWise logo/title to the sidebar
+            image_path = os.path.join("assets", "book_icon.png")
+            if os.path.exists(image_path):
+                image_base64 = get_image_base64(image_path)
+                st.markdown(f"""
+                    <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                        <img src="data:image/png;base64,{image_base64}" style="width: 60px; height: 60px; margin-right: 15px;"/>
+                        <h2 style="margin: 0; padding: 0; color: #9C897E; font-size: 28px;">BookWise</h2>
+                    </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.title("BookWise")
             
-            div[data-testid="stHorizontalBlock"] > div[data-testid="column"] button[data-testid="baseButton-secondary"]:hover {
-                background-color: #8A7A6E !important;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
-            }
+            # Show user name if available
+            user_name = st.session_state.user_profile.get("name", "")
+            if user_name:
+                st.write(f"Welcome, {user_name}!")
             
-            div[data-testid="stHorizontalBlock"] > div[data-testid="column"] button[data-testid="baseButton-primary"] {
-                background-color: #8A7A6E !important;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
-            }
-        </style>
-        """, unsafe_allow_html=True)
+            st.markdown("---")
+            
+            # Wrap buttons in the sidebar-nav class
+            st.markdown('<div class="sidebar-nav">', unsafe_allow_html=True)
+            
+            # Determine button types based on the selected tab
+            rec_type = "primary" if st.session_state.selected_tab == "Recommendations" else "secondary"
+            profile_type = "primary" if st.session_state.selected_tab == "Profile" else "secondary"
+            library_type = "primary" if st.session_state.selected_tab == "Library" else "secondary"
+            howit_type = "primary" if st.session_state.selected_tab == "How It Works" else "secondary"
+            
+            # Create the navigation buttons
+            if st.button("Recommendations", key="nav_recommendations", use_container_width=True, type=rec_type):
+                st.session_state.selected_tab = "Recommendations"
+                st.rerun()
+                
+            if st.button("Profile", key="nav_profile", use_container_width=True, type=profile_type):
+                st.session_state.selected_tab = "Profile"
+                st.rerun()
+                
+            if st.button("Library", key="nav_library", use_container_width=True, type=library_type):
+                st.session_state.selected_tab = "Library"
+                st.rerun()
 
-        # Create the Streamlit buttons normally
-        for i, title in enumerate(tab_titles):
-            with cols[i]:
-                if st.button(
-                    title, 
-                    key=f"tab_{title}",
-                    use_container_width=True,
-                    type="primary" if st.session_state.selected_tab == title else "secondary"
-                ):
-                    st.session_state.selected_tab = title
-                    st.rerun()
+            if st.button("How It Works", key="nav_howit", use_container_width=True, type=howit_type):
+                st.session_state.selected_tab = "How It Works"
+                st.rerun()
+            
+            # Close the sidebar-nav container
+            st.markdown('</div>', unsafe_allow_html=True)
         
-        # Show the selected content based on tab
+        # Main content area without the header
         selected_tab = st.session_state.selected_tab
         
+        # Show content based on selected tab
         if selected_tab == "Recommendations":
             show_recommendations()
         elif selected_tab == "Profile":
             show_profile()
         elif selected_tab == "Library":
             show_saved_for_later()
+        elif selected_tab == "How It Works":
+            show_how_it_works() 
 
 if __name__ == "__main__":
     main()

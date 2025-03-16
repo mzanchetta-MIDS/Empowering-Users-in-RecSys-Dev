@@ -4,18 +4,16 @@
   "not_interested": [],
   "name": "Benjamin",
   "genres": [
-    "Bibles",
-    "Business & Economics",
-    "Architecture"
+    "Antiques & Collectibles",
+    "Biography & Autobiography"
   ],
   "authors": [
-    "Agatha Christie",
-    "Michael Lewis"
+    "Stephen King",
+    "George R.R. Martin"
   ],
   "favorite_books": [
-    "To Kill a Mockingbird - Harper Lee",
-    "The Great Gatsby - F. Scott Fitzgerald",
-    "One Hundred Years of Solitude - Gabriel Garc\u00eda M\u00e1rquez"
+    "1984 - George Orwell",
+    "Moneyball - Michael Lewis"
   ],
-  "additional_preferences": ""
+  "additional_preferences": "e"
 }

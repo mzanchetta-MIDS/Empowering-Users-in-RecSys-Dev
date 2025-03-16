@@ -70,4 +70,3 @@ def load_profile():
             st.session_state.user_profile = json.load(f)
     else:
         initialize_user_profile()
-

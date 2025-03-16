@@ -4,10 +4,12 @@ body, .stApp {
     color: #080603;
 }
 
-/* Hide the sidebar completely */
+/* Remove the rule that completely hides the sidebar */
+/* 
 [data-testid="stSidebar"] {
     display: none;
 }
+*/
 
 .app-header {
     display: flex;
@@ -29,8 +31,8 @@ body, .stApp {
 }
 
 .header-icon {
-    width: 50px;
-    height: 50px;
+    width: 75px;
+    height: 75px;
     margin-right: 15px;
 }
 
@@ -155,53 +157,47 @@ div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="tag"] {
     color: #080603 !important;
 }
 
-
-/* Target the default state */
-.stButton > button {
-    color: #F5F2ED !important;
+/* Sidebar styling */
+[data-testid="stSidebar"] {
+    background-color: #F5F2EB !important;
+    padding: 1rem;
 }
 
-/* Target hover */
-.stButton > button:hover {
-    color: #F5F2ED !important;
-}
-
-/* Target focus */
-.stButton > button:focus {
-    color: #F5F2ED !important;
-}
-
-/* Target active/clicked */
-.stButton > button:active {
-    color: #F5F2ED !important;
-}
-
-/* Force override in all states */
-.stButton > button,
-.stButton > button:hover,
-.stButton > button:focus,
-.stButton > button:active {
-    color: #F5F2ED !important;
-}
-
-
-/* Button styling */
-button {
-    border-radius: 5px !important;
+/* Style sidebar navigation buttons distinctly from other buttons */
+.sidebar-nav .stButton > button {
+    background-color: #9C897E !important;
+    color: white !important;
+    font-weight: 500 !important;
     border: none !important;
-    cursor: pointer;
-    transition: 0.3s;
+    border-radius: 5px !important;
+    padding: 10px 15px !important;
+    text-align: center !important;
+    font-size: 16px !important;
+    width: 100% !important;
+    margin: 8px 0 !important;
 }
 
-/* st.button is full width and block-level. */
+.sidebar-nav .stButton button[data-testid="baseButton-primary"] {
+    background-color: #EC5A53 !important; /* Change to red */
+    color: white !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+/* General button styling for all other buttons */
 .stButton > button {
     width: 100% !important;
     margin: 4px 0 !important;
     font-size: 16px !important;
     font-weight: 600 !important;
     background-color: #9C897E !important; 
-    color: #F5F2ED !important;
+    color: #FFFFFF !important; /* <-- Force pure white text */
+    border-radius: 5px !important;
+    border: none !important;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
+
 
 /* Button hover effect */
 .stButton > button:hover {
@@ -269,12 +265,30 @@ button[data-baseweb="tab"][aria-selected="true"] {
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     border: 1px solid #080603 !important;
 
-    /* Force a fixed or minimum height so they align */
-    min-height: 600px; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: space-between;
+    /* Fixed height + always show vertical scrollbar */
+    height: 500px;          /* or whatever fixed size you want */
+    overflow-y: scroll;     
 }
+
+/* For Chrome/Edge/Safari: style the scrollbar track & thumb */
+.recommendation-card::-webkit-scrollbar {
+    width: 12px;           /* make it wide enough to be noticeable */
+}
+.recommendation-card::-webkit-scrollbar-track {
+    background: #E6E3DC;    /* track color */
+}
+.recommendation-card::-webkit-scrollbar-thumb {
+    background-color: #9C897E; 
+    border-radius: 6px;
+    border: 2px solid #E6E3DC; /* creates a small gap around thumb */
+}
+
+/* For Firefox (using scrollbar-color and scrollbar-width) */
+.recommendation-card {
+    scrollbar-color: #9C897E #E6E3DC; /* thumb track */
+    scrollbar-width: auto; /* or 'thin' */
+}
+
 
 /* Inside each card, wrap text in a container that can scroll. */
 .card-content {
@@ -357,31 +371,12 @@ div.stAlert {
     background-color: #E6E3DC;
 }
 
-/* Make tab buttons much more prominent */
-button[key^="tab_"] {
-    background-color: #9C897E !important;
-    color: #F5F2EB !important; 
-    font-size: 22px !important;
-    font-weight: 800 !important; 
-    padding: 12px 15px !important;
-    border-radius: 8px !important;
-    height: auto !important;
-    min-height: 60px !important;
-    text-transform: uppercase !important; 
-    letter-spacing: 1px !important; /* Improves readability of uppercase text */
+/* Make BookWise logo in sidebar larger */
+[data-testid="stSidebar"] img {
+    width: 60px !important;
+    height: 60px !important;
 }
 
-button[key^="tab_"]:hover {
-    background-color: #8A7A6E !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
-}
-
-/* Specific styles for the navigation tabs */
-button[key="tab_Recommendations"],
-button[key="tab_Profile"], 
-button[key="tab_Library"] {
-    font-size: 22px !important;
-    font-weight: 800 !important;
-    margin-bottom: 20px !important;
-    text-transform: uppercase !important;
+[data-testid="stSidebar"] h2 {
+    font-size: 28px !important;
 }

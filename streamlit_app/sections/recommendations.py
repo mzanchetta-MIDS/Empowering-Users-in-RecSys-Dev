@@ -128,7 +128,7 @@ def show_recommendations():
                     st.rerun()
 
                 # Two columns: first for the label, second for the star widget
-                col_label, col_stars = st.columns([1.36, 1])  
+                col_label, col_stars = st.columns([1.1, 1])  
 
                 with col_label:
                     st.markdown("""
