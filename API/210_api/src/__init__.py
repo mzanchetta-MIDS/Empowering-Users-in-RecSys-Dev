@@ -1,2 +1,2 @@
-from .small_recommend import small_recommend
 from .recommend import recommend
+from .stringLookup import string_lookup

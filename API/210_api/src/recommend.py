@@ -32,12 +32,16 @@ def recommend(user_embedding, filter=filter, top_k=10, path='embeddings/book_emb
     
     if os.path.exists("src/static/full_book_embeddings.pkl"):
         full_book_embeddings = pd.read_pickle('src/static/full_book_embeddings.pkl')
-        print("File exists at src/static/book_embeddings.pkl")
+        #print("File exists at src/static/book_embeddings.pkl")
     else:
         full_book_embeddings = load_book_embeddings(s3_bucket, aws_book_embeddings_path, aws_books_df_path)
    
     # Apply filtering logic
     full_book_embeddings_copy = full_book_embeddings.copy()
+    
+    #print(f"full_book_embeddings_copy.head():\n{full_book_embeddings_copy.head()}")
+    
+    #print(f"filter: {filter}")
     
     # Apply 'keep' filters
     for key, value_set in filter.get('keep', {}).items():

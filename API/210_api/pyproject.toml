@@ -16,6 +16,7 @@ logging = "^0.4.9.6"
 boto3 = "^1.37.13"
 sagemaker = "^2.242.0"
 
+
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"
 ruff = "^0.4.3"
