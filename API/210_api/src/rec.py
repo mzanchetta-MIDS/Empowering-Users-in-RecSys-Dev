@@ -3,20 +3,12 @@ from fastapi import FastAPI, status, Request
 from fastapi.responses import JSONResponse
 from datetime import datetime
 import joblib
-#import numpy as np
 from datetime import datetime
 
 from typing import List, Dict, Any, Optional
 import json
 
-# load the rec model
-#rec_model = joblib.load('rec_model.pkl')
-
-# load the LLM model
-#llm_model = joblib.load('llm_model.pkl')
-
 rec = FastAPI()
-
 
 class GenreResponse(BaseModel):
     genres: List[str]
@@ -134,13 +126,10 @@ async def get_books():
 ]
     return {"books": books}
 
-# Update the endpoint to accept the new format
 @rec.post("/users/profile")
 async def update_user_profile(data: RecModelRequest):
     print("\n----- RECEIVED PROFILE UPDATE IN NEW FORMAT -----")
-    # Fix: use model_dump_json instead of json() with kwargs
     print(data.model_dump_json(indent=2))
-    # Alternatively, you can use: print(json.dumps(data.model_dump(), indent=2))
     print("-----------------------------------\n")
     return {"message": "Profile updated successfully"}
 
@@ -148,7 +137,6 @@ async def update_user_profile(data: RecModelRequest):
 @rec.post("/recommendations")
 async def get_recommendations(profile: UserProfile):
     # Hard-coded recommendations for now
-    # In a real implementation, this would use a recommendation model
     recommendations = [
     {
         "id": "book-001",

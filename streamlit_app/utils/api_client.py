@@ -27,7 +27,7 @@ def transform_profile_for_recommendation_api(user_profile):
                 "disliked_authors": [],
                 "additional_preferences": user_profile.get("additional_preferences", ""),
                 
-                # Fields we're ignoring but including for completeness
+                # Fields to ignore but including for completeness
                 "authors": 0,
                 "categories": 0,
                 "description": 0,
