@@ -3,6 +3,7 @@ import os
 import base64
 
 # Import your page modules
+from sections.landing import show_landing
 from sections.welcome import show_welcome
 from sections.genres import show_genres
 from sections.authors import show_authors
@@ -38,7 +39,7 @@ initialize_session_state()
 
 # PAGE CONFIG
 st.set_page_config(
-    page_title="Bookwise.ai",
+    page_title="BookWise.ai",
     page_icon="assets/book_icon.png",
     layout="wide",
     initial_sidebar_state="collapsed" if not st.session_state.profile_completed else "expanded"
@@ -61,7 +62,7 @@ st.markdown("""
 <style>
 /* Target all sidebar navigation buttons */
 [data-testid="stSidebar"] [data-testid="baseButton-secondary"] {
-    background-color: #9C897E !important;
+    background-color: #4e7694 !important;
     color: white !important;
     border: none !important;
     font-weight: 500 !important;
@@ -69,7 +70,7 @@ st.markdown("""
 
 /* Make the active button red */
 [data-testid="stSidebar"] [data-testid="baseButton-primary"] {
-    background-color: #EC5A53 !important;
+    background-color: #4e7694 !important;
     color: white !important;
     font-weight: 600 !important;
     border: none !important;
@@ -160,7 +161,7 @@ def main():
                 <div class="app-header">
                     <div class="header-left">
                         <img src="data:image/png;base64,{image_base64}" class="header-icon"/>
-                        <h2 style="color: #FFF;">Bookwise</h2>
+                        <h2 style="color: #FFF;">BookWise</h2>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
@@ -175,9 +176,10 @@ def main():
         """, unsafe_allow_html=True)
         
         if "page" not in st.session_state:
-            st.session_state.page = "welcome"
+            st.session_state.page = "landing"  # Start with landing page instead of welcome
 
         sections = {
+            "landing": show_landing,  # Add landing page to sections
             "welcome": show_welcome,
             "genres": show_genres,
             "authors": show_authors,
@@ -190,10 +192,8 @@ def main():
 
     # POST-ONBOARDING INTERFACE WITH SIDEBAR
     else:
-        # Create our custom sidebar
-        # In your sidebar section
+        # Sidebar 
         with st.sidebar:
-            # Add the BookWise logo/title to the sidebar
             image_path = os.path.join("assets", "book_icon.png")
             if os.path.exists(image_path):
                 image_base64 = get_image_base64(image_path)

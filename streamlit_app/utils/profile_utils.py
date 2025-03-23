@@ -17,16 +17,38 @@ def initialize_user_profile():
     if "user_profile" not in st.session_state:
         st.session_state.user_profile = {
             "genres": [],
+            "disliked_genres": [],
+            "genre_preferences": {},  
             "authors": [],
             "favorite_books": []
         }
 
-def save_genres(selected_genres, other_genre=""):
+def save_genres(selected_genres, disliked_genres=""):
     """
-    Saves the selected genres and any manually entered genre.
+    Saves the selected genres and disliked genres.
+    Maintains any existing genre_preferences.
     """
+    # Get current genre preferences
+    current_preferences = st.session_state.user_profile.get("genre_preferences", {})
+    
+    # Update the genres list
     st.session_state.user_profile["genres"] = selected_genres
-    save_profile()  # Persist profile changes
+    st.session_state.user_profile["disliked_genres"] = disliked_genres
+    
+    # Clean up preferences for removed genres
+    updated_preferences = {genre: pref for genre, pref in current_preferences.items() 
+                          if genre in selected_genres}
+    
+    # Ensure all selected genres have a preference (default if not specified)
+    for genre in selected_genres:
+        if genre not in updated_preferences:
+            updated_preferences[genre] = "default"
+    
+    # Save updated preferences
+    st.session_state.user_profile["genre_preferences"] = updated_preferences
+    
+    # Persist profile changes
+    save_profile()
 
 def save_authors(selected_authors):
     """

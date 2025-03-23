@@ -1,54 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap');
+
 /* Global app styling */
 body, .stApp {
     background-color: #E6E3DC;
     color: #080603;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
 }
 
-/* Remove the rule that completely hides the sidebar */
-/* 
-[data-testid="stSidebar"] {
-    display: none;
-}
-*/
-
+/* Header styling */
 .app-header {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: 15px 20px;
+    padding: 10px 40px;
     background-color: #9C897E;
-    width: 100%;
-    margin-bottom: 20px;
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    margin-top: -3rem !important;
+    padding-top: 2.5rem !important;
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 999;
+    height: 90px;
 }
 
+/* Logo positioning */
 .header-left {
     display: flex;
     align-items: center;
+    margin-left: 40px;
+    transform: translateY(-10px);
+}
+
+.header-icon {
+    width: 45px;
+    height: 45px;
+    margin-right: 15px;
+    display: flex;
+    align-self: center;
 }
 
 .header-right {
     margin-left: auto; 
 }
 
-.header-icon {
-    width: 75px;
-    height: 75px;
-    margin-right: 15px;
-}
-
-/* Custom font for header */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap'); 
-
-/* Header styling */
+/* Header text and navigation */
 .app-header h2 {
     color: #E6E3DC !important;
-    margin: 0; 
-    font-size: 48px !important; 
+    margin: 0;
+    font-size: 36px !important;
     font-weight: 700;
     font-family: 'Noto Serif', serif !important;
+    line-height: 1;
+    align-self: center;
+    display: flex;
 }
 
-/* Header navigation */
 .header-nav {
     display: flex;
     gap: 15px;
@@ -73,41 +82,50 @@ body, .stApp {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Text styling */
-p, h1, h2, h3, h4, h5, h6, span, div {
+/* Typography */
+h1, h2, h3, h4, h5, h6, span, div {
     color: #080603;
+    font-family: 'Libre Baskerville', serif !important;
+    font-weight: 700 !important;
 }
 
-/* Increase font size of question labels */
+p {
+    font-family: 'Libre Baskerville', serif !important;
+    font-weight: 400 !important;
+}
+
+/* Form elements */
 div.stTextInput label, div.stMultiSelect label, div.stTextArea label {
     font-size: 18px !important;
     font-weight: 500;
     color: #080603 !important;
 }
 
-/* Increase size of regular text */
 .stMarkdown div {
     font-size: 18px !important;
     color: #080603 !important;
 }
 
-/* Style for multiselect tags and dropdown */
+h1, .stMarkdown h1 {
+    margin-top: 30px !important;
+    margin-bottom: 20px !important;
+}
+
 div[data-baseweb="select"] {
     background-color: #F5F2EB;
     border-color: #9C897E !important;
 }
 
 div[data-baseweb="tag"] {
-    background-color: #9C897E !important;
+    background-color: #4e7694 !important; 
     border: none !important;
     border-radius: 4px !important;
 }
 
 div[data-baseweb="tag"]:hover {
-    background-color: #8A7A6E !important;
+    background-color: #8A7A6E !important; 
 }
 
-/* Style for tag text and close button */
 div[data-baseweb="tag"] span {
     color: #E6E3DC !important;
 }
@@ -116,40 +134,35 @@ div[data-baseweb="tag"] button {
     color: #E6E3DC !important;
 }
 
-/* Style for the multiselect dropdown */
 div[role="listbox"] {
     background-color: #F5F2EB !important;
     border-color: #9C897E !important;
 }
 
-/* Style for dropdown options */
 div[role="option"] {
     background-color: #F5F2EB !important;
     color: #080603 !important;
 }
 
 div[role="option"]:hover {
-    background-color: #9C897E !important;
+    background-color: #8A7A6E !important; 
     color: #E6E3DC !important;
 }
 
-/* Style for selected options in dropdown */
 div[aria-selected="true"] {
-    background-color: #9C897E !important;
+    background-color: #4e7694 !important; 
     color: #E6E3DC !important;
 }
 
-/* Multiselect options are also larger */
 .stMultiSelect div[role="option"] {
     font-size: 18px !important;
 }
 
-/* Make user inputs larger */
+/* Input fields */
 div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="tag"] {
     font-size: 16px !important;
 }
 
-/* Increase text input and text area font sizes */
 .stTextInput input, .stTextArea textarea {
     font-size: 18px !important;
     background-color: #F5F2EB !important;
@@ -163,7 +176,6 @@ div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="tag"] {
     padding: 1rem;
 }
 
-/* Style sidebar navigation buttons distinctly from other buttons */
 .sidebar-nav .stButton > button {
     background-color: #9C897E !important;
     color: white !important;
@@ -178,33 +190,53 @@ div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="tag"] {
 }
 
 .sidebar-nav .stButton button[data-testid="baseButton-primary"] {
-    background-color: #EC5A53 !important; /* Change to red */
+    background-color: #4e7694 !important; 
     color: white !important;
     font-weight: 600 !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 
-/* General button styling for all other buttons */
-.stButton > button {
+/* General button styling */
+.stButton > button:not([id*="landing"]) {
     width: 100% !important;
     margin: 4px 0 !important;
-    font-size: 16px !important;
+    font-size: 18px !important;
     font-weight: 600 !important;
     background-color: #9C897E !important; 
-    color: #FFFFFF !important; /* <-- Force pure white text */
+    color: #FFFFFF !important;
     border-radius: 5px !important;
     border: none !important;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
+/* Landing page button */
+.stButton > button[id*="landing"] {
+    background-color: #4e7694 !important; 
+    color: white !important;
+    font-size: 36px !important;
+    font-weight: 600 !important;
+    padding: 16px 32px !important;
+    border-radius: 50px !important;
+    border: none !important;
+    width: 100% !important;
+    margin: 20px 0 !important;
+}
+
+.stButton > button,
+button[data-testid="baseButton-primary"],
+button[data-testid="baseButton-secondary"],
+[data-testid="stFormSubmitButton"] > button {
+    font-size: 18px !important;
+}
+
 
 /* Button hover effect */
 .stButton > button:hover {
-    background-color: #8A7A6E !important;
+    background-color: #8A7A6E !important; 
 }
 
-/* Make tab buttons much more prominent */
+/* Tab styling */
 .tab-button {
     font-size: 28px !important; 
     font-weight: 700 !important;
@@ -217,11 +249,10 @@ div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="tag"] {
 }
 
 .tab-button[type="primary"] {
-    background-color: #8A7A6E !important;
+    background-color: #4e7694 !important; 
     box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
 }
 
-/* Style the tab buttons */
 button[data-baseweb="tab"] {
     background-color: #E6E3DC !important;
     color: #080603 !important;
@@ -229,19 +260,11 @@ button[data-baseweb="tab"] {
 }
 
 button[data-baseweb="tab"][aria-selected="true"] {
-    background-color: #9C897E !important;
+    background-color: #4e7694 !important;
     color: #E6E3DC !important;
 }
 
-/* More consistent spacing overall */
-.book-action-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-top: 5px;
-}
-
-/* Make all form submit buttons bronze */
+/* Form buttons */
 [data-testid="stFormSubmitButton"] > button {
     background-color: #9C897E !important;
     color: #E6E3DC !important;
@@ -252,11 +275,11 @@ button[data-baseweb="tab"][aria-selected="true"] {
     margin-top: 10px !important;
 }
 
-/* Form submit button hover effect */
 [data-testid="stFormSubmitButton"] > button:hover {
-    background-color: #8A7A6E !important;
+    background-color: #8A7A6E !important; 
 }
 
+/* Book card styling */
 .recommendation-card {
     background-color: #F5F2EB;
     border-radius: 10px;
@@ -264,64 +287,37 @@ button[data-baseweb="tab"][aria-selected="true"] {
     margin: 10px 0;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     border: 1px solid #080603 !important;
-
-    /* Fixed height + always show vertical scrollbar */
-    height: 500px;          /* or whatever fixed size you want */
-    overflow-y: scroll;     
+    height: 500px;
+    overflow-y: scroll;
+    scrollbar-color: #9C897E #E6E3DC; 
+    scrollbar-width: auto;
 }
 
-/* For Chrome/Edge/Safari: style the scrollbar track & thumb */
 .recommendation-card::-webkit-scrollbar {
-    width: 12px;           /* make it wide enough to be noticeable */
+    width: 12px;
 }
+
 .recommendation-card::-webkit-scrollbar-track {
-    background: #E6E3DC;    /* track color */
+    background: #E6E3DC;
 }
+
 .recommendation-card::-webkit-scrollbar-thumb {
     background-color: #9C897E; 
     border-radius: 6px;
-    border: 2px solid #E6E3DC; /* creates a small gap around thumb */
+    border: 2px solid #E6E3DC;
 }
 
-/* For Firefox (using scrollbar-color and scrollbar-width) */
-.recommendation-card {
-    scrollbar-color: #9C897E #E6E3DC; /* thumb track */
-    scrollbar-width: auto; /* or 'thin' */
-}
-
-
-/* Inside each card, wrap text in a container that can scroll. */
 .card-content {
-    flex: 1; /* Takes up remaining vertical space */
-    overflow-y: auto; /* If the text is too long, overflows */
+    flex: 1;
+    overflow-y: auto;
 }
 
-/* Book card styling */
 div[style*="background-color:#F5F2EB"] {
     margin-bottom: 10px !important;
     border: 1px solid #080603 !important;
     background-color: #F5F2EB !important;
 }
 
-/* Button groups */
-.button-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-/* Specific button styles */
-.save-btn, .read-btn, .not-interested-btn, .info-btn {
-    background-color: #9C897E;
-    color: #E6E3DC;
-}
-
-.save-btn:hover, .read-btn:hover, .not-interested-btn:hover, .info-btn:hover {
-    background-color: #8A7A6E;
-}
-
-/* Style book cards in HTML */
 div[style*="background-color:#2C2C2C"], 
 div[style*="background-color:#F5F2EB"] {
     background-color: #F5F2EB !important;
@@ -340,7 +336,22 @@ div[style*="background-color:#F5F2EB"] p {
     color: #080603 !important;
 }
 
-/* Star rating component  */
+/* Button groups */
+.book-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* Star rating component */
 .react-stars {
     color: #9C897E !important;
     margin-top: -15px;
@@ -353,13 +364,13 @@ div.st-stars {
     background-color: #E6E3DC !important;
 }
 
-/* Style expander */
+/* Expander styling */
 div.streamlit-expanderHeader {
     background-color: #9C897E !important;
     color: #E6E3DC !important;
 }
 
-/* Style info boxes */
+/* Info boxes */
 div.stAlert {
     background-color: #F5F2EB !important;
     color: #080603 !important;
@@ -369,9 +380,10 @@ div.stAlert {
 /* Override main app background */
 .main .block-container {
     background-color: #E6E3DC;
+    padding-top: 30px !important;
 }
 
-/* Make BookWise logo in sidebar larger */
+/* Sidebar logo sizing */
 [data-testid="stSidebar"] img {
     width: 60px !important;
     height: 60px !important;
@@ -380,3 +392,25 @@ div.stAlert {
 [data-testid="stSidebar"] h2 {
     font-size: 28px !important;
 }
+
+div[data-baseweb="tag"],
+div[role="option"][aria-selected="true"],
+div.stMultiSelect span[role="button"],
+.stMultiSelect [data-baseweb="tag"],
+[data-testid="stMultiSelect"] [data-baseweb="tag"] {
+    background-color: #4e7694 !important;
+    border: none !important;
+    border-radius: 4px !important;
+}
+
+div[data-baseweb="tag"] span,
+div[data-baseweb="tag"] div,
+div[data-baseweb="tag"] p,
+[data-testid="stMultiSelect"] [data-baseweb="tag"] * {
+    color: #FFFFFF !important;
+}
+
+div[data-baseweb="tag"] button {
+    color: #FFFFFF !important;
+}
+

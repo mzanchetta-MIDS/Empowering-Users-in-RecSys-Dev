@@ -93,7 +93,7 @@ def show_recommendations():
                 st.markdown(f"""
                 <div class="recommendation-card">
                     <div class="card-content">
-                        <h4 style="margin-top:5px;"><span style="color:#EC5A53;">♦</span> {rec['title']}</h4>
+                        <h4 style="margin-top:5px;"><span style="color:#4e7694;">♦</span> {rec['title']}</h4>
                         <p><strong>Author:</strong> {rec['author']}</p>
                         <p><strong>Description:</strong> {rec['description']}</p>
                         <p><strong>Why this was recommended:</strong> {rec['explanation']}</p>
@@ -133,7 +133,7 @@ def show_recommendations():
                 with col_label:
                     st.markdown("""
                         <div style="display: flex; height: 40px; align-items: center; justify-content: center; text-align: center;">
-                            <p style="margin: 0; padding: 0;">Already read it? Provide a rating:</p>
+                            <p style="margin: 0; padding: 0;">Already read it? Rate it:</p>
                         </div>
                     """, unsafe_allow_html=True)
 

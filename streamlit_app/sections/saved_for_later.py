@@ -27,7 +27,7 @@ def show_saved_for_later():
                 st.markdown(f"""
                 <div class="recommendation-card">
                     <div class="card-content">
-                        <h4 style="margin-top:5px;"><span style="color:#EC5A53;">♦</span> {book['title']}</h4>
+                        <h4 style="margin-top:5px;"><span style="color:#4e7694;">♦</span> {book['title']}</h4>
                         <p><strong>Author:</strong> {book['author']}</p>
                         <p><strong>Description:</strong> {book['description']}</p>
                         <p><strong>Why this was recommended:</strong> {book['explanation']}</p>

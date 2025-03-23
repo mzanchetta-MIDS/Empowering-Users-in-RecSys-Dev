@@ -7,15 +7,26 @@ def show_genres():
 
     default_genres = get_unique_genres()
     current_genres = st.session_state.user_profile.get("genres", [])
+    current_disliked = st.session_state.user_profile.get("disliked_genres", [])
 
     with st.form("genres_form", clear_on_submit=False):
         st.write("Choose your preferred genres from our available categories, then click to proceed.")
 
-        # Multi-select with no typed input
+        # Multi-select for liked genres
         selected_genres = st.multiselect(
             "Which genres do you enjoy reading?",
             options=default_genres,
             default=current_genres
+        )
+        
+        st.write("---")
+        
+        # Multi-select for disliked genres
+        st.write("You can also tell us about genres you'd prefer to avoid. This is optional, but helps us provide better recommendations.")
+        disliked_genres = st.multiselect(
+            "Which genres would you prefer not to see in your recommendations?",
+            options=default_genres,
+            default=current_disliked
         )
 
         # Two big form-submit buttons
@@ -27,12 +38,12 @@ def show_genres():
 
     # If the user clicked "← Back"
     if back_clicked:
-        save_genres(selected_genres, "")
+        save_genres(selected_genres, disliked_genres)
         st.session_state.page = "welcome"
         st.rerun()
 
     # If the user clicked "Next →"
     if next_clicked:
-        save_genres(selected_genres, "")
+        save_genres(selected_genres, disliked_genres)
         st.session_state.page = "authors"
         st.rerun()
