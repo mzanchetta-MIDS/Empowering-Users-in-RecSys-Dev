@@ -1,21 +1,41 @@
 {
-  "saved_for_later": [],
-  "ratings": {},
-  "not_interested": [],
-  "name": "ss",
+  "saved_for_later": [
+    {
+      "id": "book-001",
+      "title": "The Master and Margarita",
+      "author": "Mikhail Bulgakov",
+      "description": "A 50th-anniversary Deluxe Edition of the incomparable 20th-century masterpiece of satire and fantasy.  One spring afternoon, the Devil, trailing fire and chaos in his wake, weaves himself out of the shadows and into Moscow. This fantastical, funny, and devastating satire of Soviet life combines two distinct yet interwoven parts, one set in contemporary Moscow, the other in ancient Jerusalem, each brimming with historical, imaginary, frightful, and wonderful characters. Written during the darkest days of Stalin's reign, The Master and Margarita became a literary phenomenon, signaling artistic and spiritual freedom for Russians everywhere.",
+      "explanation": "This recommendation bridges your love of magical realism from Garc\u00eda M\u00e1rquez with the philosophical depth you enjoy in Rushdie's work. The novel's non-linear structure and blend of fantasy with harsh reality mirrors elements you appreciated in 'One Hundred Years of Solitude' while introducing you to a different cultural context. Based on your preference for 'books that blur the line between reality and fantasy,' this Russian classic should resonate deeply."
+    }
+  ],
+  "ratings": {
+    "Pachinko": 2,
+    "The Brief Wondrous Life of Oscar Wao": 4,
+    "A Tale for the Time Being": 5
+  },
+  "not_interested": [
+    "The Wind-Up Bird Chronicle",
+    "The Unbearable Lightness of Being"
+  ],
+  "name": "Benjamin",
   "genres": [
     "Architecture",
-    "Body, Mind & Spirit"
+    "Biography & Autobiography"
   ],
   "disliked_genres": [
-    "Bibles",
-    "Comics & Graphic Novels"
+    "Art"
   ],
   "genre_preferences": {
     "Architecture": "more",
-    "Body, Mind & Spirit": "more"
+    "Biography & Autobiography": "default"
   },
-  "authors": [],
-  "favorite_books": [],
-  "additional_preferences": ""
+  "user_id": "d908b176-6113-4f20-ace2-782f658eb659",
+  "authors": [
+    "Jane Austen",
+    "Neil Gaiman"
+  ],
+  "favorite_books": [
+    "Moneyball - Michael Lewis"
+  ],
+  "additional_preferences": "Test"
 }

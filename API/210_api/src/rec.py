@@ -40,6 +40,25 @@ class UserProfile(BaseModel):
 class RecommendationResponse(BaseModel):
     recommendations: List[Dict[str, Any]]
 
+# New model for recommendation model input format
+class RecModelInstance(BaseModel):
+    user_id: str
+    liked_books: Dict[str, int] = {}
+    disliked_books: Dict[str, int] = {}
+    liked_genres: Dict[str, float] = {}
+    disliked_genres: List[str] = []
+    liked_authors: List[str] = []
+    disliked_authors: List[str] = []
+    additional_preferences: Optional[str] = None
+    authors: int = 0
+    categories: int = 0
+    description: int = 0
+    target_book: int = 0
+    target_book_rating: int = 0
+
+class RecModelRequest(BaseModel):
+    instances: List[RecModelInstance]
+
 @rec.get("/genres", response_model=GenreResponse)
 async def get_genres():
     # Hard-coded genres for now
@@ -115,10 +134,13 @@ async def get_books():
 ]
     return {"books": books}
 
+# Update the endpoint to accept the new format
 @rec.post("/users/profile")
-async def update_user_profile(profile: UserProfile):
-    print("\n----- RECEIVED PROFILE UPDATE -----")
-    print(profile.dict())
+async def update_user_profile(data: RecModelRequest):
+    print("\n----- RECEIVED PROFILE UPDATE IN NEW FORMAT -----")
+    # Fix: use model_dump_json instead of json() with kwargs
+    print(data.model_dump_json(indent=2))
+    # Alternatively, you can use: print(json.dumps(data.model_dump(), indent=2))
     print("-----------------------------------\n")
     return {"message": "Profile updated successfully"}
 

@@ -536,11 +536,12 @@ def show_profile():
             
             st.markdown("#### Your profile is most aligned with:")
             
-            # Create two columns for the closest genres
-            col_a, col_b = st.columns(2)
+            # Instead of using columns, create a formatted HTML display
+            genre_html = '<div style="display: flex; flex-wrap: wrap;">'
             
             for i, (_, genre) in enumerate(closest_genres.iterrows()):
-                if i < 3:
-                    col_a.write(f"• **{genre['name']}**")
-                else:
-                    col_b.write(f"• **{genre['name']}**")
+                # Add each genre as a div that takes roughly half the width
+                genre_html += f'<div style="flex: 0 0 50%; margin-bottom: 8px;">• {genre["name"]}</div>'
+            
+            genre_html += '</div>'
+            st.markdown(genre_html, unsafe_allow_html=True)
