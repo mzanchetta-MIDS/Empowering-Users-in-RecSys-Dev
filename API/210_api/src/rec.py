@@ -1,14 +1,16 @@
-from pydantic import BaseModel, field_validator
-from fastapi import FastAPI, status, Request
-from fastapi.responses import JSONResponse
-from datetime import datetime
-import joblib
-from datetime import datetime
-
+from pydantic import BaseModel
+from fastapi import FastAPI
 from typing import List, Dict, Any, Optional
-import json
+import logging
+
+# Import only the necessary functions
+from src.db_utils import get_unique_genres, get_unique_authors, get_unique_books
 
 rec = FastAPI()
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class GenreResponse(BaseModel):
     genres: List[str]
@@ -52,79 +54,70 @@ class RecModelRequest(BaseModel):
     instances: List[RecModelInstance]
 
 @rec.get("/genres", response_model=GenreResponse)
-async def get_genres():
-    # Hard-coded genres for now
-    genres = ['Antiques & Collectibles', 'Architecture', 'Art', 'Bibles',
-    'Biography & Autobiography', 'Body, Mind & Spirit',
-    'Business & Economics', 'Comics & Graphic Novels', 'Computers',
-    'Cooking', 'Crafts & Hobbies', 'Design', 'Drama', 'Education',
-    'Family & Relationships', 'Fiction', 'Fiction / Literary', 
-    'Fiction / Magical Realism', 'Fiction / Historical', 'Foreign Language Study',
-    'Games & Activities', 'Gardening', 'Health & Fitness', 'History',
-    'House & Home', 'Humor', 'Juvenile Fiction', 'Juvenile Nonfiction',
-    'Language Arts & Disciplines', 'Law', 'Literary Collections',
-    'Literary Criticism', 'Mathematics', 'Medical', 'Music', 'Nature',
-    'Performing Arts', 'Pets', 'Philosophy', 'Photography', 'Poetry',
-    'Poetry / General', 'Political Science', 'Psychology', 'Reference', 
-    'Religion', 'Science', 'Self-help', 'Social Science', 
-    'Sports & Recreation', 'Study Aids', 'Technology & Engineering', 
-    'Transportation', 'Travel', 'True Crime', 'Young Adult Fiction',
-    'Young Adult Nonfiction']
-    
-    return {"genres": genres}
-
+async def get_genres_endpoint():
+    """
+    Get available book genres from the database
+    """
+    try:
+        genres = get_unique_genres()
+        if not genres:
+            # Fallback to hardcoded genres if database query fails
+            logger.warning("Using fallback hardcoded genres due to empty result from database")
+            genres = ['Fiction', 'Non-Fiction', 'Mystery', 'Fantasy',
+                      'Science Fiction', 'Romance', 'History']
+        return {"genres": genres}
+    except Exception as e:
+        logger.error(f"Error in get_genres_endpoint: {str(e)}")
+        # Fallback to hardcoded genres
+        genres = ['Fiction', 'Non-Fiction', 'Mystery', 'Fantasy',
+                  'Science Fiction', 'Romance', 'History']
+        return {"genres": genres}
 
 @rec.get("/authors", response_model=AuthorResponse)
-async def get_authors():
-    # Hard-coded authors for now
-    authors = [
-    "J.K. Rowling", "Stephen King", "Jane Austen",
-    "Agatha Christie", "Neil Gaiman", "George R.R. Martin", "Michael Lewis",
-    "Gabriel García Márquez", "Haruki Murakami", "Toni Morrison", "Salman Rushdie",
-    "Ted Chiang", "Ursula K. Le Guin", "Albert Camus", "Yuval Noah Harari",
-    "Michelle McNamara", "Talia Hibbert", "Glennon Doyle", "Erin Morgenstern",
-    "Zadie Smith", "Roxane Gay", "Marjane Satrapi", "Chimamanda Ngozi Adichie",
-    "Sally Rooney"
-]
-
-    return {"authors": authors}
+async def get_authors_endpoint():
+    """
+    Get available book authors from the database
+    """
+    try:
+        authors = get_unique_authors()
+        if not authors:
+            # Fallback to hardcoded authors if database query fails
+            logger.warning("Using fallback hardcoded authors due to empty result from database")
+            authors = ['J.K. Rowling', 'Stephen King', 'Jane Austen',
+                      'Agatha Christie', 'Neil Gaiman', 'George R.R. Martin']
+        return {"authors": authors}
+    except Exception as e:
+        logger.error(f"Error in get_authors_endpoint: {str(e)}")
+        # Fallback to hardcoded authors
+        authors = ['J.K. Rowling', 'Stephen King', 'Jane Austen',
+                  'Agatha Christie', 'Neil Gaiman', 'George R.R. Martin']
+        return {"authors": authors}
 
 @rec.get("/books", response_model=BookResponse)
-async def get_books():
-    # Hard-coded books for now
-    books = [
-   "To Kill a Mockingbird - Harper Lee",
-   "1984 - George Orwell",
-   "Pride and Prejudice - Jane Austen",
-   "The Great Gatsby - F. Scott Fitzgerald",
-   "Moby Dick - Herman Melville",
-   "Moneyball - Michael Lewis",
-   "One Hundred Years of Solitude - Gabriel García Márquez",
-   "Beloved - Toni Morrison",
-   "The Wind-Up Bird Chronicle - Haruki Murakami",
-   "Midnight's Children - Salman Rushdie",
-   "Exhalation - Ted Chiang",
-   "The Left Hand of Darkness - Ursula K. Le Guin",
-   "The Stranger - Albert Camus",
-   "Sapiens - Yuval Noah Harari",
-   "Brave New World - Aldous Huxley",
-   "Neverwhere - Neil Gaiman",
-   "I'll Be Gone in the Dark - Michelle McNamara",
-   "Get a Life, Chloe Brown - Talia Hibbert",
-   "Untamed - Glennon Doyle",
-   "The Night Circus - Erin Morgenstern",
-   "White Teeth - Zadie Smith",
-   "Bad Feminist - Roxane Gay",
-   "Persepolis - Marjane Satrapi",
-   "Americanah - Chimamanda Ngozi Adichie",
-   "Normal People - Sally Rooney",
-   "A Game of Thrones - George R.R. Martin",
-   "The Handmaid's Tale - Margaret Atwood",
-   "And Then There Were None - Agatha Christie",
-   "Harry Potter and the Sorcerer's Stone - J.K. Rowling",
-   "The Shining - Stephen King"
-]
-    return {"books": books}
+async def get_books_endpoint():
+    """
+    Get available books from the database
+    """
+    try:
+        books = get_unique_books()
+        if not books:
+            # Fallback to hardcoded books if database query fails
+            logger.warning("Using fallback hardcoded books due to empty result from database")
+            books = [
+                "To Kill a Mockingbird - Harper Lee",
+                "1984 - George Orwell",
+                "Pride and Prejudice - Jane Austen"
+            ]
+        return {"books": books}
+    except Exception as e:
+        logger.error(f"Error in get_books_endpoint: {str(e)}")
+        # Fallback to hardcoded books
+        books = [
+            "To Kill a Mockingbird - Harper Lee",
+            "1984 - George Orwell",
+            "Pride and Prejudice - Jane Austen"
+        ]
+        return {"books": books}
 
 @rec.post("/users/profile")
 async def update_user_profile(data: RecModelRequest):

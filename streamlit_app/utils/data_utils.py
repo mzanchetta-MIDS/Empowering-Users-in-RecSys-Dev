@@ -1,9 +1,14 @@
+# utils/data_utils.py
+# Instead of importing from src.db_utils, we'll use API client calls
 from utils.api_client import get_genres, get_authors, get_books, get_recommendations
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_unique_books():
     """
     Get all unique books from the API.
-    Falls back to hardcoded values if API fails.
+    Falls back to hardcoded values if API call fails.
     """
     books = get_books()
     if not books:
@@ -12,13 +17,15 @@ def get_unique_books():
             "To Kill a Mockingbird - Harper Lee",
             "1984 - George Orwell",
             "Pride and Prejudice - Jane Austen",
+            "The Great Gatsby - F. Scott Fitzgerald",
+            "Moby Dick - Herman Melville"
         ]
     return books
 
 def get_unique_genres():
     """
     Get all unique genres from the API.
-    Falls back to hardcoded values if API fails.
+    Falls back to hardcoded values if API call fails.
     """
     genres = get_genres()
     if not genres:
@@ -32,7 +39,7 @@ def get_unique_genres():
 def get_unique_authors():
     """
     Get all unique authors from the API.
-    Falls back to hardcoded values if API fails.
+    Falls back to hardcoded values if API call fails.
     """
     authors = get_authors()
     if not authors:
@@ -63,6 +70,27 @@ def get_sample_recommendations():
                     "Recommended because you enjoyed horror with strong atmospheric tension."
                 ),
             },
-            
+            {
+                "title": "Pride and Prejudice",
+                "author": "Jane Austen",
+                "description": (
+                    "The story follows the main character Elizabeth Bennet as she deals with issues "
+                    "of manners, upbringing, morality, education, and marriage."
+                ),
+                "explanation": (
+                    "Based on your interest in classic literature and romantic themes."
+                ),
+            },
+            {
+                "title": "The Fellowship of the Ring",
+                "author": "J.R.R. Tolkien",
+                "description": (
+                    "The first volume in the epic adventure of Frodo Baggins and the Fellowship "
+                    "on their quest to destroy the One Ring."
+                ),
+                "explanation": (
+                    "You indicated an interest in fantasy worlds with rich storytelling."
+                ),
+            }
         ]
     return recommendations
