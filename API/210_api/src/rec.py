@@ -121,8 +121,8 @@ async def recommended(user):
     # print(f'User Type: {type(user)}\n')
     # if no filter is provided, set to empty
 
-    filter = {'keep': {'title': set(), 'authors': set(), 'categories': set()},
-        'remove': {'title': set(), 'authors': set(), 'categories': set([])}}
+    filter = {'keep': {'title': set(), 'author': set(), 'genre_consolidated': set()},
+        'remove': {'title': set(), 'author': set(), 'genre_consolidated': set([])}}
     
     user_json = json.loads(json.loads(user))
     
@@ -133,9 +133,16 @@ async def recommended(user):
     # Initialize filter_info dictionary
     filter_info = {}
     # Loop through the keys in the user_json dictionary
-    for key in ['keep_title', 'keep_authors', 'keep_categories', 'remove_title', 'remove_authors', 'remove_categories']:
+    for key in ['keep_title', 'keep_author', 'keep_genre_consolidated', 'remove_title', 'remove_author', 'remove_genre_consolidated']:
         
-        action, col = key.split("_")
+        temp = key.split("_")
+        
+        if len(temp) == 2:
+            action, col = temp
+        elif len(temp) == 3:
+            action, col_1, col_2 = temp
+            
+            col = col_1 + "_" + col_2
         
         if action not in filter_info:
             filter_info[action] = {}
@@ -181,9 +188,9 @@ async def recommended(user):
     model_request = requests.post('https://f1bfm11ckf.execute-api.us-east-1.amazonaws.com/dev', json=user_input)
 
     model_return = json.loads(model_request.text)
-    # print(f'Test: {test}')
+    print(f'model_returns: {model_return}')
     model_body = json.loads(model_return["body"])
-    # print(f'Test: {tset}')
+    print(f'model_body: {model_body}')
     user_embedding = model_body["result"]["predictions"][0] # Our User Embedding
 
     recommendation = recommend(user_embedding, filter_info)

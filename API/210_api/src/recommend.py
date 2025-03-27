@@ -38,6 +38,7 @@ def recommend(user_embedding, filter=filter, top_k=10, path='embeddings/book_emb
    
     # Apply filtering logic
     full_book_embeddings_copy = full_book_embeddings.copy()
+    print(f"full_book_embeddings_copy columns: {full_book_embeddings_copy.columns}")
     
     #print(f"full_book_embeddings_copy.head():\n{full_book_embeddings_copy.head()}")
     
@@ -68,4 +69,4 @@ def recommend(user_embedding, filter=filter, top_k=10, path='embeddings/book_emb
     # Get Top-K Recommendations
     recommendations = full_book_embeddings_copy.sort_values(by='similarity', ascending=False).head(top_k)
 
-    return recommendations[['title', 'authors', 'categories', 'similarity']]
+    return recommendations[['title', 'author', 'genre_consolidated', 'similarity']]
