@@ -176,11 +176,58 @@ async def recommended(user):
             for val in vals:
                 encoded_vals.append(encoder.get(val,0))
                 
+            encoded_vals.extend([0]*(20 - len(encoded_vals)))
+                
             user_json["instances"][0][key] = encoded_vals
     
-    # print(f"Encoded User JSON: {user_json}")
+    print("Santity Check")
+    print(f"user_json['instances'][0]['user_id']: {user_json['instances'][0]['user_id'] }\n")
+    
+    # Adjusting the user_id to not be in an array
+    user_json["instances"][0]['user_id'] = user_json["instances"][0]['user_id'][0]
+
+    # Adjusting the extra book info to be wrapped in lists
+    user_json["instances"][0]['categories'] = [user_json["instances"][0]['categories']]
+    user_json["instances"][0]['description'] = [user_json["instances"][0]['description']]
+    user_json["instances"][0]['target_book'] = [user_json["instances"][0]['target_book']]
+    user_json["instances"][0]['target_book_rating'] = [user_json["instances"][0]['target_book_rating']]
+    
+    # Adjust the lengths of the liked/disliked_ratings to be 20
+    user_json["instances"][0]['liked_ratings'].extend([0]*(20 - len(user_json["instances"][0]['liked_ratings'])))
+    user_json["instances"][0]['disliked_ratings'].extend([0]*(20 - len(user_json["instances"][0]['disliked_ratings'])))
+    
+    # print(f"Encoded User JSON: {user_json}\n")
     
     user_input = json.dumps(user_json)
+    
+    print(f'User Input: {user_input}\n')
+    
+    
+    # payload = {
+    #     "instances": [
+    #         {
+    #             "authors": 0,
+    #             "user_id": 4,
+    #             "liked_books": [15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             "disliked_books": [55, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             "liked_genres": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             "disliked_genres": [50, 41, 93, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             "liked_authors": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             "disliked_authors": [37, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             "liked_ratings": [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             "disliked_ratings": [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             "categories": [0],
+    #             "description": [0],
+    #             "target_book": [0],
+    #             "target_book_rating": [0]
+    #         }
+    #     ]
+    # }
+    
+    # payload = json.dumps(payload)
+    
+    # print(f"Payload: {payload}\n")
+    
     # filter = user_json["filter"]
     # print(f'Filter: {filter}')
     #myJSON = json.dumps(user_json)
