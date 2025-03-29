@@ -69,4 +69,4 @@ def recommend(user_embedding, filter=filter, top_k=10, path='embeddings/book_emb
     # Get Top-K Recommendations
     recommendations = full_book_embeddings_copy.sort_values(by='similarity', ascending=False).head(top_k)
 
-    return recommendations[['title', 'author', 'genre_consolidated', 'similarity']]
+    return recommendations[['title', 'similarity']]
