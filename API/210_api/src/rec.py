@@ -125,8 +125,14 @@ async def recommended(user):
 
     filter = {'keep': {'title': set(), 'author': set(), 'genre_consolidated': set()},
         'remove': {'title': set(), 'author': set(), 'genre_consolidated': set([])}}
-    print(f"User Input: {user}\n")
-    user_json = json.loads(json.loads(user))
+    try:
+        print(f"User Input: {user}\n")
+        user_json = json.loads(json.loads(user))
+        print(f"TWO JSON work!!\n")
+    except:
+        user_json = json.loads(user)
+        print(f"One JSON Work!!\n")
+      #  print(f"Error decoding JSON: {e}\n")
     print(f"User Input JSON: {user_json}\n")
     # print(type(user_json)) # Debugging
     # print(f'User JSON: {user_json}') # Debugging

@@ -15,7 +15,7 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 
-def recommend(user_embedding, filter=filter, top_k=10, path='embeddings/book_embeddings.npy'):
+def recommend(user_embedding, filter=filter, top_k=6, path='embeddings/book_embeddings.npy'):
     """
     Recommend top_k books based on cosine similarity using book embeddings.
     :param filter: Dictionary with 'keep' and 'remove' filters.
