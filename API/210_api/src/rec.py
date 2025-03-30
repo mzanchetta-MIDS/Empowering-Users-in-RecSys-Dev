@@ -119,6 +119,27 @@ async def get_books_endpoint():
         ]
         return {"books": books}
 
+
+@rec.get("/genres/embeddings")
+async def get_genre_embeddings_endpoint():
+    """
+    Get genre embeddings for visualization
+    """
+    try:
+        embeddings_df = get_genre_embeddings()
+        
+        if not embeddings_df.empty:
+            # Convert DataFrame to list of dictionaries
+            embeddings = embeddings_df.to_dict(orient='records')
+            return {"embeddings": embeddings}
+        else:
+            # Return empty list if no embeddings found
+            return {"embeddings": []}
+    except Exception as e:
+        logger.error(f"Error in get_genre_embeddings_endpoint: {str(e)}")
+        return {"embeddings": [], "error": str(e)}
+
+
 @rec.post("/users/profile")
 async def update_user_profile(data: RecModelRequest):
     print("\n----- RECEIVED PROFILE UPDATE IN NEW FORMAT -----")

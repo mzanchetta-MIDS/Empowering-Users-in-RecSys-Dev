@@ -1,5 +1,6 @@
 # Streamlit dependencies
 streamlit
+streamlit_extras
 st-star-rating
 
 # Data processing and viz 
