@@ -1,21 +1,18 @@
 import boto3
 import json
-import utils
-from utils import fetch_books_data
+import explainbot.utils
+from explainbot.utils import fetch_books_data, MODEL_NAME
 
 class ExplainBot:
     def __init__(self, model_name="meta.llama3-1-8b-instruct-v1:0"):
         """
         Initialize the ChatBot with AWS Bedrock
         """
-        self.model_name = utils.MODEL_NAME
+        self.model_name = explainbot.utils.MODEL_NAME
 
         # Initialize AWS Bedrock client
         self.bedrock_runtime = boto3.client(
-            service_name="bedrock-runtime",
-            region_name="us-east-1",
-            aws_access_key_id=utils.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=utils.AWS_SECRET_ACCESS_KEY,
+            service_name="bedrock-runtime"
         )
         self.books_df = fetch_books_data()
 

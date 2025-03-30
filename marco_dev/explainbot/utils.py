@@ -4,8 +4,7 @@ import pandas as pd
 
 # LLM Params
 MODEL_NAME = "mistral.mistral-7b-instruct-v0:2"
-AWS_ACCESS_KEY_ID='AKIAVNMWFXLUQGG7LNFL'
-AWS_SECRET_ACCESS_KEY='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'
+
 
 # SQL Params
 DB_CONFIG = {
