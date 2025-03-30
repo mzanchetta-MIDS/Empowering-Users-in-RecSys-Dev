@@ -4,23 +4,18 @@
   "not_interested": [],
   "name": "Benjamin",
   "genres": [
-    "Drama / General",
-    "Drama / Shakespeare",
-    "Fiction / Anthologies",
-    "Fiction / Biographical"
+    "Art / General",
+    "Biography & Autobiography / Personal Memoirs",
+    "Biography & Autobiography / General"
   ],
-  "disliked_genres": [
-    "Bibles / General"
-  ],
+  "disliked_genres": [],
   "genre_preferences": {
-    "Drama / General": "default",
-    "Drama / Shakespeare": "default",
-    "Fiction / Anthologies": "default",
-    "Fiction / Biographical": "default"
+    "Art / General": "keep",
+    "Biography & Autobiography / Personal Memoirs": "keep",
+    "Biography & Autobiography / General": "keep"
   },
-  "user_id": "ac19e195-8275-4e62-804b-919240698a4c",
-  "authors": [
-    "Lemony Snicket",
-    "Michael Lewis"
-  ]
+  "user_id": "f89d089b-251c-475a-9ed7-13f1bd986593",
+  "authors": [],
+  "favorite_books": [],
+  "additional_preferences": ""
 }

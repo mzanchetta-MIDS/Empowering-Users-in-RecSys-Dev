@@ -36,7 +36,7 @@ def show_saved_for_later():
                 """, unsafe_allow_html=True)
 
                 # Show star rating for "Read it?"
-                st.write("✓ Read it? Provide a rating:")
+                st.write("Already read it? Rate it:")
                 rating = st_star_rating(
                     label="",
                     maxValue=5,

@@ -3,17 +3,19 @@ import streamlit as st
 import json
 import numpy as np
 import pandas as pd
+import logging 
 import plotly.graph_objects as go
 from utils.profile_utils import save_profile
-from utils.data_utils import get_unique_genres, get_unique_authors, get_unique_books
+from utils.data_utils import get_unique_genres, get_unique_authors, get_unique_books, get_genre_embeddings
+from streamlit_extras.stylable_container import stylable_container
 
 def create_profile_visualization(profile):
-    """Create a 3D visualization using pre-calculated coordinates"""
-    # In production, these will change 
-    
+    """Create a 3D visualization using genre embeddings from database"""
+
     # Get user's selected genres
     user_genres = profile.get("genres", [])
     
+    # Base genres for fallback
     base_genre_names = [
         "Fantasy", "Science Fiction", "Mystery", "Romance", "Historical Fiction",
         "Literary Fiction", "Thriller", "Horror", "Biography", "Self Help",
@@ -25,6 +27,49 @@ def create_profile_visualization(profile):
         "Satire", "Comedy", "Tragedy", "Mythology", "Folklore"
     ]
     
+    # Try to fetch genre embeddings from API
+    try:
+        # Get embeddings from the API
+        response = get_genre_embeddings()
+        
+        if response and "embeddings" in response and response["embeddings"]:
+            # Create genre coordinates dictionary from API response
+            genre_coords = {}
+            all_db_genres = []
+            
+            for item in response["embeddings"]:
+                genre = item["genre_name"]
+                coords = np.array([item["embedding_x"], item["embedding_y"], item["embedding_z"]])
+                genre_coords[genre] = coords
+                all_db_genres.append(genre)
+                
+            logging.info(f"Successfully loaded {len(genre_coords)} genre embeddings from API")
+            using_db_data = True
+        else:
+            logging.warning("No genre embeddings found in API response, falling back to notional data")
+            using_db_data = False
+    except Exception as e:
+        logging.error(f"Error fetching genre embeddings from API: {str(e)}")
+        using_db_data = False
+    
+    # Fallback to notional data if API fetch failed
+    if not using_db_data:
+        logging.info("Using notional genre embeddings")
+        
+        # Create notional 3D coordinates for each genre
+        np.random.seed(42)
+        
+        # Generate consistent random coordinates for each genre
+        genre_coords = {}
+        for genre in base_genre_names:
+            hash_val = hash(genre) % 10000
+            np.random.seed(hash_val)
+            genre_coords[genre] = np.random.normal(0, 1, 3)
+        
+        # Use base genres as the full list when using notional data
+        all_db_genres = base_genre_names
+    
+    # Compile the final list of genres to visualize
     all_genres = []
     
     # Add user genres first
@@ -32,25 +77,15 @@ def create_profile_visualization(profile):
         if genre not in all_genres:
             all_genres.append(genre)
     
-    # Add base genres
-    for genre in base_genre_names:
+    # Add remaining genres from database or base list
+    for genre in all_db_genres:
         if genre not in all_genres:
             all_genres.append(genre)
     
     # Limit to 100 genres total for better visualization performance
     all_genres = all_genres[:100]
     
-    # Create notional 3D coordinates for each genre
-    np.random.seed(42)  
-    
-    # Generate consistent random coordinates for each genre
-    genre_coords = {}
-    for genre in base_genre_names:
-        hash_val = hash(genre) % 10000
-        np.random.seed(hash_val)
-        genre_coords[genre] = np.random.normal(0, 1, 3)
-    
-    # For any user genres not in our base list, create random coordinates
+    # For any user genres not in our dictionary, create random coordinates
     for genre in user_genres:
         if genre not in genre_coords:
             hash_val = hash(genre) % 10000
@@ -73,7 +108,7 @@ def create_profile_visualization(profile):
     # Create a DataFrame
     df = pd.DataFrame(genres_data)
     
-    # In production, this will come from model
+    # Will replace with model results later 
     if user_genres:
         # Calculate user position as average of selected genres
         user_genres_coords = np.array([genre_coords[g] for g in user_genres if g in genre_coords])
@@ -99,7 +134,7 @@ def create_profile_visualization(profile):
     colors = []
     for _, row in df.iterrows():
         if row['type'] == 'User Profile':
-            colors.append('#4e7694')  # User profile in red
+            colors.append('#4e7694')  # User profile in blue
         elif row['is_selected']:
             colors.append('#9C897E')  # Selected genres in brown
         else:
@@ -156,6 +191,9 @@ def create_profile_visualization(profile):
     
     return fig, df
 
+
+###########
+
 def show_profile():
     st.subheader("Your Reading Profile")
     
@@ -176,152 +214,139 @@ def show_profile():
     if "edit_preferences" not in st.session_state:
         st.session_state.edit_preferences = False
     
+    # Font-awesome link and icon styles remain the same
     st.markdown("""
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-    .streamlit-expanderHeader {
-        background-color: #9C897E !important;
-        color: white !important;
-        font-weight: 500 !important;
-        border-radius: 5px !important;
-        padding: 12px 15px !important;
-        font-size: 1.2em !important;
-        margin-bottom: 5px !important;
+    .profile-icon {
+        color: #4e7694 !important;
+        font-size: 22px !important;
+        margin-top: 8px !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        height: 32px !important;
     }
-    
-    .streamlit-expanderContent {
-        background-color: #F5F2EB !important;
-        border: 1px solid #E6E3DC !important;
-        border-top: none !important;
-        border-radius: 0 0 5px 5px !important;
-        padding: 20px !important;
-        font-size: 1.1em !important;
-        margin-bottom: 15px !important;
-    }
-    
-    .column-header {
-        font-size: 1.5em;
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #080603;
-    }
-    
-    .column-subtext {
-        font-size: 1.1em;
-        margin-bottom: 20px;
-        color: #555;
-    }
-    
-    /* Ensure list items are larger too */
-    .streamlit-expanderContent li,
-    .streamlit-expanderContent p {
-        font-size: 1.1em !important;
-        line-height: 1.6 !important;
-        margin-bottom: 8px !important;
-    }
-    
-    /* Add spacing between columns */
-    .spacer {
-        margin: 0 15px;
+    /* Icon styling with more specific selectors */
+    .book-icon i, .thumbs-down-icon i, .user-icon i, .bookmark-icon i, 
+    .cog-icon i, .star-icon i, .ban-icon i, .code-icon i {
+        color: #4e7694 !important;
+        font-size: 24px !important;
     }
     </style>
     """, unsafe_allow_html=True)
     
-    # Create two columns layout with specific width ratio 
-    col1, spacer, col2 = st.columns([1, 0.1, 2])
-    
-    # Left column: Preferences
-    with col1:
+    # Create two permanent columns for the entire page layout
+    left_col, spacer_col, right_col = st.columns([1, 0.05, 1.2])
+
+    # LEFT COLUMN: Preferences
+    with left_col:
         st.markdown("### Your Preferences")
+        st.markdown("""
+        <div style="background-color: #e8f4f8; padding: 10px; border-left: 4px solid #4e7694; margin-bottom: 15px;">
+            <p style="margin: 0;"><strong>💡 Tip:</strong> You can pause selections from your favorite genres to temporarily exclude them from your recommendations.</p>
+        </div>
+        """, unsafe_allow_html=True)
         st.write("Click each attribute below to view and edit your preferences.")
         
         # Favorite Genres Section with preference controls
-        with st.expander("Favorite Genres"):
-            if not st.session_state.edit_genres:
-                if st.button("✏️ Edit Genres & Frequency", key="edit_genres_btn"):
-                    st.session_state.edit_genres = True
-                    st.rerun()
-                
-                # Display current genres with preference level
-                if profile.get("genres"):
-                    # Get genre preferences dictionary
+        col1, col2 = st.columns([0.07, 0.93])
+
+        with col1:
+            st.markdown('<div class="icon-container bookmark-icon"><i class="fas fa-bookmark"></i></div>', unsafe_allow_html=True)
+
+        with col2:
+            with st.expander("Favorite Genres"):
+                if not st.session_state.edit_genres:
+                    if st.button("✏️ Edit or Pause Genres", key="edit_genres_btn"):
+                        st.session_state.edit_genres = True
+                        st.rerun()
+                    
+                    # Display current genres with preference level
+                    if profile.get("genres"):
+                        # Get genre preferences dictionary
+                        genre_preferences = profile.get("genre_preferences", {})
+                        
+                        for genre in profile.get("genres", []):
+                            # Get preference level with "keep" as fallback
+                            status = genre_preferences.get(genre, "keep")
+                            
+                            # Format the display text based on status
+                            if status == "paused":
+                                status_text = "(Paused)"
+                            else:
+                                status_text = ""  
+                            
+                            # Display the genre with its status
+                            st.write(f"• {genre} {status_text}")
+                    else:
+                        st.write("No genres selected.")
+                else:
+                    # Editable multiselect for genres
+                    all_genres = get_unique_genres()
+                    selected_genres = st.multiselect(
+                        "Select your favorite genres:",
+                        options=all_genres,
+                        default=profile.get("genres", [])
+                    )
+                    
+                    st.write("For each genre, you can choose to include it in your recommendations or pause it temporarily:")
+                    
+                    # Initialize or get existing genre preferences
                     genre_preferences = profile.get("genre_preferences", {})
                     
-                    for genre in profile.get("genres", []):
-                        # Get preference level with "default" as fallback
-                        preference = genre_preferences.get(genre, "default")
-                        
-                        # Format the display text based on preference
-                        if preference == "more":
-                            preference_text = "(See more often)"
-                        elif preference == "less":
-                            preference_text = "(See less often)"
-                        else:
-                            preference_text = ""  
-                        
-                        # Display the genre with its preference
-                        st.write(f"• {genre} {preference_text}")
-                else:
-                    st.write("No genres selected.")
-            else:
-                # Editable multiselect for genres
-                all_genres = get_unique_genres()
-                selected_genres = st.multiselect(
-                    "Select your favorite genres:",
-                    options=all_genres,
-                    default=profile.get("genres", [])
-                )
-                
-                st.write("For each selected genre, indicate how often you'd like to see it in your recommendations:")
-                
-                # Initialize or get existing genre preferences
-                genre_preferences = profile.get("genre_preferences", {})
-                
-                # Create a dictionary to store new preference selections
-                new_preferences = {}
-                
-                # For each selected genre, show preference options
-                for genre in selected_genres:
-                    # Get current preference or default
-                    current_pref = genre_preferences.get(genre, "default")
+                    # Create a dictionary to store new preference selections
+                    new_preferences = {}
                     
-                    # Create columns for genre name and preference selection
-                    col1, col2 = st.columns([1, 2])
-                    
-                    with col1:
-                        st.write(f"{genre}:")
-                    
-                    with col2:
-                        # Radio buttons for preference selection
-                        options = ["See less often", "Default", "See more often"]
-                        values = ["less", "default", "more"]
+                    # For each selected genre, show status options
+                    for genre in selected_genres:
+                        # Get current status or default to "keep"
+                        current_status = genre_preferences.get(genre, "keep")
                         
-                        # Find the index of the current preference
-                        default_idx = values.index(current_pref) if current_pref in values else 1
+                        # Show the genre name
+                        st.write(f"**{genre}:**")
+                        
+                        # Radio buttons for status selection
+                        options = ["Include in recs", "Pause this genre"]
+                        values = ["keep", "paused"]
+                        
+                        # Find the index of the current status
+                        default_idx = 1 if current_status == "paused" else 0
                         
                         # Show horizontal radio buttons
-                        pref = st.radio(
-                            f"Preference for {genre}",
+                        status = st.radio(
+                            f"Status for {genre}",
                             options=options,
                             index=default_idx,
                             horizontal=True,
                             label_visibility="collapsed",
-                            key=f"pref_{genre}"
+                            key=f"status_{genre}"
                         )
                         
                         # Map selection back to value
-                        pref_value = values[options.index(pref)]
+                        status_value = "paused" if status == "Pause this genre" else "keep"
                         
                         # Save to new preferences
-                        new_preferences[genre] = pref_value
-                
-                # Action buttons
-                col_a, col_b = st.columns([1, 1])
-                with col_a:
-                    if st.button("Cancel", key="cancel_genres"):
+                        new_preferences[genre] = status_value
+                    
+                    # Action buttons using HTML layout instead of columns
+                    st.markdown("""
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <div style="flex: 1;" id="cancel-genres-container"></div>
+                        <div style="flex: 1;" id="save-genres-container"></div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Create placeholders for buttons
+                    cancel_genres = st.empty()
+                    save_genres = st.empty()
+                    
+                    # Add buttons to placeholders
+                    if cancel_genres.button("Cancel", key="cancel_genres"):
                         st.session_state.edit_genres = False
                         st.rerun()
-                with col_b:
-                    if st.button("Save", key="save_genres"):
+                    
+                    if save_genres.button("Save", key="save_genres"):
                         # Save selected genres
                         profile["genres"] = selected_genres
                         
@@ -336,182 +361,240 @@ def show_profile():
                         st.rerun()
         
         # Disliked Genres 
-        with st.expander("Genres You Dislike"):
-            # Initialize edit state if not exists
-            if "edit_disliked_genres" not in st.session_state:
-                st.session_state.edit_disliked_genres = False
-                
-            if not st.session_state.edit_disliked_genres:
-                if st.button("✏️ Edit", key="edit_disliked_genres_btn"):
-                    st.session_state.edit_disliked_genres = True
-                    st.rerun()
-                
-                # Display current disliked genres
-                if profile.get("disliked_genres"):
-                    for genre in profile.get("disliked_genres", []):
-                        st.write(f"• {genre}")
+        col1, col2 = st.columns([0.07, 0.93])
+
+        with col1:
+            st.markdown('<div class="icon-container thumbs-down-icon"><i class="fas fa-thumbs-down"></i></div>', unsafe_allow_html=True)
+
+        with col2:
+            with st.expander("Genres You Dislike"):
+                if not st.session_state.edit_disliked_genres:
+                    if st.button("✏️ Edit", key="edit_disliked_genres_btn"):
+                        st.session_state.edit_disliked_genres = True
+                        st.rerun()
+                    
+                    # Display current disliked genres
+                    if profile.get("disliked_genres"):
+                        for genre in profile.get("disliked_genres", []):
+                            st.write(f"• {genre}")
+                    else:
+                        st.write("No disliked genres specified.")
                 else:
-                    st.write("No disliked genres specified.")
-            else:
-                # Editable multiselect for disliked genres
-                all_genres = get_unique_genres()
-                disliked_genres = st.multiselect(
-                    "Select genres you'd prefer to avoid:",
-                    options=all_genres,
-                    default=profile.get("disliked_genres", [])
-                )
-                
-                col_a, col_b = st.columns([1, 1])
-                with col_a:
-                    if st.button("Cancel", key="cancel_disliked_genres"):
+                    # Editable multiselect for disliked genres
+                    all_genres = get_unique_genres()
+                    disliked_genres = st.multiselect(
+                        "Select genres you'd prefer to avoid:",
+                        options=all_genres,
+                        default=profile.get("disliked_genres", [])
+                    )
+                    
+                    # Action buttons using HTML layout instead of columns
+                    st.markdown("""
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <div style="flex: 1;" id="cancel-disliked-container"></div>
+                        <div style="flex: 1;" id="save-disliked-container"></div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Create placeholders for buttons
+                    cancel_disliked = st.empty()
+                    save_disliked = st.empty()
+                    
+                    # Add buttons to placeholders
+                    if cancel_disliked.button("Cancel", key="cancel_disliked_genres"):
                         st.session_state.edit_disliked_genres = False
                         st.rerun()
-                with col_b:
-                    if st.button("Save", key="save_disliked_genres"):
+                    
+                    if save_disliked.button("Save", key="save_disliked_genres"):
                         profile["disliked_genres"] = disliked_genres
                         save_profile()
                         st.session_state.edit_disliked_genres = False
-                        st.rerun() 
+                        st.rerun()
 
         # Authors Section
-        with st.expander("Favorite Authors"):
-            if not st.session_state.edit_authors:
-                if st.button("✏️ Edit", key="edit_authors_btn"):
-                    st.session_state.edit_authors = True
-                    st.rerun()
-                
-                # Display current authors
-                if profile.get("authors"):
-                    for author in profile.get("authors", []):
-                        st.write(f"• {author}")
+        col1, col2 = st.columns([0.07, 0.93])
+
+        with col1:
+            st.markdown('<div class="icon-container user-icon"><i class="fas fa-user"></i></div>', unsafe_allow_html=True)
+
+        with col2:
+            with st.expander("Favorite Authors"):
+                if not st.session_state.edit_authors:
+                    if st.button("✏️ Edit", key="edit_authors_btn"):
+                        st.session_state.edit_authors = True
+                        st.rerun()
+                    
+                    # Display current authors
+                    if profile.get("authors"):
+                        for author in profile.get("authors", []):
+                            st.write(f"• {author}")
+                    else:
+                        st.write("No authors selected.")
                 else:
-                    st.write("No authors selected.")
-            else:
-                # Show editable multiselect for authors
-                all_authors = get_unique_authors()
-                selected_authors = st.multiselect(
-                    "Select your favorite authors:",
-                    options=all_authors,
-                    default=profile.get("authors", [])
-                )
-                
-                col_a, col_b = st.columns([1, 1])
-                with col_a:
-                    if st.button("Cancel", key="cancel_authors"):
+                    # Show editable multiselect for authors
+                    all_authors = get_unique_authors()
+                    selected_authors = st.multiselect(
+                        "Select your favorite authors:",
+                        options=all_authors,
+                        default=profile.get("authors", [])
+                    )
+                    
+                    # Action buttons using HTML layout instead of columns
+                    st.markdown("""
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <div style="flex: 1;" id="cancel-authors-container"></div>
+                        <div style="flex: 1;" id="save-authors-container"></div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Create placeholders for buttons
+                    cancel_authors = st.empty()
+                    save_authors = st.empty()
+                    
+                    # Add buttons to placeholders
+                    if cancel_authors.button("Cancel", key="cancel_authors"):
                         st.session_state.edit_authors = False
                         st.rerun()
-                with col_b:
-                    if st.button("Save", key="save_authors"):
+                    
+                    if save_authors.button("Save", key="save_authors"):
                         profile["authors"] = selected_authors
                         save_profile()
                         st.session_state.edit_authors = False
                         st.rerun()
         
         # Books Section
-        with st.expander("Favorite Books"):
-            if not st.session_state.edit_books:
-                if st.button("✏️ Edit", key="edit_books_btn"):
-                    st.session_state.edit_books = True
-                    st.rerun()
-                
-                # Display current books
-                if profile.get("favorite_books"):
-                    for book in profile.get("favorite_books", []):
-                        st.write(f"• {book}")
+        col1, col2 = st.columns([0.07, 0.93])
+
+        with col1:
+            st.markdown('<div class="icon-container book-icon"><i class="fas fa-book"></i></div>', unsafe_allow_html=True)
+
+        with col2:
+            with st.expander("Favorite Books"):
+                if not st.session_state.edit_books:
+                    if st.button("✏️ Edit", key="edit_books_btn"):
+                        st.session_state.edit_books = True
+                        st.rerun()
+                    
+                    # Display current books
+                    if profile.get("favorite_books"):
+                        for book in profile.get("favorite_books", []):
+                            st.write(f"• {book}")
+                    else:
+                        st.write("No favorite books selected.")
                 else:
-                    st.write("No favorite books selected.")
-            else:
-                # Editable multiselect for books
-                all_books = get_unique_books()
-                selected_books = st.multiselect(
-                    "Select your favorite books:",
-                    options=all_books,
-                    default=profile.get("favorite_books", [])
-                )
-                
-                col_a, col_b = st.columns([1, 1])
-                with col_a:
-                    if st.button("Cancel", key="cancel_books"):
+                    # Editable multiselect for books
+                    all_books = get_unique_books()
+                    selected_books = st.multiselect(
+                        "Select your favorite books:",
+                        options=all_books,
+                        default=profile.get("favorite_books", [])
+                    )
+                    
+                    # Action buttons using HTML layout instead of columns
+                    st.markdown("""
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <div style="flex: 1;" id="cancel-books-container"></div>
+                        <div style="flex: 1;" id="save-books-container"></div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Create placeholders for buttons
+                    cancel_books = st.empty()
+                    save_books = st.empty()
+                    
+                    # Add buttons to placeholders
+                    if cancel_books.button("Cancel", key="cancel_books"):
                         st.session_state.edit_books = False
                         st.rerun()
-                with col_b:
-                    if st.button("Save", key="save_books"):
+                    
+                    if save_books.button("Save", key="save_books"):
                         profile["favorite_books"] = selected_books
                         save_profile()
                         st.session_state.edit_books = False
                         st.rerun()
         
         # Additional Preferences Section
-        with st.expander("Reading Preferences"):
-            if not st.session_state.edit_preferences:
-                if st.button("✏️ Edit", key="edit_prefs_btn"):
-                    st.session_state.edit_preferences = True
-                    st.rerun()
-                
-                # Display current additional preferences
-                if profile.get("additional_preferences"):
-                    st.write(profile.get("additional_preferences"))
+        col1, col2 = st.columns([0.07, 0.93])
+
+        with col1:
+            st.markdown('<div class="icon-container cog-icon"><i class="fas fa-cog"></i></div>', unsafe_allow_html=True)
+
+        with col2:
+            with st.expander("Reading Preferences"):
+                if not st.session_state.edit_preferences:
+                    if st.button("✏️ Edit", key="edit_prefs_btn"):
+                        st.session_state.edit_preferences = True
+                        st.rerun()
+                    
+                    # Display current additional preferences
+                    if profile.get("additional_preferences"):
+                        st.write(profile.get("additional_preferences"))
+                    else:
+                        st.write("No additional preferences specified.")
                 else:
-                    st.write("No additional preferences specified.")
-            else:
-                # Editable text area for additional preferences
-                additional_prefs = st.text_area(
-                    "Additional reading preferences:",
-                    value=profile.get("additional_preferences", ""),
-                    height=150
-                )
-                
-                col_a, col_b = st.columns([1, 1])
-                with col_a:
-                    if st.button("Cancel", key="cancel_prefs"):
+                    # Editable text area for additional preferences
+                    additional_prefs = st.text_area(
+                        "Additional reading preferences:",
+                        value=profile.get("additional_preferences", ""),
+                        height=150
+                    )
+                    
+                    # Action buttons using HTML layout instead of columns
+                    st.markdown("""
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <div style="flex: 1;" id="cancel-prefs-container"></div>
+                        <div style="flex: 1;" id="save-prefs-container"></div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Create placeholders for buttons
+                    cancel_prefs = st.empty()
+                    save_prefs = st.empty()
+                    
+                    # Add buttons to placeholders
+                    if cancel_prefs.button("Cancel", key="cancel_prefs"):
                         st.session_state.edit_preferences = False
                         st.rerun()
-                with col_b:
-                    if st.button("Save", key="save_prefs"):
+                    
+                    if save_prefs.button("Save", key="save_prefs"):
                         profile["additional_preferences"] = additional_prefs
                         save_profile()
                         st.session_state.edit_preferences = False
                         st.rerun()
         
         # Ratings Section
-        with st.expander("Books You've Rated"):
-            if profile.get("ratings") and len(profile.get("ratings")) > 0:
-                for book_title, rating in profile.get("ratings").items():
-                    st.write(f"• {book_title}: {'★' * rating}")
-            else:
-                st.write("You haven't rated any books yet.")
+        col1, col2 = st.columns([0.07, 0.93])
+
+        with col1:
+            st.markdown('<div class="icon-container star-icon"><i class="fas fa-star"></i></div>', unsafe_allow_html=True)
+
+        with col2:
+            with st.expander("Books You've Rated"):
+                if profile.get("ratings") and len(profile.get("ratings")) > 0:
+                    for book_title, rating in profile.get("ratings").items():
+                        st.write(f"• {book_title}: {'★' * rating}")
+                else:
+                    st.write("You haven't rated any books yet.")
         
         # Not Interested Section
-        with st.expander("Books You're Not Interested In"):
-            if profile.get("not_interested"):
-                for book in profile.get("not_interested", []):
-                    st.write(f"• {book}")
-            else:
-                st.write("No books marked as 'not interested'.")
-                
-        # Display raw JSON for debugging/verification
-        with st.expander("View Raw Profile Data (JSON)"):
-            st.json(profile)
-            
-        # Add an option to reset profile for testing
-        if st.button("Reset Profile (for testing)"):
-            st.session_state.user_profile = {
-                "genres": [],
-                "authors": [],
-                "favorite_books": [],
-                "additional_preferences": "",
-                "ratings": {},
-                "not_interested": []
-            }
-            st.session_state.profile_completed = False
-            st.rerun()
+        col1, col2 = st.columns([0.07, 0.93])
+
+        with col1:
+            st.markdown('<div class="icon-container ban-icon"><i class="fas fa-ban"></i></div>', unsafe_allow_html=True)
+
+        with col2:
+            with st.expander("Books You're Not Interested In"):
+                if profile.get("not_interested"):
+                    for book in profile.get("not_interested", []):
+                        st.write(f"• {book}")
+                else:
+                    st.write("No books marked as 'not interested'.")
     
-    # Spacer column - empty column to create space between the main columns
-    with spacer:
+    with spacer_col:
         st.empty()
-    
-    # Right column: Visualization
-    with col2:
+
+    # RIGHT COLUMN: Visualization - kept separate from left column
+    with right_col:
         st.markdown("### Profile Visualization")
         st.write("This visualization shows how your reading profile relates to different book genres in 3D space.")
         

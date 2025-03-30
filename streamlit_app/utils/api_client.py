@@ -129,6 +129,17 @@ def submit_user_profile(profile_data):
         st.error(f"Error connecting to API: {str(e)}")
     return {"error": "Failed to submit profile"}
 
+def get_genre_embeddings():
+    """Fetch genre embeddings from API"""
+    try:
+        response = requests.get(f"{API_BASE_URL}/rec/genres/embeddings")
+        if response.status_code == 200:
+            return response.json()
+        st.error(f"Failed to fetch genre embeddings: {response.status_code}")
+    except Exception as e:
+        st.error(f"Error connecting to API: {str(e)}")
+    return {"embeddings": []}
+
 def get_recommendations():
     """Get personalized recommendations based on user profile"""
     try:
@@ -151,3 +162,4 @@ def get_recommendations():
     except Exception as e:
         st.error(f"Error connecting to API: {str(e)}")
     return []
+
