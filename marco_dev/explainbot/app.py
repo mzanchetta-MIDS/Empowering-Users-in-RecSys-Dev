@@ -7,15 +7,14 @@ app = FastAPI()
 explain_bot = ExplainBot()
 
 class RecommendationRequest(BaseModel):
-    user_data: Dict[str, Any]
-    recommendation: str  # recommended book title
+    input_data: Dict[str, Any]
 
 @app.post("/recommendation-explanation/")
 async def generate_explanation(request: RecommendationRequest):
     """
     Generate an explanation for why a book was recommended.
     """
-    explanation = explain_bot.chat_recommendation_explanation(
-        request.user_data, request.recommendation
-    )
+    input_data = request.input_data
+    explanation = explain_bot.chat_recommendation_explanation(input_data)
+
     return {"recommendation_explanation": explanation}
