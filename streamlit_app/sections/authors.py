@@ -10,7 +10,7 @@ def show_authors():
 
     # Single form with two form_submit_buttons:
     with st.form("authors_form"):
-        st.write("Pick your favorites from our available authors, then click a button to proceed.")
+        st.write("Pick your favorites from our available authors, then click to proceed.")
 
         # Multi-select with no typed input allowed
         selected_authors = st.multiselect(

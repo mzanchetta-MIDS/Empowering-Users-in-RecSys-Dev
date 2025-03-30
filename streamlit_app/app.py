@@ -18,7 +18,6 @@ from sections.how_it_works import show_how_it_works
 
 from utils.profile_utils import load_profile, save_profile, initialize_user_profile
 
-
 # SESSION INIT
 def initialize_session_state():
     if "profile_completed" not in st.session_state:

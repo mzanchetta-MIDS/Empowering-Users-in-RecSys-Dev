@@ -1,8 +1,14 @@
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
-from src.rec import rec
+from contextlib import AsyncExitStack, asynccontextmanager
+from src.rec import rec, lifespan_context_manager
 
-app = FastAPI()
+async def main_lifespan(app: FastAPI):
+    async with AsyncExitStack() as stack:
+        await stack.enter_async_context(lifespan_context_manager(rec))
+        yield
+
+app = FastAPI(lifespan=main_lifespan)
 
 @app.get("/")
 async def root():

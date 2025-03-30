@@ -287,9 +287,9 @@ button[data-baseweb="tab"][aria-selected="true"] {
     margin: 10px 0;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     border: 1px solid #080603 !important;
-    height: 500px;
+    height: 520px;
     overflow-y: scroll;
-    scrollbar-color: #9C897E #E6E3DC; 
+    scrollbar-color: #4e7694 #E6E3DC; 
     scrollbar-width: auto;
 }
 
@@ -414,3 +414,28 @@ div[data-baseweb="tag"] button {
     color: #FFFFFF !important;
 }
 
+/* 1) Let the expander background be the same as the page (e.g., #E6E3DC) */
+summary[data-testid="stExpander"] {
+    background-color: #E6E3DC !important;  /* or transparent, if you prefer */
+    border: none !important;
+    padding: 0.5rem 1rem !important;       /* adjust as needed */
+    margin-bottom: 0 !important;
+}
+
+/* 2) Increase just the header text inside <summary>. 
+   Sometimes Streamlit wraps it in <p> or <div data-testid="stMarkdownContainer"> 
+   so targeting summary[data-testid="stExpander"] p is typical. */
+summary[data-testid="stExpander"] p {
+    font-size: 1.3em !important;  /* or 20px, 24px, etc. */
+    font-weight: 600 !important;
+    color: #080603 !important;    /* same text color as your main body? */
+    margin: 0 !important;
+}
+
+/* 3) Scale up the chevron/arrow icon 
+   (the '>' arrow to open/close the expander) */
+[data-testid="stExpanderToggleIcon"] {
+    transform: scale(1.5) !important;
+    /* optional: add margin to push it away from text 
+       margin-left: 0.5rem !important; */
+}

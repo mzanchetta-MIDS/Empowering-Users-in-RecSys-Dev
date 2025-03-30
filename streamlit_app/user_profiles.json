@@ -2,25 +2,26 @@
   "saved_for_later": [],
   "ratings": {},
   "not_interested": [],
-  "name": "Benjamin",
+  "name": "Zach",
   "genres": [
-    "Drama / General",
-    "Drama / Shakespeare",
-    "Fiction / Anthologies",
-    "Fiction / Biographical"
+    "Bibles / General",
+    "Biography & Autobiography / Personal Memoirs"
   ],
   "disliked_genres": [
-    "Bibles / General"
+    "Religion / Christian Theology",
+    "Psychology / General"
   ],
   "genre_preferences": {
-    "Drama / General": "default",
-    "Drama / Shakespeare": "default",
-    "Fiction / Anthologies": "default",
-    "Fiction / Biographical": "default"
+    "Bibles / General": "default",
+    "Biography & Autobiography / Personal Memoirs": "default"
   },
-  "user_id": "ac19e195-8275-4e62-804b-919240698a4c",
+  "user_id": "e3c33538-40bd-408b-8670-a341b0d41903",
   "authors": [
-    "Lemony Snicket",
-    "Michael Lewis"
-  ]
+    "Agatha Christie",
+    "R.A. Salvatore"
+  ],
+  "favorite_books": [
+    "The Jungle Book (Scholastic Junior Classics) - Jane B. Mason"
+  ],
+  "additional_preferences": "Nope"
 }

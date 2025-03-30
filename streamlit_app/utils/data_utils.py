@@ -1,10 +1,12 @@
 # utils/data_utils.py
-# Instead of importing from src.db_utils, we'll use API client calls
-from utils.api_client import get_genres, get_authors, get_books, get_recommendations
+
+import streamlit as st
+from utils.api_client import get_genres, get_authors, get_books, get_recommendations, get_genre_embeddings, get_genre_embeddings as api_get_genre_embeddings
 import logging
 
 logger = logging.getLogger(__name__)
 
+@st.cache_data(ttl=3600, show_spinner=False)
 def get_unique_books():
     """
     Get all unique books from the API.
@@ -22,6 +24,7 @@ def get_unique_books():
         ]
     return books
 
+@st.cache_data(ttl=3600, show_spinner=False)
 def get_unique_genres():
     """
     Get all unique genres from the API.
@@ -36,6 +39,7 @@ def get_unique_genres():
         ]
     return genres
 
+@st.cache_data(ttl=3600, show_spinner=False)
 def get_unique_authors():
     """
     Get all unique authors from the API.
@@ -50,6 +54,29 @@ def get_unique_authors():
         ]
     return authors
 
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_genre_embeddings():
+    """
+    Get genre embeddings from the API.
+    Falls back to empty list if API call fails.
+    
+    Returns:
+        Dictionary with embeddings data
+    """
+    
+    try:
+        response = api_get_genre_embeddings()
+        if response and "embeddings" in response:
+            return response
+        else:
+            logger.warning("No genre embeddings found in API response")
+            return {"embeddings": []}
+    except Exception as e:
+        logger.error(f"Error fetching genre embeddings: {str(e)}")
+        return {"embeddings": []}
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
 def get_sample_recommendations():
     """
     Get recommendations from the API based on user profile.

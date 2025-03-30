@@ -28,7 +28,9 @@ def get_new_recommendations():
     
     # Filter by book title
     new_recommendations = [r for r in all_recommendations if r["title"] not in already_seen_titles]
-    return new_recommendations[:3]
+    
+    # Return 6 recommendations for a batch instead of just 3
+    return new_recommendations[:6]  # Increased from 3 to 6
 
 def show_ratings(book_title, key_prefix):
     """Display 5-star rating widget and handle selection"""
@@ -60,34 +62,67 @@ def show_ratings(book_title, key_prefix):
 
 def show_recommendations():
     st.subheader("Your Book Recommendations")
-    st.write('''Below are three personalized book recommendations, 
-    each with a customized explanation about why we think you'll like it. 
-    As you respond to the recommendations with the buttons below, 
-    our system will better learn your preferences and provide you with new recommendations!
-    Once you've gone through these, click 'Get More Recommendations' for a new batch!''')
 
     # Initialize recommendations_list if it doesn't exist
     if "recommendations_list" not in st.session_state:
         st.session_state.recommendations_list = get_new_recommendations()
+
+    # Get current recommendations and count how many are remaining
+    current_recommendations = st.session_state.recommendations_list
+    remaining = len(current_recommendations)
+
+    # Store the original batch size if not already stored
+    if "original_batch_size" not in st.session_state:
+        st.session_state.original_batch_size = remaining
+    original_batch_size = st.session_state.original_batch_size
+
+    # Calculate viewed count for progress
+    viewed = original_batch_size - remaining
+
+    # Display message about recommendation batches
+    st.markdown(f"""
+    <div style="margin-bottom: 20px; background-color: #e8f4f8; padding: 15px; border-radius: 5px; border-left: 4px solid #4e7694;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <p style="margin: 0; font-weight: 500;">You have <strong>{remaining}</strong> recommendation{'' if remaining == 1 else 's'} left in this batch.</p>
+                <p style="margin: 5px 0 0 0; font-size: 0.9em;">A new batch of recommendations will be generated after you've evaluated all current suggestions.</p>
+            </div>
+            <div style="min-width: 120px; text-align: right;">
+                <span style="font-size: 1.2em; font-weight: bold; color: #4e7694;">{viewed} of {original_batch_size} evaluated</span>
+            </div>
+        </div>
+        <div style="margin-top: 10px; background-color: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+            <div style="background-color: #4e7694; width: {(viewed/original_batch_size)*100 if original_batch_size > 0 else 0}%; height: 100%;"></div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.write('''Below are three personalized recommendations from your current batch, 
+    each with an explanation about why we think you'll like it. 
+    As you evaluate them, new recommendations from the batch will automatically appear.
+    Once you've evaluated this batch, click 'Get More Recommendations' for a new one that reflects your updated preferences.''')
     
     recommendations = st.session_state.recommendations_list
     
     if not recommendations:
-        st.info("You've gone through your latest batch of recommendations! Click below to get more.")
+        st.info("You've gone through your latest batch of recommendations! Click below for a new one.")
         
         # Add button to get more recommendations
         if st.button("Get More Recommendations"):
             st.session_state.recommendations_list = get_new_recommendations()
+            st.session_state.original_batch_size = len(st.session_state.recommendations_list)
             st.rerun()
         return
     
-    # Display recommendations in columns (up to 3 per row)
-    max_cols = min(len(recommendations), 3)
+    # Only display up to 3 recommendations at a time
+    display_recommendations = recommendations[:3]
+    
+    # Display recommendations in columns
+    max_cols = len(display_recommendations)
     cols = st.columns(max_cols)
     
-    for idx, rec in enumerate(recommendations):
-        col_num = idx % max_cols
-        with cols[col_num]:
+    for idx, rec in enumerate(display_recommendations):
+        with cols[idx]:
             with st.container():
                 # Card styling with HTML          
                 st.markdown(f"""
