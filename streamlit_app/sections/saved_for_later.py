@@ -36,15 +36,25 @@ def show_saved_for_later():
                 """, unsafe_allow_html=True)
 
                 # Show star rating for "Read it?"
-                st.write("Already read it? Rate it:")
-                rating = st_star_rating(
-                    label="",
-                    maxValue=5,
-                    defaultValue=0,
-                    key=f"rating_{book['title']}",
-                    dark_theme=False,
-                    customCSS=".react-stars {margin-top: -15px; background-color: #E6E3DC !important; color: #9C897E;}"
-                )
+                col_label, col_stars = st.columns([1.1, 1])
+
+                with col_label:
+                    st.markdown("""
+                        <div style="display: flex; height: 40px; align-items: center; justify-content: center; text-align: center;">
+                            <p style="margin: 0; padding: 0;">Already read it? Rate it:</p>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                with col_stars:
+                    rating = st_star_rating(
+                        label="",
+                        maxValue=5,
+                        defaultValue=0,
+                        key=f"rating_{book['title']}",
+                        dark_theme=False,
+                        customCSS=".react-stars {margin-top: -15px; background-color: #E6E3DC !important; color: #9C897E;}"
+                    )
+
                 if rating > 0:
                     # Save the rating
                     if "ratings" not in st.session_state.user_profile:

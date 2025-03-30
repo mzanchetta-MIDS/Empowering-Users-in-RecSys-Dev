@@ -287,7 +287,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     margin: 10px 0;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     border: 1px solid #080603 !important;
-    height: 500px;
+    height: 520px;
     overflow-y: scroll;
     scrollbar-color: #4e7694 #E6E3DC; 
     scrollbar-width: auto;

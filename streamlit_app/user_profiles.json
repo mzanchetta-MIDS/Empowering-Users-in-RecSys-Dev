@@ -1,20 +1,20 @@
 {
-  "saved_for_later": [],
+  "saved_for_later": [
+    {
+      "id": "book-001",
+      "title": "The Master and Margarita",
+      "author": "Mikhail Bulgakov",
+      "description": "A 50th-anniversary Deluxe Edition of the incomparable 20th-century masterpiece of satire and fantasy.  One spring afternoon, the Devil, trailing fire and chaos in his wake, weaves himself out of the shadows and into Moscow. This fantastical, funny, and devastating satire of Soviet life combines two distinct yet interwoven parts, one set in contemporary Moscow, the other in ancient Jerusalem, each brimming with historical, imaginary, frightful, and wonderful characters. Written during the darkest days of Stalin's reign, The Master and Margarita became a literary phenomenon, signaling artistic and spiritual freedom for Russians everywhere.",
+      "explanation": "This recommendation bridges your love of magical realism from Garc\u00eda M\u00e1rquez with the philosophical depth you enjoy in Rushdie's work. The novel's non-linear structure and blend of fantasy with harsh reality mirrors elements you appreciated in 'One Hundred Years of Solitude' while introducing you to a different cultural context. Based on your preference for 'books that blur the line between reality and fantasy,' this Russian classic should resonate deeply."
+    }
+  ],
   "ratings": {},
   "not_interested": [],
   "name": "Benjamin",
-  "genres": [
-    "Art / General",
-    "Biography & Autobiography / Personal Memoirs",
-    "Biography & Autobiography / General"
-  ],
+  "genres": [],
   "disliked_genres": [],
-  "genre_preferences": {
-    "Art / General": "keep",
-    "Biography & Autobiography / Personal Memoirs": "keep",
-    "Biography & Autobiography / General": "keep"
-  },
-  "user_id": "f89d089b-251c-475a-9ed7-13f1bd986593",
+  "genre_preferences": {},
+  "user_id": "64a2afd5-7ac6-4ca3-a96f-c482377a16b0",
   "authors": [],
   "favorite_books": [],
   "additional_preferences": ""
