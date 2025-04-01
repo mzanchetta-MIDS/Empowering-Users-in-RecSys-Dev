@@ -81,6 +81,8 @@ rec = FastAPI(lifespan=lifespan_context_manager)
 
 rec.mount("/static", StaticFiles(directory="src/static"), name="static")
 
+class UserRecommended(BaseModel):
+    user: str
     
 class UserRecommendedResponse(BaseModel):
     recommendations: List[str]
@@ -117,15 +119,21 @@ async def recommended(user):
     
     global encoders
     
-    # print(f'User: {user}\n')
-    # print(f'User Type: {type(user)}\n')
+    print(f'User: {user}\n')
+    print(f'User Type: {type(user)}\n')
     # if no filter is provided, set to empty
 
     filter = {'keep': {'title': set(), 'author': set(), 'genre_consolidated': set()},
         'remove': {'title': set(), 'author': set(), 'genre_consolidated': set([])}}
-    
-    user_json = json.loads(json.loads(user))
-    
+    try:
+        print(f"User Input: {user}\n")
+        user_json = json.loads(json.loads(user))
+        print(f"TWO JSON work!!\n")
+    except:
+        user_json = json.loads(user)
+        print(f"One JSON Work!!\n")
+      #  print(f"Error decoding JSON: {e}\n")
+    print(f"User Input JSON: {user_json}\n")
     # print(type(user_json)) # Debugging
     # print(f'User JSON: {user_json}\n') # Debugging
     # print(f"User JSON Keys: {user_json['instances'][0].keys()}") # Debugging
