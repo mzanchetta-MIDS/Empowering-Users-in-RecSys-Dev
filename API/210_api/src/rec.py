@@ -254,7 +254,9 @@ async def recommended(user):
     user_embedding = model_body["result"]["predictions"][0] # Our User Embedding
 
     recommendation = recommend(user_embedding, filter_info)
-
+    
+    #print(f"Pre-recommendation: {recommendation}\n")
+ 
     return recommendation
 
 @rec.get("/llm")

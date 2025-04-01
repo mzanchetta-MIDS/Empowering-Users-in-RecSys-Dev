@@ -9,6 +9,7 @@ from src.bookEmbeddings import load_book_embeddings
 import sagemaker
 import boto3
 import pandas as pd
+from src.pcaEmbeddings import calculate_pca_embeddings, calculate_user_pca_embeddings
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -25,24 +26,30 @@ def recommend(user_embedding, filter=filter, top_k=6, path='embeddings/book_embe
     :return: DataFrame with top_k recommendations.
     """
     s3_bucket = "w210recsys"
-    aws_book_embeddings_path = "model/recModel/modelFiles/book_embeddings.npy" 
-    aws_books_df_path = "model/recModel/modelFiles/books_df.csv"
+    
+    # Older paths for original dataset
+    # aws_book_embeddings_path = "model/recModel/modelFiles/book_embeddings.npy" 
+    # aws_books_df_path = "model/recModel/modelFiles/books_df.csv"
+    
+    # Newer paths for cleaned dataset
+    aws_book_embeddings_path = "model/recModel/modelFiles/book_embeddings.npy"
+    aws_books_df_path = "book_clean/books_data_clean.pkl"
     
     full_book_embeddings = None
     
     if os.path.exists("src/static/full_book_embeddings.pkl"):
-        full_book_embeddings = pd.read_pickle('src/static/full_book_embeddings.pkl')
-        #print("File exists at src/static/book_embeddings.pkl")
+        full_book_embeddings = pd.read_pickle('src/static/full_book_embeddings.pkl') # unique book titles/keys
     else:
         full_book_embeddings = load_book_embeddings(s3_bucket, aws_book_embeddings_path, aws_books_df_path)
+        
+    if os.path.exists("src/static/pca_transformed_book_embeddings.pkl"):
+        pca_transformed_book_embeddings = pd.read_pickle('src/static/pca_transformed_book_embeddings.pkl') # Create this!
+    else:
+        pca_transformed_book_embeddings = calculate_pca_embeddings(full_book_embeddings)
    
     # Apply filtering logic
     full_book_embeddings_copy = full_book_embeddings.copy()
-    print(f"full_book_embeddings_copy columns: {full_book_embeddings_copy.columns}")
-    
-    #print(f"full_book_embeddings_copy.head():\n{full_book_embeddings_copy.head()}")
-    
-    #print(f"filter: {filter}")
+    #print(f"full_book_embeddings_copy columns: {full_book_embeddings_copy.columns}")
     
     # Apply 'keep' filters
     for key, value_set in filter.get('keep', {}).items():
@@ -68,5 +75,19 @@ def recommend(user_embedding, filter=filter, top_k=6, path='embeddings/book_embe
 
     # Get Top-K Recommendations
     recommendations = full_book_embeddings_copy.sort_values(by='similarity', ascending=False).head(top_k)
+    
+    # output = {}
+    # output['recommendations'] = recommendations[['title', 'similarity']]
+    # output['pca_book_embeddings'] = pca_transformed_book_embeddings
+    # output['pca_user_embedding'] = calculate_user_pca_embeddings(user_embedding)
 
-    return recommendations[['title', 'similarity']]
+    #print(pca_transformed_book_embeddings.head())
+    
+    response_data = {
+        'recommendations':  recommendations[['title', 'similarity']].to_dict(orient="records"),  # Convert DataFrame to list of dicts
+        'pca_book_embeddings': pca_transformed_book_embeddings[['genre', 'PCA_book_embeddings']].to_dict(orient="records"),  # Convert DataFrame to list of dicts
+        'pca_user_embedding': calculate_user_pca_embeddings(user_embedding).tolist()  # Convert NumPy array to list
+    }
+    #print(f"Response data: {response_data}")
+
+    return response_data

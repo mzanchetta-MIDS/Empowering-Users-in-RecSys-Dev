@@ -32,15 +32,18 @@ def load_book_embeddings(s3_bucket, aws_book_embeddings_path, aws_books_df_path)
     # Download the books_df file from S3 into memory
     books_df = s3.get_object(Bucket=s3_bucket, Key=aws_books_df_path)
     print("Successfully loaded objects from S3: response, books_df")
-    print(" ")
     
     # Read the data into a BytesIO buffer
     buffer = io.BytesIO(response['Body'].read())
     print(f"Loaded book_embeddings to buffer: {buffer}")
     
     books_df_ = io.BytesIO(books_df['Body'].read())
+    
+    print(f"Loaded books_df to buffer: {books_df_}")
+    
     books_df_.seek(0)  # Move to the start of the buffer
-    df = pd.read_csv(books_df_)
+    
+    df = pd.read_pickle(books_df_)
     
     # Restict data in bookS_df to only the columns we need + unique book titles
     df = df.drop_duplicates(subset=['title'], keep='first')
