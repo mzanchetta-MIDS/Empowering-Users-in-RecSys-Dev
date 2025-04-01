@@ -31,7 +31,7 @@ def connect_to_db():
         print(f"Database connection error: {e}")
         return None
 
-
+## New
 def fetch_books_data():
     """
     Fetches book details from the database and returns a DataFrame
@@ -42,9 +42,27 @@ def fetch_books_data():
 
     query = """
         SELECT title, author, publish_year, genre_consolidated, description
-        FROM book_titles;
+        FROM books_info;
     """
     books_df = pd.read_sql_query(query, conn)
 
     conn.close()
     return books_df
+
+# # OLD
+# def fetch_books_data():
+#     """
+#     Fetches book details from the database and returns a DataFrame
+#     """
+#     conn = connect_to_db()
+#     if conn is None:
+#         raise RuntimeError("Database connection failed.")
+
+#     query = """
+#         SELECT title, author, publish_year, genre_consolidated, description
+#         FROM book_titles;
+#     """
+#     books_df = pd.read_sql_query(query, conn)
+
+#     conn.close()
+#     return books_df
