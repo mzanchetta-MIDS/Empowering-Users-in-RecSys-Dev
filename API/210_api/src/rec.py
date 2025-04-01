@@ -127,7 +127,7 @@ async def recommended(user):
     user_json = json.loads(json.loads(user))
     
     # print(type(user_json)) # Debugging
-    # print(f'User JSON: {user_json}') # Debugging
+    # print(f'User JSON: {user_json}\n') # Debugging
     # print(f"User JSON Keys: {user_json['instances'][0].keys()}") # Debugging
     
     # Initialize filter_info dictionary
@@ -173,15 +173,20 @@ async def recommended(user):
             
             encoded_vals = []
             
+            # print(f"Key: {key}")
+            # print(f"Encoder Pair: {list(encoder.items())[0:5]}")
+            
             for val in vals:
-                encoded_vals.append(encoder.get(val,0))
+                encoded_vals.append(encoder.get(val,0)) # Returns stringlookup value or 0 if not found
                 
             encoded_vals.extend([0]*(20 - len(encoded_vals)))
+            
+            # print(f"Encoded Values: {encoded_vals}")
                 
             user_json["instances"][0][key] = encoded_vals
     
-    print("Santity Check")
-    print(f"user_json['instances'][0]['user_id']: {user_json['instances'][0]['user_id'] }\n")
+    # print("Santity Check")
+    # print(f"user_json['instances'][0]['user_id']: {user_json['instances'][0]['user_id'] }\n")
     
     # Adjusting the user_id to not be in an array
     user_json["instances"][0]['user_id'] = user_json["instances"][0]['user_id'][0]
