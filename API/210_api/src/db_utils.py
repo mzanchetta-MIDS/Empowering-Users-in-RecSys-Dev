@@ -199,3 +199,31 @@ def get_genre_embeddings() -> pd.DataFrame:
             cursor.close()
         if conn:
             conn.close()
+
+def get_book_covers_lookup() -> pd.DataFrame:
+    """
+    Get book cover information from the database
+    
+    Returns:
+        DataFrame with book cover information (title, book_id, image_path, etc.)
+    """
+    conn = None
+    cursor = None
+    try:
+        conn = connect_to_db()
+        query = """
+        SELECT title, book_id, preview_link, image_url, image_path, status
+        FROM book_covers
+        WHERE image_path IS NOT NULL
+        """
+        covers_df = query_to_df(query, conn)
+        logging.info(f"Retrieved {len(covers_df)} book covers from database")
+        return covers_df
+    except Exception as e:
+        logging.error(f"Error retrieving book covers: {str(e)}")
+        return pd.DataFrame()  # Return empty DataFrame on error
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()

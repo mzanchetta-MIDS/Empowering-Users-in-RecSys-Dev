@@ -2,7 +2,8 @@
 import streamlit as st
 from streamlit_star_rating import st_star_rating
 from utils.data_utils import get_sample_recommendations
-from utils.profile_utils import save_profile
+from utils.profile_utils import save_profile, add_to_recommendation_history
+from utils.book_cover_utils import get_cover_image_url, test_image_display 
 
 
 def get_new_recommendations():
@@ -67,6 +68,10 @@ def show_recommendations():
     if "recommendations_list" not in st.session_state:
         st.session_state.recommendations_list = get_new_recommendations()
 
+        # Add new recommendations to history
+        for book in st.session_state.recommendations_list:
+            add_to_recommendation_history(book)
+
     # Get current recommendations and count how many are remaining
     current_recommendations = st.session_state.recommendations_list
     remaining = len(current_recommendations)
@@ -124,11 +129,18 @@ def show_recommendations():
     for idx, rec in enumerate(display_recommendations):
         with cols[idx]:
             with st.container():
-                # Card styling with HTML          
+                # Get cover image URL for this book
+                cover_url = get_cover_image_url(rec['title'])
+                
+                # # Card styling with HTML          
                 st.markdown(f"""
                 <div class="recommendation-card">
                     <div class="card-content">
-                        <h4 style="margin-top:5px;"><span style="color:#4e7694;">♦</span> {rec['title']}</h4>
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <img src="{cover_url}" 
+                                style="width: 80px; height: auto; margin-right: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />
+                            <h4 style="margin: 0;"><span style="color:#4e7694;">♦</span> {rec['title']}</h4>
+                        </div>
                         <p><strong>Author:</strong> {rec['author']}</p>
                         <p><strong>Description:</strong> {rec['description']}</p>
                         <p><strong>Why this was recommended:</strong> {rec['explanation']}</p>

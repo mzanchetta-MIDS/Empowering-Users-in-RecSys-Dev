@@ -32,6 +32,8 @@ def initialize_session_state():
         st.session_state.user_profile["ratings"] = {}
     if "not_interested" not in st.session_state.user_profile:
         st.session_state.user_profile["not_interested"] = []
+    if "recommended_history" not in st.session_state.user_profile:
+        st.session_state.user_profile["recommended_history"] = []
     
 
 initialize_session_state()

@@ -92,3 +92,21 @@ def load_profile():
             st.session_state.user_profile = json.load(f)
     else:
         initialize_user_profile()
+
+def add_to_recommendation_history(book_info):
+    """
+    Adds a book to the user's recommendation history
+    
+    Args:
+        book_info: Dict with at least "title" field
+    """
+    if "recommended_history" not in st.session_state.user_profile:
+        st.session_state.user_profile["recommended_history"] = []
+        
+    # Add to history if not already present (simple string instead of object)
+    book_title = book_info["title"]
+    if book_title not in st.session_state.user_profile["recommended_history"]:
+        st.session_state.user_profile["recommended_history"].append(book_title)
+        
+    # Save updated profile
+    save_profile()
