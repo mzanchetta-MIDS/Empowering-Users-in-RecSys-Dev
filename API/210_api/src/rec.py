@@ -5,9 +5,10 @@ import logging
 import requests
 import json
 from contextlib import asynccontextmanager
+import time
 
 # Import only the necessary functions
-from src.db_utils import connect_to_db, get_unique_genres, get_unique_authors, get_unique_books, query_to_list, query_to_df
+from src.db_utils import connect_to_db, get_unique_genres, get_unique_authors, get_unique_books, query_to_list, query_to_df, get_genre_embeddings
 
 global conn
 # global curr
@@ -192,6 +193,27 @@ async def get_books_endpoint():
         ]
         return {"books": books}
 
+
+@rec.get("/genres/embeddings")
+async def get_genre_embeddings_endpoint():
+    """
+    Get genre embeddings for visualization
+    """
+    try:
+        embeddings_df = get_genre_embeddings()
+        
+        if not embeddings_df.empty:
+            # Convert DataFrame to list of dictionaries
+            embeddings = embeddings_df.to_dict(orient='records')
+            return {"embeddings": embeddings}
+        else:
+            # Return empty list if no embeddings found
+            return {"embeddings": []}
+    except Exception as e:
+        logger.error(f"Error in get_genre_embeddings_endpoint: {str(e)}")
+        return {"embeddings": [], "error": str(e)}
+
+
 @rec.post("/users/profile")
 async def update_user_profile(data: RecModelRequest):
     print("\n----- RECEIVED PROFILE UPDATE IN NEW FORMAT -----")
@@ -283,12 +305,25 @@ async def get_recommendations(profile):
         }
     """
     
+    # print(f"Received profile: {profile}\n")
+    # print(f"Profile Type: {type(profile)}\n")
+    
+    start_time = time.time()
+    
     try:
         profile = json.loads(json.loads(profile))
     except json.JSONDecodeError as e:
         pass
     
-    HT = {"liked_books":[],"disliked_books":[],"liked_genres":[],"disliked_genres":[],"liked_authors":[],"disliked_authors":[],"liked_ratings":[], "disliked_ratings":[]}
+    HT = {"liked_books":[],
+          "disliked_books":[],
+          "liked_genres":[],
+          "disliked_genres":[],
+          "liked_authors":[],
+          "disliked_authors":[],
+          "liked_ratings":[], 
+          "disliked_ratings":[],
+          "recommended_history":[]}
     
     # Convert the profile to the required format
     
@@ -306,7 +341,7 @@ async def get_recommendations(profile):
                 
                 HT['disliked_ratings'].extend([1]*len(profile['instances'][0][key]))         
     
-    HT_string = {"liked_books":"","disliked_books":"","liked_genres":"","disliked_genres":"","liked_authors":"","disliked_authors":""}
+    HT_string = {"liked_books":"","disliked_books":"","liked_genres":"","disliked_genres":"","liked_authors":"","disliked_authors":"", "recommended_history":""}
 
     for key in HT_string.keys():
         
@@ -329,7 +364,7 @@ async def get_recommendations(profile):
     # for key in HT_string.keys():
         # print(f"Final HT_string[key]: {HT_string[key]}\n")
     
-    constructed_profile = '{\"instances\": [{\"authors\": 0,\"user_id\":[' + str(profile["instances"][0]["user_id"]) + '],\"liked_books\": ' + HT_string["liked_books"] + ', \"disliked_books\": ' + HT_string["disliked_books"] + ',\"liked_genres\":' + HT_string["liked_genres"] + ',\"disliked_genres\":' + HT_string["disliked_genres"] + ',\"liked_authors\": ' + HT_string["liked_authors"] + ',\"disliked_authors\": ' + HT_string["disliked_authors"] + ',\"liked_ratings\": ' + str(HT["liked_ratings"]) + ',\"disliked_ratings\": ' + str(HT["disliked_ratings"]) + ', \"keep_title\": [],\"keep_author\": [],\"keep_genre_consolidated\": [],\"remove_title\": ' + HT_string["disliked_books"] + ',\"remove_author\": ' + HT_string["disliked_authors"] + ',\"remove_genre_consolidated\":' + HT_string["disliked_genres"] + ',\"categories\": 0,\"description\": 0,\"target_book\": 0,\"target_book_rating\": 0}]}'
+    constructed_profile = '{\"instances\": [{\"authors\": 0,\"user_id\":["' + str(profile["instances"][0]["user_id"]) + '"],\"liked_books\": ' + HT_string["liked_books"] + ', \"disliked_books\": ' + HT_string["disliked_books"] + ',\"liked_genres\":' + HT_string["liked_genres"] + ',\"disliked_genres\":' + HT_string["disliked_genres"] + ',\"liked_authors\": ' + HT_string["liked_authors"] + ',\"disliked_authors\": ' + HT_string["disliked_authors"] + ',\"liked_ratings\": ' + str(HT["liked_ratings"]) + ',\"disliked_ratings\": ' + str(HT["disliked_ratings"]) + ', \"keep_title\": [],\"keep_author\": [],\"keep_genre_consolidated\": [],\"remove_title\": ' + HT_string["recommended_history"] + ',\"remove_author\": ' + HT_string["disliked_authors"] + ',\"remove_genre_consolidated\":' + HT_string["disliked_genres"] + ',\"categories\": 0,\"description\": 0,\"target_book\": 0,\"target_book_rating\": 0}]}'
     
     # print(f"Constructed Profile Pre: {constructed_profile}\n")
     
@@ -362,42 +397,56 @@ async def get_recommendations(profile):
     url = "http://3.222.96.42/rec/recommended"
     
     response = requests.post(url, params=constructed_profile_json)
+    # Response type is <class 'requests.models.Response'>
     
-    print(response.status_code)
-    print(response.text)
-    
-    
-    ## some code to add recommendations to profile
-    # ________________________________________________________
-    
-    # ________________________________________________________
-    
-    # expl_rec = requests.post("http://54.211.202.149/explain_bot", json=constructed_profile_json)
-    
-    # ----------------------------------------------
-    
-    # # Don't delete this, it is used to test the API
-    # # ----------------------------------------------
-    # url = "http://3.222.96.42/rec/recommended"
-    # params = {
-    # "user": "{\"instances\":[{\"authors\": 0,\"user_id\":[1],\"liked_books\":[\"Action\"],\"disliked_books\": [],\"liked_genres\":[],\"disliked_genres\":[],\"liked_authors\": [],\"disliked_authors\": [],\"liked_ratings\": [5],\"disliked_ratings\": [],\"categories\": 0,\"description\": 0,\"target_book\": 0,\"target_book_rating\": 0,\"keep_title\": [],\"keep_author\": [],\"keep_genre_consolidated\": [],\"remove_title\": [],\"remove_author\": [],\"remove_genre_consolidated\": []}]}"
-    # }
-    
-    # # # print(f"params: {params}\n\n")
-    
-    # params_json = params
-    
-    # params_json["user"] = json.dumps(params_json['user'])
-    
-    # print(f"params_json: {params_json}\n\n")
-    
-    # response = requests.post(url, params=params_json)
-    
+    # print(f"Response: {response}\n")
+    # print(f"Response Type: {type(response)}\n")
     # print(response.status_code)
     # print(response.text)
-    # # ----------------------------------------------
+    rec_load = json.loads(response.text)
+    #print(f"Response Text: {rec_text}\n\n")
+    print(f"Response Text Type: {type(rec_load)}\n")
+    print(f"Rec Text Keys: {rec_load.keys()}\n")
     
-    return {"recommendations": response.json()}
+    rec_text = rec_load['recommendations']
+    pca_book_embeddings = rec_load['pca_book_embeddings']
+    pca_user_embeddings = rec_load['pca_user_embedding']
+    
+    
+    print(f"Rec Int: {rec_text}\n")
+    
+    recommendations = []
+    
+    for entry in rec_text:
+        #print(f"Entry: {entry}\n")
+        temp = list([entry.get('title'), entry.get('similarity')])
+        #print(f"temp: {temp}\n")
+        LLM_input = {'input_data': {'user_data':profile, 'recommendation': [temp]}}
+        #print(f"LLM_input: {LLM_input}\n")
+        expl_rec = requests.post("http://54.211.202.149/recommendation-explanation/", json=LLM_input)
+        
+        rec_metadata = {}
+        
+        rec_metadata['title'] = entry['title']
+        rec_metadata['similarity'] = entry['similarity']
+        
+        rec_metadata['explanation'] = expl_rec.text
+        
+        recommendations.append(rec_metadata)
+          
+    print(f"Expl Rec: {expl_rec}\n")
+    print(f"Expl Rec Type: {type(expl_rec)}\n")
+    print(f"Expl Rec Status Code: {expl_rec.status_code}\n")
+    print(f"Expl Rec Text: {expl_rec.text}\n")
+    print(f"Expl Rec JSON: {expl_rec.json()}\n")
+    
+    end_time = time.time()
+    
+    recommendations.append(['time elapsed', end_time - start_time])
+    
+    print(recommendations)
+    
+    return {"recommendations": recommendations}
     #return {"recommendations": recommendations}
 
 
@@ -544,5 +593,3 @@ async def get_recommendations(profile):
     #                   "by Toni Morrison, which you rated 5 stars."
     # }
     # ]
-
-

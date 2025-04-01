@@ -18,7 +18,8 @@ def transform_profile_for_recommendation_api(user_profile):
     api_format = {
         "instances": [
             {
-                "user_id": user_profile["user_id"],
+                #"user_id": user_profile["user_id"],
+                "user_id": "1", # Hardcoded for testing
                 "liked_books": {},
                 "disliked_books": {},
                 "liked_genres": {},
@@ -150,10 +151,20 @@ def get_recommendations():
             # Transform profile into API format
             api_format = transform_profile_for_recommendation_api(profile_data)
             
+            
+            api_format = json.dumps(api_format)
+            
+            print(f"API Format: {api_format}")  # Debugging line
+            
             response = requests.post(
                 f"{API_BASE_URL}/rec/recommendations",
-                json=api_format
+                params = {"profile": json.dumps(api_format)}
             )
+            
+            # "{\"instances\": [{\"user_id\": \"1\", \"liked_books\": {\"1000 Dessous: A History of Lingerie - Gilles N\\u00e9ret\": 5, \"1,000 Indian Recipes - Neelam Batra\": 5}, \"disliked_books\": {}, \"liked_genres\": {\"Architecture / General\": 1.0, \"Biography & Autobiography / General\": 1.0}, \"disliked_genres\": [\"Bibles / General\", \"Body, Mind & Spirit / General\"], \"liked_authors\": [\"Aafke E. Komter\", \"A.A. Kotov\"], \"disliked_authors\": [], \"additional_preferences\": \"yes\", \"authors\": 0, \"categories\": 0, \"description\": 0, \"target_book\": 0, \"target_book_rating\": 0}]}"
+            
+            print(f"Response: {response.json()}")
+            
             if response.status_code == 200:
                 return response.json()["recommendations"]
             st.error(f"Failed to get recommendations: {response.status_code}")
