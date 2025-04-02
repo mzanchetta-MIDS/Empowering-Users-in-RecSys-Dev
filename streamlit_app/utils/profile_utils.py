@@ -39,10 +39,10 @@ def save_genres(selected_genres, disliked_genres=""):
     updated_preferences = {genre: pref for genre, pref in current_preferences.items() 
                           if genre in selected_genres}
     
-    # Ensure all selected genres have a preference (default if not specified)
+    # Ensure all selected genres have a preference (keep if not specified)
     for genre in selected_genres:
         if genre not in updated_preferences:
-            updated_preferences[genre] = "default"
+            updated_preferences[genre] = "keep"
     
     # Save updated preferences
     st.session_state.user_profile["genre_preferences"] = updated_preferences

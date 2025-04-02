@@ -18,11 +18,23 @@
     "The Awakening and Selected Stories (Modern Library Classics)"
   ],
   "name": "Benjamin",
-  "genres": [],
+  "genres": [
+    "Architecture / General",
+    "Bibles / General"
+  ],
   "disliked_genres": [],
-  "genre_preferences": {},
-  "user_id": "74152d2b-eafe-43f8-bc62-8f6a61486d30",
-  "authors": [],
-  "favorite_books": [],
+  "genre_preferences": {
+    "Architecture / General": "keep",
+    "Bibles / General": "keep"
+  },
+  "user_id": "0dd2084f-9245-4719-a30a-3ad8ecdd5cad",
+  "authors": [
+    "Aafke E. Komter",
+    "A. A. Hoehling"
+  ],
+  "favorite_books": [
+    "10,000 Dreams and Their Traditional Meanings - Foulsham Staff",
+    "10,000 Dreams Interpreted or What's in a Dream - Gustavus Hindman Miller"
+  ],
   "additional_preferences": ""
 }

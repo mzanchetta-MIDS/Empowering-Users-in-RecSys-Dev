@@ -214,7 +214,7 @@ def show_profile():
     if "edit_preferences" not in st.session_state:
         st.session_state.edit_preferences = False
     
-    # Font-awesome link and icon styles remain the same
+    # Font-awesome link and icon styles
     st.markdown("""
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>

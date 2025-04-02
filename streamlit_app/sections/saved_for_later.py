@@ -1,5 +1,6 @@
 import streamlit as st
 from streamlit_star_rating import st_star_rating
+from utils.book_cover_utils import get_cover_image_url
 
 def show_saved_for_later():
     st.subheader("Your Library")
@@ -23,11 +24,19 @@ def show_saved_for_later():
     for idx, book in enumerate(saved_books):
         with cols[idx % max_cols]:
             with st.container():
-                # Uniform card height 
+                # Get the cover image URL for this book
+                cover_url = get_cover_image_url(book['title'])
+                
                 st.markdown(f"""
                 <div class="recommendation-card">
                     <div class="card-content">
-                        <h4 style="margin-top:5px;"><span style="color:#4e7694;">♦</span> {book['title']}</h4>
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <img src="{cover_url}"
+                                 style="width: 80px; height: auto; margin-right: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />
+                            <h4 style="margin: 0;">
+                                <span style="color:#4e7694;">♦</span> {book['title']}
+                            </h4>
+                        </div>
                         <p><strong>Author:</strong> {book['author']}</p>
                         <p><strong>Description:</strong> {book['description']}</p>
                         <p><strong>Why this was recommended:</strong> {book['explanation']}</p>

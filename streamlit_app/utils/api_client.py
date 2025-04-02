@@ -2,7 +2,6 @@ import requests
 import streamlit as st
 import json
 import uuid
-
 import logging
 
 # Set up logging for this module
@@ -44,61 +43,65 @@ def transform_profile_for_recommendation_api(user_profile):
         ]
     }
     
+    # Helper function to extract just the title from a book entry
+    def extract_title(book_entry):
+        if isinstance(book_entry, dict):
+            # For dictionary objects (like in saved_for_later)
+            return book_entry.get("title", "")
+        elif isinstance(book_entry, str) and " - " in book_entry:
+            # For "Title - Author" format (like in favorite_books)
+            return book_entry.split(" - ", 1)[0].strip()
+        else:
+            # Already just a title or unknown format
+            return book_entry
+    
+    # Set to track all unique book titles the user has interacted with
+    all_books = set()
+    
     # Process favorite books (onboarding) - rule #1
     for book in user_profile.get("favorite_books", []):
-        api_format["instances"][0]["liked_books"][book] = 5
-        # Also add to books_history
-        if book not in api_format["instances"][0]["books_history"]:
-            api_format["instances"][0]["books_history"].append(book)
+        title = extract_title(book)
+        if title:
+            api_format["instances"][0]["liked_books"][title] = 5
+            all_books.add(title)
     
     # Process ratings - rule #3
     for book, rating in user_profile.get("ratings", {}).items():
-        if rating >= 3:  # 3, 4, or 5 stars
-            api_format["instances"][0]["liked_books"][book] = rating
-        else:  # 1 or 2 stars
-            api_format["instances"][0]["disliked_books"][book] = rating
-        
-        # Add to books_history since rated books were definitely seen
-        if book not in api_format["instances"][0]["books_history"]:
-            api_format["instances"][0]["books_history"].append(book)
+        title = extract_title(book)
+        if title:
+            if rating >= 3:  # 3, 4, or 5 stars
+                api_format["instances"][0]["liked_books"][title] = rating
+            else:  # 1 or 2 stars
+                api_format["instances"][0]["disliked_books"][title] = rating
+            all_books.add(title)
     
     # Process books marked as "not interested" - rule #2
     for book in user_profile.get("not_interested", []):
-        api_format["instances"][0]["disliked_books"][book] = 1
-        
-        # Add to books_history since "not interested" books were definitely seen
-        if book not in api_format["instances"][0]["books_history"]:
-            api_format["instances"][0]["books_history"].append(book)
+        title = extract_title(book)
+        if title:
+            api_format["instances"][0]["disliked_books"][title] = 1
+            all_books.add(title)
     
     # Process books saved for later - rule #3 (before rating)
     for book_obj in user_profile.get("saved_for_later", []):
-        if isinstance(book_obj, dict):
-            book_title = book_obj.get("title", "")
-            if book_title and book_title not in api_format["instances"][0]["liked_books"]:
-                api_format["instances"][0]["liked_books"][book_title] = 4
-            
-            # Add to books_history since saved books were definitely seen
-            if book_title and book_title not in api_format["instances"][0]["books_history"]:
-                api_format["instances"][0]["books_history"].append(book_title)
+        title = extract_title(book_obj)
+        if title and title not in api_format["instances"][0]["liked_books"]:
+            api_format["instances"][0]["liked_books"][title] = 4
+            all_books.add(title)
     
     # Process recommendation history
     for book_title in user_profile.get("recommended_history", []):
-        if book_title not in api_format["instances"][0]["books_history"]:
-            api_format["instances"][0]["books_history"].append(book_title)
-
+        title = extract_title(book_title)
+        if title:
+            all_books.add(title)
+    
+    # Set books_history from all unique books
+    api_format["instances"][0]["books_history"] = list(all_books)
+    
     # Process genres and preferences - using genre_preferences
     for genre in user_profile.get("genres", []):
-        preference = user_profile.get("genre_preferences", {}).get(genre, "default")
-        
-        # Convert text preference to numerical weight
-        if preference == "more":
-            weight = 1.5
-        elif preference == "less":
-            weight = 0.5
-        else:  # default
-            weight = 1.0
-            
-        api_format["instances"][0]["liked_genres"][genre] = weight
+        preference = user_profile.get("genre_preferences", {}).get(genre, "keep")
+        api_format["instances"][0]["liked_genres"][genre] = preference
     
     # Process disliked genres
     for genre in user_profile.get("disliked_genres", []):
@@ -145,7 +148,7 @@ def get_book_covers():
         print(f"DEBUG: Requesting book covers from {API_BASE_URL}/rec/book-covers")
         response = requests.get(f"{API_BASE_URL}/rec/book-covers")
         print(f"DEBUG: Response status: {response.status_code}")
-        print(f"DEBUG: Response content: {response.text[:200]}...")  # Show first 200 chars
+        print(f"DEBUG: Response content: {response.text[:200]}...")  
         
         if response.status_code == 200:
             data = response.json()

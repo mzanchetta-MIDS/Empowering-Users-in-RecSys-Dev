@@ -30,8 +30,7 @@ def get_new_recommendations():
     # Filter by book title
     new_recommendations = [r for r in all_recommendations if r["title"] not in already_seen_titles]
     
-    # Return 6 recommendations for a batch instead of just 3
-    return new_recommendations[:6]  # Increased from 3 to 6
+    return new_recommendations[:6] 
 
 def show_ratings(book_title, key_prefix):
     """Display 5-star rating widget and handle selection"""

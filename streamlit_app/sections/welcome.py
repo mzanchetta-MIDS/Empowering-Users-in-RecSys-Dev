@@ -10,21 +10,19 @@ def show_welcome():
     We'll ask you a few quick questions about what you enjoy reading. Feel free to be as specific or general as you'd like—there are no wrong answers!
     """)
     
-    # Add name field
     name = st.text_input("What's your name?", key="user_name", value=st.session_state.user_profile.get("name", ""))
     
-    # Check if we're in loading state
     if "loading_data" not in st.session_state:
         st.session_state.loading_data = False
     
-    # Only enable the button if name is provided and not in loading state
+
     start_disabled = not name.strip() or st.session_state.loading_data
     
     # Create containers for all UI elements
     button_container = st.empty()
     loading_container = st.empty()
     progress_container = st.empty()
-    message_container = st.empty()  # New container for the larger message
+    message_container = st.empty()  
     
     # Show button only if not loading
     if not st.session_state.loading_data:
@@ -33,18 +31,14 @@ def show_welcome():
             button_label += " (Please enter your name first)"
         
         if button_container.button(button_label, disabled=start_disabled):
-            # Save the name to the user profile
             st.session_state.user_profile["name"] = name
             
-            # Set loading state
             st.session_state.loading_data = True
             
-            # Force rerun to update UI immediately
             st.rerun()
     
     # If we're in loading state, show loading UI and process data
     if st.session_state.loading_data:
-        # Remove the button
         button_container.empty()
         
         # Show loading message
@@ -58,9 +52,7 @@ def show_welcome():
         progress_bar = progress_container.progress(0)
         
         try:
-            # Load data with progress updates and larger messages
-            
-            # Loading genres with large text message
+
             message_container.markdown("""
             <div style="text-align: center; margin-top: 20px;">
                 <h3 style="color: #666; font-size: 24px; font-weight: bold;">Loading genre data...</h3>
@@ -99,16 +91,11 @@ def show_welcome():
                 time.sleep(0.1)
                 progress_bar.progress(percent)
             
-            # Reset loading state
             st.session_state.loading_data = False
-            
-            # Navigate to the next page
             st.session_state.page = "genres"
             st.rerun()
         
         except Exception as e:
-            # Handle any errors
             loading_container.error(f"Error loading data: {str(e)}")
             st.session_state.loading_data = False
-            # Show button again to let user retry
             button_container.button("Try Again", key="retry_button")
