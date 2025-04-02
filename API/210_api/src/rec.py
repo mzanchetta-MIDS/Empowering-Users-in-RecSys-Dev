@@ -39,11 +39,12 @@ class RecModelInstance(BaseModel):
     user_id: str
     liked_books: Dict[str, int] = {}
     disliked_books: Dict[str, int] = {}
-    liked_genres: Dict[str, float] = {}
+    liked_genres: Dict[str, str] = {}
     disliked_genres: List[str] = []
     liked_authors: List[str] = []
     disliked_authors: List[str] = []
     additional_preferences: Optional[str] = None
+    books_history: List[str] = [] 
     authors: int = 0
     categories: int = 0
     description: int = 0
