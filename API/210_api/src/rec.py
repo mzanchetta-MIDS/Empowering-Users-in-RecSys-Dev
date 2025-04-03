@@ -121,25 +121,6 @@ async def get_books_endpoint():
         return {"books": books}
 
 
-@rec.get("/genres/embeddings")
-async def get_genre_embeddings_endpoint():
-    """
-    Get genre embeddings for visualization
-    """
-    try:
-        embeddings_df = get_genre_embeddings()
-        
-        if not embeddings_df.empty:
-            # Convert DataFrame to list of dictionaries
-            embeddings = embeddings_df.to_dict(orient='records')
-            return {"embeddings": embeddings}
-        else:
-            # Return empty list if no embeddings found
-            return {"embeddings": []}
-    except Exception as e:
-        logger.error(f"Error in get_genre_embeddings_endpoint: {str(e)}")
-        return {"embeddings": [], "error": str(e)}
-
 @rec.get("/book-covers")
 async def get_book_covers_endpoint():
     """
@@ -165,199 +146,873 @@ async def update_user_profile(data: RecModelRequest):
     return {"message": "Profile updated successfully"}
 
 
-# @rec.post("/recommendations")
-# async def get_recommendations(profile: UserProfile):
-#     # Hard-coded recommendations for now
-#     recommendations = [
-#     {
-#         "id": "book-001",
-#         "title": "THE MASTER AND MARGARITA",
-#         "author": "Mikhail Bulgakov",
-#         "description": "A 50th-anniversary Deluxe Edition of the incomparable 20th-century masterpiece of satire and fantasy. "
-#         " One spring afternoon, the Devil, trailing fire and chaos in his wake, weaves himself out of the "
-#         "shadows and into Moscow. This fantastical, funny, and devastating satire of Soviet life combines two distinct yet "
-#         "interwoven parts, one set in contemporary Moscow, the other in ancient Jerusalem, each brimming with historical, imaginary, frightful, "
-#         "and wonderful characters. Written during the darkest days of Stalin's reign, The Master and Margarita "
-#         "became a literary phenomenon, signaling artistic and spiritual freedom for Russians everywhere.",
-#         "explanation": "This recommendation bridges your love of magical realism from García Márquez with "
-#                       "the philosophical depth you enjoy in Rushdie's work. The novel's non-linear structure "
-#                       "and blend of fantasy with harsh reality mirrors elements you appreciated in 'One "
-#                       "Hundred Years of Solitude' while introducing you to a different cultural context. " 
-#                       "Based on your preference for 'books that blur the line between reality and fantasy,' "
-#                       "this Russian classic should resonate deeply."
-#     },
-#         {
-#         "id": "book-007",
-#         "title": "The Many Troubles of Andy Russell",
-#         "author": "Haruki Murakami",
-#         "description": "Japan's most highly regarded novelist now vaults into the first ranks of international "
-#                     "fiction writers with this heroically imaginative novel, which is at once a detective "
-#                     "story, an account of a disintegrating marriage, and an excavation of the buried "
-#                     "secrets of World War II. In a Tokyo suburb a young man named Toru Okada searches for "
-#                     "his wife's missing cat. Soon he finds himself looking for his wife as well in a "
-#                     "netherworld that lies beneath the placid surface of Tokyo. As these searches intersect, "
-#                     "Okada encounters a bizarre group of allies and antagonists. Gripping, prophetic, suffused with comedy "
-#                     "and menace, The Wind-Up Bird Chronicle is a tour de force equal in scope to the "
-#                     "masterpieces of Mishima and Pynchon.",
-#         "explanation": "Since you've enjoyed Murakami's 'Hard-boiled Wonderland' but marked 'After Dark' "
-#                       "as not interesting, I'm recommending what many consider his definitive work. "
-#                       "'The Wind-Up Bird Chronicle' offers the dream-like qualities and philosophical "
-#                       "depth you appreciated in 'Hard-boiled Wonderland' but with a more "
-#                       "historical dimension through its exploration of Japan's wartime past. This "
-#                       "recommendation respects your Murakami preferences while offering of his most "
-#                       "celebrated works."
-#     },
-#         {
-#         "id": "book-005",
-#         "title": "Drown",
-#         "author": "Junot Díaz",
-#         "description": "Oscar is a sweet but disastrously overweight ghetto nerd who—from the New Jersey "
-#                     "home he shares with his old world mother and rebellious sister—dreams of becoming "
-#                     "the Dominican J.R.R. Tolkien and, most of all, finding love. But Oscar may never "
-#                     "get what he wants. Blame the curse that has haunted Oscar's family for "
-#                     "generations, following them on their epic journey from Santo Domingo to the USA. "
-#                     "Encapsulating Dominican-American history, The Brief Wondrous Life of Oscar Wao "
-#                     "opens our eyes to an astonishing vision of the contemporary American experience "
-#                     "and explores the endless human capacity to persevere—and risk it all—in the "
-#                     "name of love.",
-#         "explanation": "Based on your interest in authors like García Márquez and Rushdie, this novel "
-#                     "should appeal to you with its blend of cultural history and elements of the "
-#                     "supernatural. The family curse mentioned in the description echoes the magical "
-#                     "elements you enjoy, while the Dominican-American experience offers a fresh "
-#                     "cultural perspective. The book's focus on a character who loves fantasy literature "
-#                     "adds a unique dimension that connects with your appreciation for rich, imaginative "
-#                     "storytelling across different cultures."
-#     },
-#      {
-#         "id": "book-009",
-#         "title": "Kon-Tiki",
-#         "author": "Min Jin Lee",
-#         "description": "This sweeping historical epic follows four generations of a Korean family who "
-#                       "move to Japan in the early 20th century. Beginning in 1910 with a pregnancy "
-#                       "outside of marriage, the novel traces the family's struggles with identity, "
-#                       "belonging, and survival through colonization, war, and persistent discrimination "
-#                       "in their adopted country.",
-#         "explanation": "You've shown interest in multi-generational family sagas through your appreciation "
-#                       "of 'One Hundred Years of Solitude.' 'Pachinko' offers a similar scope but focuses "
-#                       "on the Korean-Japanese experience. The " 
-#                       "rich character development and exploration of cultural identity should resonate "
-#                       "with your interest in books that teach you about 'different historical periods or "
-#                       "cultures.' This recommendation expands your literary horizons while staying true "
-#                       "to your core interests."
-#     },
-#     {
-#         "id": "book-002",
-#         "title": "For The Time Being",
-#         "author": "Ruth Ozeki",
-#         "description": "A compelling dual narrative that connects a novelist in British Columbia with a "
-#                       "teenage girl in Tokyo through a diary washed ashore after the 2011 tsunami. The "
-#                       "novel explores quantum physics, Zen Buddhism, suicide, bullying, and the slippery "
-#                       "nature of time while weaving a deeply human story across cultures and generations.",
-#         "explanation": "Since you rated 'The Wind-Up Bird Chronicle' highly, this novel offers similar "
-#                       "elements of Japanese culture with magical elements, but through a female author's "
-#                       "perspective. The book's meditation on time and interconnectedness mirrors themes "
-#                       "you've enjoyed in Murakami's work, while its structural experimentation aligns "
-#                       "with your stated appreciation for 'stories that challenge conventional narrative "
-#                       "structures.' Your interest in cross-cultural stories makes this an excellent next step."
-#     },
-#     {
-#         "id": "book-010",
-#         "title": "Betrayed",
-#         "author": "Milan Kundera",
-#         "description": "In *Betrayed*, Milan Kundera tells the story of a "
-#                     "young woman in love with a man torn between his love for her and his incorrigible "
-#                     "womanizing and one of his mistresses and her humbly faithful lover. This "
-#                     "magnificent novel juxtaposes geographically distant places, brilliant and playful "
-#                     "reflections, and a variety of styles, to take its place as perhaps the major "
-#                     "achievement of one of the world's truly great writers.",
-#         "explanation": "While you enjoy the rich, complex worlds of García Márquez and Rushdie, this "
-#                     "novel offers a perfect change of pace. Kundera's literary style remains "
-#                     "sophisticated but with a more playful approach that should serve as the 'palate "
-#                     "cleanser' you mentioned sometimes needing. The European setting expands the "
-#                     "cultural range of your reading, while its exploration of relationships and "
-#                     "philosophy provides the depth you value without the intensity of magical realism. "
-#                     "A thoughtful but refreshing addition to your reading journey."
-#     },
-#     {
-#         "id": "book-006",
-#         "title": "Home To You",
-#         "author": "Yaa Gyasi",
-#         "description": "A novel of breathtaking sweep and emotional power that traces three hundred years "
-#                     "in Ghana and along the way also becomes a truly great American novel. Extraordinary "
-#                     "for its exquisite language, its implacable sorrow, its soaring beauty, and for its "
-#                     "monumental portrait of the forces that shape families and nations, Homegoing "
-#                     "heralds the arrival of a major new voice in contemporary fiction.",
-#         "explanation": "This novel aligns with your interest in literary works that span generations "
-#                     "and cultures. The description mentions its 'exquisite language' and 'soaring beauty,' "
-#                     "which connects with your appreciation for beautiful prose. As someone who enjoys "
-#                     "books that explore different historical periods and cultures, this story that traces "
-#                     "three hundred years in Ghana while also engaging with American experiences should "
-#                     "provide the kind of rich cultural exploration you value in your reading."
-#     },
-#         {
-#         "id": "book-003",
-#         "title": "Betrayed",
-#         "author": "Arundhati Roy",
-#         "description": "Set in Kerala, India, this novel tells the story of twins Rahel and Estha whose "
-#                       "lives are destroyed by the 'Love Laws' that dictate 'who should be loved, and how, "
-#                       "and how much.' The narrative shifts between 1969 and 1993, unraveling a family "
-#                       "tragedy against the backdrop of India's caste system, politics, and social taboos.",
-#         "explanation": "You marked 'Midnight's Children' as a favorite, and this Booker Prize-winning "
-#                       "novel offers another powerful exploration of post-colonial India but through a "
-#                       "more intimate, family-focused lens. Roy's lush, poetic prose will appeal to your "
-#                       "appreciation for 'beautiful prose' mentioned in your preferences. The novel's "
-#                       "exploration of forbidden love and social constraints echoes themes in 'Beloved' "
-#                       "by Toni Morrison, which you rated 5 stars."
-#     }
-#     ]
-#     return {"recommendations": recommendations}
-
-
 @rec.post("/recommendations")
 async def get_recommendations(profile: UserProfile):
     """
     Get personalized recommendations based on user profile.
-    Returns recommendations in the new format where book details are embedded in the explanation field.
+    Returns recommendations in the new nested format with embeddings and timing data.
     """
-    # Hard-coded sample recommendations in the new format
-    recommendations = [
-        {
-            "title": "Caesar: The Life of a Panda Leopard",
-            "similarity": 0.6175022438470481,
-            "explanation": "{\"recommendation_explanation\":{\"recommended_book\":\"Caesar: The Life of a Panda Leopard\",\"author\":\"\\\"Patrick OBrian\\\"\",\"description\":\"Tells the enchanting yet bloodthirsty story of a creature whose father was a giant panda and whose mother was a snow leopard, in a new edition of a book first published in 1930, when the author was fifteen years old. Reprint.\",\"explanation\":\"Based on your preference for Architecture and Biography & Autobiography genres, and your dislike for Art, the recommended book, \\\"Caesar: The Life of a Panda Leopard,\\\" aligns with your interests. Although it's categorized under Folk Tales, Legends & Mythology, its genre is not explicitly stated as Fantasy, which you dislike. This book's unique blend of storytelling and potential historical elements may appeal to you, as seen in your enjoyment of Jane Austen's biographical novels.\"}}"
-        },
-        {
-            "title": "Arnhem",
-            "similarity": 0.5561827944775912,
-            "explanation": "{\"recommendation_explanation\":{\"recommended_book\":\"Arnhem\",\"author\":\"Antony Beevor\",\"description\":\"On 17 September 1944, General Kurt Student, the founder of Nazi Germany's parachute forces, heard the growing roar of aero engines. He went out on to his balcony above the flat landscape of southern Holland to watch the vast air armada of Dakotas and gliders,carrying the British 1st Airborne and the American 101st and 82nd Airborne Divisions. He gazed up in envy at the greatest demonstration of paratroop power ever seen. Operation Market Garden, the plan to end the war by capturing the bridges leading to the Lower Rhine and beyond, was a bold concept: the Americans thought it unusually bold for Field Marshal Montgomery. But the cost of failure was horrendous, above all for the Dutch who risked everything to help. German reprisals were cruel and lasted until the end of the war.\",\"explanation\":\"Based on your preference for genres like Architecture and Biography & Autobiography, and your dislike for Art, the recommended book, \\\"Arnhem\\\" by Antony Beevor, was suggested due to its historical context and narrative style. This non-fantasy military history book aligns with your interests and avoids the disliked genre. The book's detailed account of Operation Market Garden provides a rich, engaging read, making it a suitable match for your reading history and preferences.\"}}"
-        },
-        {
-            "title": "The Silmarillion",
-            "similarity": 0.5270004643591029,
-            "explanation": "{\"recommendation_explanation\":{\"recommended_book\":\"The Silmarillion\",\"author\":\"J. R. R. Tolkien\",\"description\":\"Tales and legends chronicling the world's beginnings and the happenings of the First Age, focusing on the theft of the Simarils--the three jewels crafted by Fèeanor--by Morgoth, first Dark Lord of Middle-earth.\",\"explanation\":\"Based on your preference for biography & autobiography and architecture genres, and your dislike for art, we recommend J.R.R. Tolkien's \\\"The Silmarillion\\\". This book shares elements of mythology and storytelling with your enjoyed reads. Despite being classified as fantasy, it primarily focuses on the creation of Middle-earth and its history, which aligns with your interest in architecture and historical narratives. Your dislike for fantasy does not pose an issue, as \\\"The Silmarillion\\\" is more about the world's origins and less about magical creatures or fantastical elements.\"}}"
-        },
-        {
-            "title": "A Day of Pleasure: Stories of a Boy Growing up in Warsaw",
-            "similarity": 0.5254086905116817,
-            "explanation": "{\"recommendation_explanation\":{\"recommended_book\":\"A Day of Pleasure: Stories of a Boy Growing up in Warsaw\",\"author\":\"Isaac Bashevis Singer\",\"description\":\"An ALA Notable Book. A Day of Pleasure is the winner of the 1970 National Book Award for Children's Books.\",\"explanation\":\"Based on your reading history, you have a preference for Architecture and Biography & Autobiography genres. We found a book, 'A Day of Pleasure: Stories of a Boy Growing up in Warsaw' by Isaac Bashevis Singer, which aligns with your interests. This book is a collection of stories, providing a glimpse into the life of a boy growing up in Warsaw. Its genre can be categorized as Young Adult Nonfiction / General, which is close to Biography & Autobiography. Since you have not expressed a dislike for this genre, and you have not indicated a preference for fantasy, this book was recommended.\"}}"
-        },
-        {
-            "title": "Gift From the Sea - An Answer to the Conflicts in Our Lives",
-            "similarity": 0.5696139166700369,
-            "explanation": "{\"recommendation_explanation\":{\"recommended_book\":\"Gift From the Sea - An Answer to the Conflicts in Our Lives\",\"author\":\"Candace Fleming\",\"description\":\"WINNER OF THE 2021 YALSA AWARD FOR EXCELLENCE IN NONFICTION FOR YOUNG ADULTS! SIX STARRED REVIEWS! Discover the dark side of Charles Lindbergh--one of America's most celebrated heroes and complicated men--in this riveting biography from the acclaimed author of The Family Romanov. First human to cross the Atlantic via airplane; one of the first American media sensations; Nazi sympathizer and anti-Semite; loner whose baby was kidnapped and murdered; champion of Eugenics, the science of improving a human population by controlled breeding; tireless environmentalist. Charles Lindbergh was all of the above and more. Here is a rich, multi-faceted, utterly spellbinding biography about an American hero who was also a deeply flawed man. In this time where values Lindbergh held, like white Nationalism and America First, are once again on the rise, The Rise and Fall of Charles Lindbergh is essential reading for teens and history fanatics alike.\",\"explanation\":\"Based on your preference for biography & autobiography and your dislike for art, \\\"Gift From the Sea - An Answer to the Conflicts in Our Lives\\\" was recommended. This book, a biography, aligns with your favorite genre and does not contain any elements of art, as per your disliked genre. The author, Candace Fleming, is not among your disliked authors. Additionally, the book's genre, Young Adult Nonfiction, is not a genre you've disliked in the past. Given your preference for non-fantasy content, this book, which is not a work of fantasy, was considered a good fit for you.\"}}"
-        },
-        {
-            "title": "The Awakening and Selected Stories (Modern Library Classics)",
-            "similarity": 0.5212525372520747,
-            "explanation": "{\"recommendation_explanation\":{\"recommended_book\":\"The Awakening and Selected Stories (Modern Library Classics)\",\"author\":\"Kate Chopin\",\"description\":\"WHEN IT FIRST APPEARED IN 1899, THE AWAKENING WAS GREETED WITH CRIES OF OUTRAGE. THE NOVEL'S FRANK PORTRAYAL OF A WOMAN'S EMOTIONAL, INTELLECTUAL, AND SEXUAL AWAKENING SHOCKED THE SENSIBILITIES OF THE TIME AND DESTROYED THE AUTHOR'S REPUTATION AND CAREER.\",\"explanation\":\"Based on your preference for genres like Architecture and Biography & Autobiography, and your dislike for Art, the recommended book, 'The Awakening and Selected Stories' by Kate Chopin, was chosen due to its genre classification as Fiction. This collection of stories aligns with your interest in various aspects of human life and experiences, as seen in your enjoyment of biographies and autobiographies. Despite not having a direct connection to your preferred genres, the book's strong narrative and its exploration of emotional, intellectual, and sexual awakening might appeal to you, as evidenced by your appreciation for works by Jane Austen and Neil Gaiman. Additionally, since you've indicated a dislike for fantasy, 'The Awakening and Selected Stories' does not contain any fantastical elements.\"}}"
+    # Sample data based on the new structure
+    response_data = {
+        "recommendations": {
+            "recommendations": [
+                {
+                    "title": "Caesar: The Life of a Panda Leopard",
+                    "similarity": 0.6175022438470481,
+                    "explanation": "{\"recommendation_explanation\":{\"recommended_book\":\"Caesar: The Life of a Panda Leopard\",\"author\":\"\\\"Patrick OBrian\\\"\",\"description\":\"Tells the enchanting yet bloodthirsty story of a creature whose father was a giant panda and whose mother was a snow leopard, in a new edition of a book first published in 1930, when the author was fifteen years old. Reprint.\",\"explanation\":\"Based on your preference for Architecture and Biography & Autobiography genres, and your dislike for Art, the recommended book, \\\"Caesar: The Life of a Panda Leopard,\\\" might intrigue you. This book, although categorized under Folk Tales, Legends & Mythology, shares thematic elements with biographies. It's a story about a unique creature, much like architectural marvels or intriguing historical figures. Despite not being a traditional architecture or biography title, its narrative structure and engaging storytelling could appeal to your tastes. Additionally, since you've indicated a dislike for fantasy, this book, being a folk tale, does not contain fantastical elements.\"}}"
+                },
+                {
+                    "title": "Gift From the Sea - An Answer to the Conflicts in Our Lives",
+                    "similarity": 0.5696139166700369,
+                    "explanation": "{\"recommendation_explanation\":{\"recommended_book\":\"Gift From the Sea - An Answer to the Conflicts in Our Lives\",\"author\":\"Candace Fleming\",\"description\":\"WINNER OF THE 2021 YALSA AWARD FOR EXCELLENCE IN NONFICTION FOR YOUNG ADULTS! SIX STARRED REVIEWS! Discover the dark side of Charles Lindbergh--one of America's most celebrated heroes and complicated men--in this riveting biography from the acclaimed author of The Family Romanov. First human to cross the Atlantic via airplane; one of the first American media sensations; Nazi sympathizer and anti-Semite; loner whose baby was kidnapped and murdered; champion of Eugenics, the science of improving a human population by controlled breeding; tireless environmentalist. Charles Lindbergh was all of the above and more. Here is a rich, multi-faceted, utterly spellbinding biography about an American hero who was also a deeply flawed man. In this time where values Lindbergh held, like white Nationalism and America First, are once again on the rise, The Rise and Fall of Charles Lindbergh is essential reading for teens and history fanatics alike.\",\"explanation\":\"Based on your preference for biography & autobiography and your dislike for art, \\\"Gift From the Sea\\\" was recommended. This book, a biography, aligns with your interests. It's about Charles Lindbergh, a complex historical figure, which might appeal to you given your enjoyment of biographies about intriguing individuals. Since you've indicated a dislike for fantasy, rest assured that this book does not contain any fantasy elements.\"}}"
+                },
+                {
+                    "title": "Arnhem",
+                    "similarity": 0.5561827944775912,
+                    "explanation": "{\"recommendation_explanation\":{\"recommended_book\":\"Arnhem\",\"author\":\"Antony Beevor\",\"description\":\"On 17 September 1944, General Kurt Student, the founder of Nazi Germany's parachute forces, heard the growing roar of aero engines. He went out on to his balcony above the flat landscape of southern Holland to watch the vast air armada of Dakotas and gliders,carrying the British 1st Airborne and the American 101st and 82nd Airborne Divisions. He gazed up in envy at the greatest demonstration of paratroop power ever seen. Operation Market Garden, the plan to end the war by capturing the bridges leading to the Lower Rhine and beyond, was a bold concept: the Americans thought it unusually bold for Field Marshal Montgomery. But the cost of failure was horrendous, above all for the Dutch who risked everything to help. German reprisals were cruel and lasted until the end of the war.\",\"explanation\":\"Based on your preference for biography & autobiography and architecture genres, and your dislike for art, the recommended book, \\\"Arnhem\\\" by Antony Beevor, was suggested. This history book shares themes of historical events and military strategy, aligning with your interests. Additionally, it does not contain fantasy elements, as per your preference.\"}}"
+                },
+                {
+                    "title": "The Silmarillion",
+                    "similarity": 0.5270004643591029,
+                    "explanation": "{\"recommendation_explanation\":{\"recommended_book\":\"The Silmarillion\",\"author\":\"J. R. R. Tolkien\",\"description\":\"Tales and legends chronicling the world's beginnings and the happenings of the First Age, focusing on the theft of the Simarils--the three jewels crafted by Fèeanor--by Morgoth, first Dark Lord of Middle-earth.\",\"explanation\":\"Based on your preference for genres like Architecture and Biography & Autobiography, and your dislike for Art, the recommended book, \\\"The Silmarillion\\\" by J.R.R. Tolkien, was suggested due to its narrative structure and content. This epic work of mythology and legend shares thematic elements with biography, as it chronicles the history of Middle-earth and its characters. Despite your dislike for fantasy, \\\"The Silmarillion\\\" is not a typical fantasy novel. Instead, it's a collection of interconnected stories with a strong focus on history and mythology, which aligns with your interests.\"}}"
+                },
+                {
+                    "title": "A Day of Pleasure: Stories of a Boy Growing up in Warsaw",
+                    "similarity": 0.5254086905116817,
+                    "explanation": "{\"recommendation_explanation\":{\"recommended_book\":\"A Day of Pleasure: Stories of a Boy Growing up in Warsaw\",\"author\":\"Isaac Bashevis Singer\",\"description\":\"An ALA Notable Book. A Day of Pleasure is the winner of the 1970 National Book Award for Children's Books.\",\"explanation\":\"Based on your preference for genres like Architecture and Biography & Autobiography, and your dislike for Art, the recommended book, \\\"A Day of Pleasure: Stories of a Boy Growing up in Warsaw\\\" by Isaac Bashevis Singer, was suggested. This book is a collection of stories, which falls under the Biography & Autobiography genre, and aligns with your interest. Additionally, Singer's writing style is known for its rich detail and human insight, which might appeal to your appreciation for architecture. Since you've indicated a dislike for fantasy, this book, being a work of realistic fiction, avoids that genre as well.\"}}"
+                },
+                {
+                    "title": "The Awakening and Selected Stories (Modern Library Classics)",
+                    "similarity": 0.5212525372520747,
+                    "explanation": "{\"recommendation_explanation\":{\"recommended_book\":\"The Awakening and Selected Stories (Modern Library Classics)\",\"author\":\"Kate Chopin\",\"description\":\"WHEN IT FIRST APPEARED IN 1899, THE AWAKENING WAS GREETED WITH CRIES OF OUTRAGE. THE NOVEL'S FRANK PORTRAYAL OF A WOMAN'S EMOTIONAL, INTELLECTUAL, AND SEXUAL AWAKENING SHOCKED THE SENSIBILITIES OF THE TIME AND DESTROYED THE AUTHOR'S REPUTATION AND CAREER.\",\"explanation\":\"Based on your preference for Biography & Autobiography and Architecture genres, and your dislike for Art, the recommended book, \\\"The Awakening and Selected Stories\\\" by Kate Chopin, aligns with your interests. This collection of stories doesn't contain fantasy elements, as per your preference, and offers a rich exploration of human emotions and experiences, which resonates with your enjoyed books.\"}}"
+                }
+            ],
+            "pca_book_embeddings": [
+                {
+                    "genre": "Fiction / Mystery & Detective",
+                    "PCA_book_embeddings": [
+                    -5.438150405883789,
+                    -1.3403127193450928,
+                    2.9956777095794678
+                    ]
+                },
+                {
+                    "genre": "Young Adult Fiction / General",
+                    "PCA_book_embeddings": [
+                    -4.5849609375,
+                    1.3955729007720947,
+                    0.11003676056861877
+                    ]
+                },
+                {
+                    "genre": "Drama / General",
+                    "PCA_book_embeddings": [
+                    -1.2343416213989258,
+                    0.3158116638660431,
+                    -0.28553810715675354
+                    ]
+                },
+                {
+                    "genre": "Juvenile Fiction / Fantasy & Magic",
+                    "PCA_book_embeddings": [
+                    -4.245406150817871,
+                    -0.04301312193274498,
+                    0.16828033328056335
+                    ]
+                },
+                {
+                    "genre": "Juvenile Fiction / General",
+                    "PCA_book_embeddings": [
+                    -1.1728687286376953,
+                    -3.1813459396362305,
+                    1.6162090301513672
+                    ]
+                },
+                {
+                    "genre": "Fiction / World Literature",
+                    "PCA_book_embeddings": [
+                    -4.724133014678955,
+                    0.8812577724456787,
+                    1.2946008443832397
+                    ]
+                },
+                {
+                    "genre": "Fiction / Romance",
+                    "PCA_book_embeddings": [
+                    -4.6014404296875,
+                    2.067049980163574,
+                    0.7860485911369324
+                    ]
+                },
+                {
+                    "genre": "Political Science / General",
+                    "PCA_book_embeddings": [
+                    3.234452724456787,
+                    0.5474057197570801,
+                    -2.3362879753112793
+                    ]
+                },
+                {
+                    "genre": "Fiction / Literary",
+                    "PCA_book_embeddings": [
+                    -4.634605884552002,
+                    -1.196645736694336,
+                    3.3640944957733154
+                    ]
+                },
+                {
+                    "genre": "Business & Economics / General",
+                    "PCA_book_embeddings": [
+                    5.193511009216309,
+                    0.22182206809520721,
+                    2.339620351791382
+                    ]
+                },
+                {
+                    "genre": "Juvenile Fiction / Legends, Myths, Fables",
+                    "PCA_book_embeddings": [
+                    0.13802815973758698,
+                    0.8978589177131653,
+                    -1.0384076833724976
+                    ]
+                },
+                {
+                    "genre": "Juvenile Fiction / Science Fiction",
+                    "PCA_book_embeddings": [
+                    -2.917534351348877,
+                    -4.2339582443237305,
+                    0.14952713251113892
+                    ]
+                },
+                {
+                    "genre": "Fiction / Fairy Tales, Folk Tales, Legends & Mythology",
+                    "PCA_book_embeddings": [
+                    -4.036827564239502,
+                    -2.536520004272461,
+                    1.1834754943847656
+                    ]
+                },
+                {
+                    "genre": "Fiction / Science Fiction",
+                    "PCA_book_embeddings": [
+                    -3.5960030555725098,
+                    1.3500912189483643,
+                    2.0808639526367188
+                    ]
+                },
+                {
+                    "genre": "Fiction / Classics",
+                    "PCA_book_embeddings": [
+                    -3.2375881671905518,
+                    0.36583390831947327,
+                    -0.7111803889274597
+                    ]
+                },
+                {
+                    "genre": "Religion / General",
+                    "PCA_book_embeddings": [
+                    3.6169557571411133,
+                    2.2500927448272705,
+                    0.5735050439834595
+                    ]
+                },
+                {
+                    "genre": "Fiction / General",
+                    "PCA_book_embeddings": [
+                    -4.009270668029785,
+                    0.3470594882965088,
+                    1.7322139739990234
+                    ]
+                },
+                {
+                    "genre": "Fiction / Ghost",
+                    "PCA_book_embeddings": [
+                    -3.214536428451538,
+                    -0.6168758869171143,
+                    -0.7554115653038025
+                    ]
+                },
+                {
+                    "genre": "Fiction / Action & Adventure",
+                    "PCA_book_embeddings": [
+                    -5.370151519775391,
+                    1.182400107383728,
+                    -1.2853612899780273
+                    ]
+                },
+                {
+                    "genre": "Juvenile Nonfiction / General",
+                    "PCA_book_embeddings": [
+                    0.7215129137039185,
+                    -0.12928983569145203,
+                    0.9324870705604553
+                    ]
+                },
+                {
+                    "genre": "Juvenile Fiction / Fairy Tales & Folklore",
+                    "PCA_book_embeddings": [
+                    -2.529700756072998,
+                    -0.7770594954490662,
+                    -2.5146796703338623
+                    ]
+                },
+                {
+                    "genre": "Fiction / War & Military",
+                    "PCA_book_embeddings": [
+                    -4.0611467361450195,
+                    0.7607995271682739,
+                    2.0499777793884277
+                    ]
+                },
+                {
+                    "genre": "History / Maritime History & Piracy",
+                    "PCA_book_embeddings": [
+                    2.6677780151367188,
+                    -2.8436758518218994,
+                    -1.354006052017212
+                    ]
+                },
+                {
+                    "genre": "Juvenile Fiction / Thrillers & Suspense",
+                    "PCA_book_embeddings": [
+                    -1.5964909791946411,
+                    1.9213664531707764,
+                    -0.048280179500579834
+                    ]
+                },
+                {
+                    "genre": "Comics & Graphic Novels / Superheroes",
+                    "PCA_book_embeddings": [
+                    -1.6730304956436157,
+                    0.3766522705554962,
+                    -2.269861936569214
+                    ]
+                },
+                {
+                    "genre": "Literary Criticism / General",
+                    "PCA_book_embeddings": [
+                    0.798335075378418,
+                    -3.5292582511901855,
+                    -1.2145613431930542
+                    ]
+                },
+                {
+                    "genre": "Science / General",
+                    "PCA_book_embeddings": [
+                    5.12402868270874,
+                    -0.3641580641269684,
+                    2.0461199283599854
+                    ]
+                },
+                {
+                    "genre": "Reference / General",
+                    "PCA_book_embeddings": [
+                    1.5324323177337646,
+                    1.3600170612335205,
+                    0.14596836268901825
+                    ]
+                },
+                {
+                    "genre": "History / General",
+                    "PCA_book_embeddings": [
+                    3.140113115310669,
+                    -1.2462399005889893,
+                    4.5324320793151855
+                    ]
+                },
+                {
+                    "genre": "Fiction / Occult & Supernatural",
+                    "PCA_book_embeddings": [
+                    -4.803785800933838,
+                    0.44479042291641235,
+                    1.7178601026535034
+                    ]
+                },
+                {
+                    "genre": "Philosophy / General",
+                    "PCA_book_embeddings": [
+                    3.866582155227661,
+                    0.4423665702342987,
+                    -0.9557384848594666
+                    ]
+                },
+                {
+                    "genre": "Computers / General",
+                    "PCA_book_embeddings": [
+                    4.115031719207764,
+                    0.1375100165605545,
+                    0.5807000994682312
+                    ]
+                },
+                {
+                    "genre": "Biography & Autobiography / Personal Memoirs",
+                    "PCA_book_embeddings": [
+                    0.4472804665565491,
+                    2.173128128051758,
+                    2.331615447998047
+                    ]
+                },
+                {
+                    "genre": "Art / General",
+                    "PCA_book_embeddings": [
+                    1.1135412454605103,
+                    1.4369637966156006,
+                    1.2995800971984863
+                    ]
+                },
+                {
+                    "genre": "Fiction / Visionary & Metaphysical",
+                    "PCA_book_embeddings": [
+                    -0.9554826021194458,
+                    -3.77955961227417,
+                    0.13419589400291443
+                    ]
+                },
+                {
+                    "genre": "Family & Relationships / General",
+                    "PCA_book_embeddings": [
+                    2.385143280029297,
+                    1.1062283515930176,
+                    -0.7537354826927185
+                    ]
+                },
+                {
+                    "genre": "Fiction / Thrillers",
+                    "PCA_book_embeddings": [
+                    -4.6142730712890625,
+                    -1.6675896644592285,
+                    -0.836441159248352
+                    ]
+                },
+                {
+                    "genre": "Health & Fitness / General",
+                    "PCA_book_embeddings": [
+                    4.277723789215088,
+                    -2.0719809532165527,
+                    -0.43407657742500305
+                    ]
+                },
+                {
+                    "genre": "Fiction / Anthologies",
+                    "PCA_book_embeddings": [
+                    -2.895049810409546,
+                    -1.5323381423950195,
+                    1.6593598127365112
+                    ]
+                },
+                {
+                    "genre": "Biography & Autobiography / General",
+                    "PCA_book_embeddings": [
+                    1.5223937034606934,
+                    -0.6423241496086121,
+                    -2.299941062927246
+                    ]
+                },
+                {
+                    "genre": "Fiction / Sea Stories",
+                    "PCA_book_embeddings": [
+                    -3.508021116256714,
+                    -1.5504837036132812,
+                    1.1619296073913574
+                    ]
+                },
+                {
+                    "genre": "Fiction / Erotica",
+                    "PCA_book_embeddings": [
+                    -5.243581295013428,
+                    2.0993425846099854,
+                    2.3194565773010254
+                    ]
+                },
+                {
+                    "genre": "Fiction / Sagas",
+                    "PCA_book_embeddings": [
+                    -4.248469352722168,
+                    2.244277000427246,
+                    1.6796361207962036
+                    ]
+                },
+                {
+                    "genre": "Fiction / Magical Realism",
+                    "PCA_book_embeddings": [
+                    -4.637389659881592,
+                    1.5850467681884766,
+                    1.5464048385620117
+                    ]
+                },
+                {
+                    "genre": "Fiction / Biographical",
+                    "PCA_book_embeddings": [
+                    -2.5752623081207275,
+                    0.09400752931833267,
+                    -3.304532051086426
+                    ]
+                },
+                {
+                    "genre": "History / Expeditions & Discoveries",
+                    "PCA_book_embeddings": [
+                    2.8505969047546387,
+                    1.361673355102539,
+                    2.76843523979187
+                    ]
+                },
+                {
+                    "genre": "Education / General",
+                    "PCA_book_embeddings": [
+                    1.6385694742202759,
+                    -1.9559130668640137,
+                    0.5622413754463196
+                    ]
+                },
+                {
+                    "genre": "Juvenile Fiction / Nursery Rhymes",
+                    "PCA_book_embeddings": [
+                    -1.788420557975769,
+                    -2.825669288635254,
+                    0.10402479022741318
+                    ]
+                },
+                {
+                    "genre": "Humor / Topic",
+                    "PCA_book_embeddings": [
+                    0.20103098452091217,
+                    -4.576673984527588,
+                    1.264945387840271
+                    ]
+                },
+                {
+                    "genre": "Nature / General",
+                    "PCA_book_embeddings": [
+                    1.7667920589447021,
+                    3.2475969791412354,
+                    1.455953598022461
+                    ]
+                },
+                {
+                    "genre": "True Crime / Murder",
+                    "PCA_book_embeddings": [
+                    -0.7616703510284424,
+                    2.149416446685791,
+                    -3.5549097061157227
+                    ]
+                },
+                {
+                    "genre": "Psychology / General",
+                    "PCA_book_embeddings": [
+                    5.082486152648926,
+                    -1.6022554636001587,
+                    1.9984302520751953
+                    ]
+                },
+                {
+                    "genre": "Social Science / General",
+                    "PCA_book_embeddings": [
+                    1.3026400804519653,
+                    0.34495311975479126,
+                    -1.6167985200881958
+                    ]
+                },
+                {
+                    "genre": "Photography / General",
+                    "PCA_book_embeddings": [
+                    4.38034200668335,
+                    0.29413220286369324,
+                    -1.7569100856781006
+                    ]
+                },
+                {
+                    "genre": "Religion / Theology",
+                    "PCA_book_embeddings": [
+                    3.3539645671844482,
+                    3.0425772666931152,
+                    0.721721351146698
+                    ]
+                },
+                {
+                    "genre": "Fiction / Dystopian",
+                    "PCA_book_embeddings": [
+                    -3.3099026679992676,
+                    -1.3114646673202515,
+                    2.5899317264556885
+                    ]
+                },
+                {
+                    "genre": "History / Wars & Conflicts",
+                    "PCA_book_embeddings": [
+                    2.53027081489563,
+                    -0.9076191782951355,
+                    0.22848986089229584
+                    ]
+                },
+                {
+                    "genre": "Body, Mind & Spirit / General",
+                    "PCA_book_embeddings": [
+                    3.4271962642669678,
+                    -0.2367611825466156,
+                    3.5141208171844482
+                    ]
+                },
+                {
+                    "genre": "Fiction / Short Stories",
+                    "PCA_book_embeddings": [
+                    -2.123596668243408,
+                    2.3700344562530518,
+                    1.0264885425567627
+                    ]
+                },
+                {
+                    "genre": "History / Social History",
+                    "PCA_book_embeddings": [
+                    0.685825526714325,
+                    1.4597417116165161,
+                    1.6025736331939697
+                    ]
+                },
+                {
+                    "genre": "Games & Activities / General",
+                    "PCA_book_embeddings": [
+                    0.517029881477356,
+                    -3.0313332080841064,
+                    0.6287784576416016
+                    ]
+                },
+                {
+                    "genre": "Fiction / Family Life",
+                    "PCA_book_embeddings": [
+                    -4.165838718414307,
+                    3.811162233352661,
+                    -0.19513849914073944
+                    ]
+                },
+                {
+                    "genre": "Comics & Graphic Novels / General",
+                    "PCA_book_embeddings": [
+                    -3.588148593902588,
+                    0.8537105321884155,
+                    -2.793095827102661
+                    ]
+                },
+                {
+                    "genre": "Fiction / City Life",
+                    "PCA_book_embeddings": [
+                    -5.523941993713379,
+                    -0.3617860972881317,
+                    -0.9894546866416931
+                    ]
+                },
+                {
+                    "genre": "Biography & Autobiography / Literary Figures",
+                    "PCA_book_embeddings": [
+                    0.8252467513084412,
+                    -0.5769647359848022,
+                    -1.0717499256134033
+                    ]
+                },
+                {
+                    "genre": "Juvenile Fiction / Short Stories",
+                    "PCA_book_embeddings": [
+                    -2.8069186210632324,
+                    -1.3083537817001343,
+                    -2.148289203643799
+                    ]
+                },
+                {
+                    "genre": "Fiction / Crime",
+                    "PCA_book_embeddings": [
+                    -1.1667840480804443,
+                    -2.139892101287842,
+                    1.239030361175537
+                    ]
+                },
+                {
+                    "genre": "Travel / Essays & Travelogues",
+                    "PCA_book_embeddings": [
+                    -1.5849521160125732,
+                    3.372804641723633,
+                    0.9409613609313965
+                    ]
+                },
+                {
+                    "genre": "Technology & Engineering / General",
+                    "PCA_book_embeddings": [
+                    1.798823595046997,
+                    2.705444812774658,
+                    1.5305614471435547
+                    ]
+                },
+                {
+                    "genre": "Drama / Shakespeare",
+                    "PCA_book_embeddings": [
+                    -1.9959927797317505,
+                    0.7136659622192383,
+                    -3.175471782684326
+                    ]
+                },
+                {
+                    "genre": "History / Historiography",
+                    "PCA_book_embeddings": [
+                    3.5713396072387695,
+                    -1.5292178392410278,
+                    1.178690791130066
+                    ]
+                },
+                {
+                    "genre": "Bibles / General",
+                    "PCA_book_embeddings": [
+                    1.2517153024673462,
+                    3.283468246459961,
+                    -1.756363868713379
+                    ]
+                },
+                {
+                    "genre": "History / Indigenous Peoples of the Americas",
+                    "PCA_book_embeddings": [
+                    0.7782724499702454,
+                    0.6372498273849487,
+                    -1.6148784160614014
+                    ]
+                },
+                {
+                    "genre": "Cooking / Individual Chefs & Restaurants",
+                    "PCA_book_embeddings": [
+                    -0.031209103763103485,
+                    2.415781259536743,
+                    -2.5337817668914795
+                    ]
+                },
+                {
+                    "genre": "Performing Arts / General",
+                    "PCA_book_embeddings": [
+                    0.05549469590187073,
+                    -2.0305449962615967,
+                    2.062079668045044
+                    ]
+                },
+                {
+                    "genre": "Fiction / Noir",
+                    "PCA_book_embeddings": [
+                    -4.869932651519775,
+                    -1.6069382429122925,
+                    -1.4511555433273315
+                    ]
+                },
+                {
+                    "genre": "Poetry / General",
+                    "PCA_book_embeddings": [
+                    -0.16148287057876587,
+                    -0.9208160042762756,
+                    -2.4641263484954834
+                    ]
+                },
+                {
+                    "genre": "History / Military",
+                    "PCA_book_embeddings": [
+                    2.838625907897949,
+                    -1.7962193489074707,
+                    -0.3674156069755554
+                    ]
+                },
+                {
+                    "genre": "Cooking / General",
+                    "PCA_book_embeddings": [
+                    1.9778389930725098,
+                    -2.406576633453369,
+                    -1.6444813013076782
+                    ]
+                },
+                {
+                    "genre": "Travel / General",
+                    "PCA_book_embeddings": [
+                    0.8110064268112183,
+                    0.8061566948890686,
+                    -2.678339958190918
+                    ]
+                },
+                {
+                    "genre": "Music / General",
+                    "PCA_book_embeddings": [
+                    2.4526684284210205,
+                    -2.1056721210479736,
+                    0.06403367966413498
+                    ]
+                },
+                {
+                    "genre": "Sports & Recreation / General",
+                    "PCA_book_embeddings": [
+                    2.0721471309661865,
+                    2.1593077182769775,
+                    1.901746392250061
+                    ]
+                },
+                {
+                    "genre": "True Crime / General",
+                    "PCA_book_embeddings": [
+                    1.6572190523147583,
+                    0.3835468888282776,
+                    -0.06792978942394257
+                    ]
+                },
+                {
+                    "genre": "Religion / Christian Theology",
+                    "PCA_book_embeddings": [
+                    3.1855251789093018,
+                    3.103039264678955,
+                    -1.3088735342025757
+                    ]
+                },
+                {
+                    "genre": "Language Arts & Disciplines / General",
+                    "PCA_book_embeddings": [
+                    2.833019971847534,
+                    0.020549964159727097,
+                    -1.6500416994094849
+                    ]
+                },
+                {
+                    "genre": "Crafts & Hobbies / General",
+                    "PCA_book_embeddings": [
+                    2.658099889755249,
+                    -2.975290060043335,
+                    -0.7338870167732239
+                    ]
+                },
+                {
+                    "genre": "Pets / General",
+                    "PCA_book_embeddings": [
+                    2.216765880584717,
+                    0.8081700801849365,
+                    -1.645628809928894
+                    ]
+                },
+                {
+                    "genre": "Young Adult Nonfiction / General",
+                    "PCA_book_embeddings": [
+                    -2.0705666542053223,
+                    -2.3449416160583496,
+                    -2.552452325820923
+                    ]
+                },
+                {
+                    "genre": "House & Home / General",
+                    "PCA_book_embeddings": [
+                    2.63765811920166,
+                    1.0824812650680542,
+                    -1.4514867067337036
+                    ]
+                },
+                {
+                    "genre": "Literary Collections / General",
+                    "PCA_book_embeddings": [
+                    2.1008121967315674,
+                    0.4434311091899872,
+                    -1.008237600326538
+                    ]
+                },
+                {
+                    "genre": "Humor / General",
+                    "PCA_book_embeddings": [
+                    -2.9144110679626465,
+                    0.3437590003013611,
+                    -2.8669509887695312
+                    ]
+                },
+                {
+                    "genre": "Antiques & Collectibles / General",
+                    "PCA_book_embeddings": [
+                    -2.215494155883789,
+                    0.5303907990455627,
+                    0.12673237919807434
+                    ]
+                },
+                {
+                    "genre": "Study Aids / General",
+                    "PCA_book_embeddings": [
+                    1.195721983909607,
+                    -0.6913668513298035,
+                    -2.232177495956421
+                    ]
+                },
+                {
+                    "genre": "Foreign Language Study / General",
+                    "PCA_book_embeddings": [
+                    4.75466775894165,
+                    -0.7810948491096497,
+                    0.12906910479068756
+                    ]
+                },
+                {
+                    "genre": "Medical / General",
+                    "PCA_book_embeddings": [
+                    4.3316969871521,
+                    -0.6035783290863037,
+                    1.7986423969268799
+                    ]
+                },
+                {
+                    "genre": "Law / General",
+                    "PCA_book_embeddings": [
+                    1.777740478515625,
+                    -0.9325470924377441,
+                    -1.3265621662139893
+                    ]
+                },
+                {
+                    "genre": "Mathematics / General",
+                    "PCA_book_embeddings": [
+                    4.189825057983398,
+                    2.527113437652588,
+                    2.1471638679504395
+                    ]
+                },
+                {
+                    "genre": "History / Historical Geography",
+                    "PCA_book_embeddings": [
+                    4.3091044425964355,
+                    1.5210758447647095,
+                    1.1597795486450195
+                    ]
+                },
+                {
+                    "genre": "Architecture / General",
+                    "PCA_book_embeddings": [
+                    4.745876312255859,
+                    1.0007226467132568,
+                    0.9429165124893188
+                    ]
+                },
+                {
+                    "genre": "Transportation / General",
+                    "PCA_book_embeddings": [
+                    4.5914387702941895,
+                    -0.3206862211227417,
+                    -1.6474721431732178
+                    ]
+                },
+                {
+                    "genre": "Gardening / General",
+                    "PCA_book_embeddings": [
+                    0.14898861944675446,
+                    1.038736343383789,
+                    -3.455672264099121
+                    ]
+                },
+                {
+                    "genre": "Design / General",
+                    "PCA_book_embeddings": [
+                    4.039839744567871,
+                    -0.6738415956497192,
+                    -0.06163935363292694
+                    ]
+                }
+                ],
+            "pca_user_embeddings": [
+                [-0.4213385707486399, -0.11417443878396308, 0.4383526774462425]
+            ],
+            "time_elapsed": 11.189362525939941
         }
-    ]
+    }
 
-
-    return {"recommendations": recommendations}
-
-
-    
+    return response_data
 
 @rec.get("/test-book-covers")
 async def test_book_covers():

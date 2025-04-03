@@ -6,118 +6,95 @@ import pandas as pd
 import logging 
 import plotly.graph_objects as go
 from utils.profile_utils import save_profile
-from utils.data_utils import get_unique_genres, get_unique_authors, get_unique_books, get_genre_embeddings
+from utils.data_utils import get_unique_genres, get_unique_authors, get_unique_books 
 from streamlit_extras.stylable_container import stylable_container
 
 def create_profile_visualization(profile):
-    """Create a 3D visualization using genre embeddings from database"""
+    """Create a 3D visualization using genre embeddings from recommendations"""
 
     # Get user's selected genres
     user_genres = profile.get("genres", [])
     
-    # Base genres for fallback
-    base_genre_names = [
-        "Fantasy", "Science Fiction", "Mystery", "Romance", "Historical Fiction",
-        "Literary Fiction", "Thriller", "Horror", "Biography", "Self Help",
-        "Poetry", "Memoir", "Philosophy", "Psychology", "History",
-        "Politics", "Travel", "Art", "Music", "Drama",
-        "Young Adult", "Children's", "Graphic Novel", "Comic", "Manga",
-        "Classic", "Contemporary", "Short Story", "Essay", "Non-Fiction",
-        "True Crime", "Adventure", "Dystopian", "Utopian", "Western",
-        "Satire", "Comedy", "Tragedy", "Mythology", "Folklore"
-    ]
+    # Get embeddings from session state
+    book_embeddings = st.session_state.get("pca_book_embeddings", [])
+    user_embedding = st.session_state.get("pca_user_embeddings", [])
     
-    # Try to fetch genre embeddings from API
-    try:
-        # Get embeddings from the API
-        response = get_genre_embeddings()
-        
-        if response and "embeddings" in response and response["embeddings"]:
-            # Create genre coordinates dictionary from API response
-            genre_coords = {}
-            all_db_genres = []
+    # Check if we have valid embeddings data
+    if not book_embeddings:
+        # If no embeddings are available yet, inform the user
+        st.info("Genre visualization is not available yet. Please get recommendations first to see how your preferences align with different genres.")
+        return None, None
+    
+    # Use the embeddings from the session state
+    logging.info(f"Using {len(book_embeddings)} genre embeddings from API response")
+    
+    # Create a genre to coordinates mapping
+    genre_coords = {}
+    all_db_genres = []
+    
+    for item in book_embeddings:
+        genre = item.get("genre", "")  # Use the genre field 
+        if not genre and "genre" in item:
+            genre = item["genre"]
             
-            for item in response["embeddings"]:
-                genre = item["genre_name"]
-                coords = np.array([item["embedding_x"], item["embedding_y"], item["embedding_z"]])
-                genre_coords[genre] = coords
-                all_db_genres.append(genre)
-                
-            logging.info(f"Successfully loaded {len(genre_coords)} genre embeddings from API")
-            using_db_data = True
-        else:
-            logging.warning("No genre embeddings found in API response, falling back to notional data")
-            using_db_data = False
-    except Exception as e:
-        logging.error(f"Error fetching genre embeddings from API: {str(e)}")
-        using_db_data = False
+        # Get the PCA coordinates - should be a list of 3 values
+        coords = item.get("PCA_book_embeddings", [0, 0, 0])
+        if coords and len(coords) == 3:
+            genre_coords[genre] = np.array(coords)
+            all_db_genres.append(genre)
     
-    # Fallback to notional data if API fetch failed
-    if not using_db_data:
-        logging.info("Using notional genre embeddings")
-        
-        # Create notional 3D coordinates for each genre
-        np.random.seed(42)
-        
-        # Generate consistent random coordinates for each genre
-        genre_coords = {}
-        for genre in base_genre_names:
-            hash_val = hash(genre) % 10000
-            np.random.seed(hash_val)
-            genre_coords[genre] = np.random.normal(0, 1, 3)
-        
-        # Use base genres as the full list when using notional data
-        all_db_genres = base_genre_names
+    # If we couldn't extract any valid genre coordinates, return early
+    if not genre_coords:
+        st.warning("Could not process genre embeddings from the API. Visualization is not available.")
+        return None, None
     
     # Compile the final list of genres to visualize
     all_genres = []
     
-    # Add user genres first
+    # Add user genres first (only those that exist in our embeddings)
     for genre in user_genres:
-        if genre not in all_genres:
+        if genre in genre_coords and genre not in all_genres:
             all_genres.append(genre)
     
-    # Add remaining genres from database or base list
+    # Add remaining genres from API response
     for genre in all_db_genres:
         if genre not in all_genres:
             all_genres.append(genre)
     
-    # Limit to 100 genres total for better visualization performance
-    all_genres = all_genres[:100]
-    
-    # For any user genres not in our dictionary, create random coordinates
-    for genre in user_genres:
-        if genre not in genre_coords:
-            hash_val = hash(genre) % 10000
-            np.random.seed(hash_val)
-            genre_coords[genre] = np.random.normal(0, 1, 3)
+    # Get user coordinates from API response if available
+    if user_embedding and len(user_embedding) > 0 and len(user_embedding[0]) == 3:
+        user_coords = np.array(user_embedding[0])
+    else:
+        # If no user embeddings are available, calculate as average of selected genres
+        if all_genres:
+            genres_to_average = [g for g in user_genres if g in genre_coords]
+            if not genres_to_average:
+                genres_to_average = all_genres[:min(5, len(all_genres))]
+            
+            user_coords = np.mean([genre_coords[g] for g in genres_to_average], axis=0)
+        else:
+            st.warning("No genre data available for visualization.")
+            return None, None
     
     # Create a DataFrame with the genre data
     genres_data = []
     for genre in all_genres:
-        coords = genre_coords.get(genre, np.random.normal(0, 1, 3))
-        genres_data.append({
-            'name': genre,
-            'x': coords[0],
-            'y': coords[1], 
-            'z': coords[2],
-            'type': 'Genre',
-            'is_selected': genre in user_genres
-        })
+        if genre in genre_coords:  
+            coords = genre_coords[genre]
+            genres_data.append({
+                'name': genre,
+                'x': coords[0],
+                'y': coords[1], 
+                'z': coords[2],
+                'type': 'Genre',
+                'is_selected': genre in user_genres
+            })
     
-    # Create a DataFrame
+    if not genres_data:
+        st.warning("No visualizable genre data available.")
+        return None, None
+    
     df = pd.DataFrame(genres_data)
-    
-    # Will replace with model results later 
-    if user_genres:
-        # Calculate user position as average of selected genres
-        user_genres_coords = np.array([genre_coords[g] for g in user_genres if g in genre_coords])
-        if len(user_genres_coords) > 0:
-            user_coords = user_genres_coords.mean(axis=0)
-        else:
-            user_coords = np.random.normal(0, 1, 3)
-    else:
-        user_coords = np.random.normal(0, 1, 3)
     
     # Add user profile to the DataFrame
     user_data = {
@@ -191,8 +168,6 @@ def create_profile_visualization(profile):
     
     return fig, df
 
-
-###########
 
 def show_profile():
     st.subheader("Your Reading Profile")

@@ -178,43 +178,10 @@ def submit_user_profile(profile_data):
         st.error(f"Error connecting to API: {str(e)}")
     return {"error": "Failed to submit profile"}
 
-def get_genre_embeddings():
-    """Fetch genre embeddings from API"""
-    try:
-        response = requests.get(f"{API_BASE_URL}/rec/genres/embeddings")
-        if response.status_code == 200:
-            return response.json()
-        st.error(f"Failed to fetch genre embeddings: {response.status_code}")
-    except Exception as e:
-        st.error(f"Error connecting to API: {str(e)}")
-    return {"embeddings": []}
-
-# def get_recommendations():
-#     """Get personalized recommendations based on user profile"""
-#     try:
-#         # Use the profile data from session state
-#         if "user_profile" in st.session_state:
-#             profile_data = st.session_state.user_profile
-            
-#             # Transform profile into API format
-#             api_format = transform_profile_for_recommendation_api(profile_data)
-            
-#             response = requests.post(
-#                 f"{API_BASE_URL}/rec/recommendations",
-#                 json=api_format
-#             )
-#             if response.status_code == 200:
-#                 return response.json()["recommendations"]
-#             st.error(f"Failed to get recommendations: {response.status_code}")
-#         else:
-#             st.error("No user profile found in session")
-#     except Exception as e:
-#         st.error(f"Error connecting to API: {str(e)}")
-#     return []
-
 # Setup logger for this file
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 def get_recommendations():
     """
@@ -251,13 +218,24 @@ def get_recommendations():
                 print("DEBUG response text:", response.text)
 
                 if response.status_code == 200:
-                    # Parse the JSON and extract "recommendations"
-                    raw_recommendations = response.json().get("recommendations", [])
+                    # Parse the JSON
+                    response_data = response.json()
+                    
+                    # Store the embeddings in session state for later visualization
+                    if "recommendations" in response_data:
+                        rec_data = response_data["recommendations"]
+                        if "pca_book_embeddings" in rec_data:
+                            st.session_state.pca_book_embeddings = rec_data["pca_book_embeddings"]
+                        if "pca_user_embeddings" in rec_data:
+                            st.session_state.pca_user_embeddings = rec_data["pca_user_embeddings"]
+                    
+                    # The new structure has recommendations inside a nested "recommendations" object
+                    raw_recommendations = response_data.get("recommendations", {}).get("recommendations", [])
                     
                     processed_recommendations = []
                     
                     for rec in raw_recommendations:
-                        # Some endpoints may return a "time elapsed" array—skip if so
+                        # Skip time elapsed entries if present
                         if isinstance(rec, list) and rec[0] == "time elapsed":
                             continue
 
