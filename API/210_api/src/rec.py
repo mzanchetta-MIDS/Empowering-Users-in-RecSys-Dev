@@ -433,6 +433,7 @@ async def get_recommendations(profile):
         rec_metadata['explanation'] = expl_rec.text
         
         recommendations.append(rec_metadata)
+
           
     print(f"Expl Rec: {expl_rec}\n")
     print(f"Expl Rec Type: {type(expl_rec)}\n")
@@ -442,7 +443,17 @@ async def get_recommendations(profile):
     
     end_time = time.time()
     
-    recommendations.append(['time elapsed', end_time - start_time])
+    # Create a dictionary to hold the recommendations and PCA embeddings
+    recommendations = {
+        "recommendations": recommendations,
+        "pca_book_embeddings": pca_book_embeddings,
+        "pca_user_embeddings": pca_user_embeddings,
+        "time_elapsed": end_time - start_time
+    }
+    
+    # recommendations.append(pca_book_embeddings)
+    # recommendations.append(pca_user_embeddings)
+    #recommendations.append(['time elapsed', end_time - start_time])
     
     print(recommendations)
     
