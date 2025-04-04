@@ -144,34 +144,61 @@ def get_unique_authors() -> List[str]:
         if conn:
             conn.close()
 
-def get_unique_books() -> List[str]:
-    """
-    Get unique books with their authors from the database
+# def get_unique_books() -> List[str]:
+#     """
+#     Get unique books with their authors from the database
     
-    Returns:
-        List of books in "Title - Author" format, alphabetically sorted by title
-    """
-    conn = None
-    cursor = None
-    try:
-        conn = connect_to_db()
-        query = """
-        SELECT DISTINCT title, author 
-        FROM books_info 
-        ORDER BY title
-        """
-        df = query_to_df(query, conn)
-        # Format as "Title - Author"
-        books = [f"{row['title']} - {row['author']}" for _, row in df.iterrows()]
-        return books
-    except Exception as e:
-        logging.error(f"Error retrieving books: {str(e)}")
-        return []
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
+#     Returns:
+#         List of books in "Title - Author" format, alphabetically sorted by title
+#     """
+#     conn = None
+#     cursor = None
+#     try:
+#         conn = connect_to_db()
+#         query = """
+#         SELECT DISTINCT title, author 
+#         FROM books_info 
+#         ORDER BY title
+#         """
+#         df = query_to_df(query, conn)
+#         # Format as "Title - Author"
+#         books = [f"{row['title']} - {row['author']}" for _, row in df.iterrows()]
+#         return books
+#     except Exception as e:
+#         logging.error(f"Error retrieving books: {str(e)}")
+#         return []
+#     finally:
+#         if cursor:
+#             cursor.close()
+#         if conn:
+#             conn.close()
+
+def get_unique_books() -> pd.DataFrame:
+  """
+  Get unique books with their authors and genres from the database
+  
+  Returns:
+      DataFrame with title, author, and genre information
+  """
+  conn = None
+  cursor = None
+  try:
+      conn = connect_to_db()
+      query = """
+      SELECT DISTINCT title, author, genre_consolidated as genre
+      FROM books_info 
+      ORDER BY title
+      """
+      df = query_to_df(query, conn)
+      return df
+  except Exception as e:
+      logging.error(f"Error retrieving books: {str(e)}")
+      return pd.DataFrame(columns=["title", "author", "genre"])
+  finally:
+      if cursor:
+          cursor.close()
+      if conn:
+          conn.close()
 
 
 def get_book_covers_lookup() -> pd.DataFrame:

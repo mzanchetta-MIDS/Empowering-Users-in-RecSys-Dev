@@ -51,6 +51,13 @@ class AuthorResponse(BaseModel):
 class BookResponse(BaseModel):
     books: List[str]
 
+
+class BookMetadata(BaseModel):
+    title: str
+    author: str
+    genre: str
+    rating: Optional[int] = None
+
 class UserProfile(BaseModel):
     name: Optional[str] = None
     genres: Optional[List[str]] = None
@@ -67,19 +74,19 @@ class RecommendationResponse(BaseModel):
 # New model for recommendation model input format
 class RecModelInstance(BaseModel):
     user_id: str
-    liked_books: Dict[str, int] = {}
-    disliked_books: Dict[str, int] = {}
-    liked_genres: Dict[str, str] = {}
-    disliked_genres: List[str] = []
-    liked_authors: List[str] = []
-    disliked_authors: List[str] = []
-    additional_preferences: Optional[str] = None
-    books_history: List[str] = [] 
-    authors: int = 0
-    categories: int = 0
-    description: int = 0
-    target_book: int = 0
-    target_book_rating: int = 0
+    liked_books: Dict[str, BookMetadata]
+    disliked_books: Dict[str, BookMetadata]
+    liked_genres: Dict[str, str]
+    disliked_genres: List[str]
+    liked_authors: List[str]
+    disliked_authors: List[str]
+    additional_preferences: Optional[str] = None 
+    books_history: List[BookMetadata]
+    authors: int
+    categories: int
+    description: int
+    target_book: int
+    target_book_rating: int
 
 class RecModelRequest(BaseModel):
     instances: List[RecModelInstance]
@@ -127,31 +134,55 @@ async def get_authors_endpoint():
                   'Agatha Christie', 'Neil Gaiman', 'George R.R. Martin']
         return {"authors": authors}
 
-@rec.get("/books", response_model=BookResponse)
+# @rec.get("/books", response_model=BookResponse)
+# async def get_books_endpoint():
+#     """
+#     Get available books from the database
+#     """
+#     try:
+#         books = get_unique_books()
+#         if not books:
+#             # Fallback to hardcoded books if database query fails
+#             logger.warning("Using fallback hardcoded books due to empty result from database")
+#             books = [
+#                 "To Kill a Mockingbird - Harper Lee",
+#                 "1984 - George Orwell",
+#                 "Pride and Prejudice - Jane Austen"
+#             ]
+#         return {"books": books}
+#     except Exception as e:
+#         logger.error(f"Error in get_books_endpoint: {str(e)}")
+#         # Fallback to hardcoded books
+#         books = [
+#             "To Kill a Mockingbird - Harper Lee",
+#             "1984 - George Orwell",
+#             "Pride and Prejudice - Jane Austen"
+#         ]
+#         return {"books": books}
+
+@rec.get("/books")
 async def get_books_endpoint():
-    """
-    Get available books from the database
-    """
-    try:
-        books = get_unique_books()
-        if not books:
-            # Fallback to hardcoded books if database query fails
-            logger.warning("Using fallback hardcoded books due to empty result from database")
-            books = [
-                "To Kill a Mockingbird - Harper Lee",
-                "1984 - George Orwell",
-                "Pride and Prejudice - Jane Austen"
-            ]
-        return {"books": books}
-    except Exception as e:
-        logger.error(f"Error in get_books_endpoint: {str(e)}")
-        # Fallback to hardcoded books
-        books = [
-            "To Kill a Mockingbird - Harper Lee",
-            "1984 - George Orwell",
-            "Pride and Prejudice - Jane Austen"
-        ]
-        return {"books": books}
+  """
+  Get available books from the database
+  """
+  try:
+      books_df = get_unique_books()
+      if books_df.empty:
+          return {"books": []}
+          
+      # Create display format for UI
+      books_display = [f"{row['title']} - {row['author']}" for _, row in books_df.iterrows()]
+      
+      # Include the full metadata
+      books_metadata = books_df.to_dict(orient='records')
+      
+      return {
+          "books": books_display,
+          "metadata": books_metadata
+      }
+  except Exception as e:
+      logger.error(f"Error in get_books_endpoint: {str(e)}")
+      return {"books": [], "metadata": []}
 
 
 @rec.get("/book-covers")
