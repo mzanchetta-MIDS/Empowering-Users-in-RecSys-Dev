@@ -35,3 +35,4 @@ def show_favorite_books():
         save_favorite_books(selected_books)
         st.session_state.page = "additional_preferences" 
         st.rerun()
+
