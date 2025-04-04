@@ -2,10 +2,40 @@ from pydantic import BaseModel
 from fastapi import FastAPI
 from typing import List, Dict, Any, Optional
 import logging
+import time 
+from contextlib import asynccontextmanager
 
 # Import only the necessary functions
 from src.db_utils import get_unique_genres, get_unique_authors, get_unique_books, get_book_covers_lookup
 
+
+global conn
+
+@asynccontextmanager
+async def lifespan_context_manager(app: FastAPI):
+    """
+    Context manager to handle lifespan events for the FastAPI application.
+    """
+    print("Starting up...")
+    host_name = "booksdataclean.cu9jy7bp7ol8.us-east-1.rds.amazonaws.com"
+    dbname = 'booksfull'
+    port = '5432'
+    username = 'postgres'
+    password = 'S3EW5y9MhZzBBYXlCjE6'
+    
+    global conn
+    global curr 
+    
+    conn = connect_to_db(host_name, dbname, port, username, password)
+    curr = conn.cursor()
+    
+    # Yield control back to the FastAPI application
+    yield
+    # Cleanup code
+    curr.close()
+    conn.close()
+    logging.info("Database connection closed")
+    
 rec = FastAPI()
 
 # Set up logging
@@ -53,6 +83,9 @@ class RecModelInstance(BaseModel):
 
 class RecModelRequest(BaseModel):
     instances: List[RecModelInstance]
+
+class ProfileInput(BaseModel):
+    profile: str
 
 @rec.get("/genres", response_model=GenreResponse)
 async def get_genres_endpoint():
@@ -1031,5 +1064,149 @@ async def test_book_covers():
     except Exception as e:
         return {"error": str(e)}
 
+def test_api_connectivity():
+    try:
+        # Test recommendation API
+        rec_response = requests.get("http://3.222.96.42/")
+        print(f"Recommendation API status: {rec_response.status_code}")
+        rec_status = f"{rec_response.status_code} - {'OK' if rec_response.status_code == 200 else 'Error'}"
+        
+        # Test LLM API 
+        llm_response = requests.get("http://54.211.202.149/")
+        print(f"LLM API status: {llm_response.status_code}")
+        llm_status = f"{llm_response.status_code} - {'OK' if llm_response.status_code == 200 else 'Error'}"
+        
+        return {
+            "recommendation_api": rec_status,
+            "llm_api": llm_status,
+            "status": "All APIs accessible" if (rec_response.status_code == 200 and llm_response.status_code == 200) else "Some APIs inaccessible"
+        }
+    except Exception as e:
+        return {
+            "error": f"API connectivity error: {str(e)}",
+            "status": "Connection failed"
+        }
+
+@rec.get("/test-connectivity")
+async def test_connectivity():
+    return test_api_connectivity()
 
 
+# @rec.post("/recommendations")
+# async def get_recommendations(profile: RecModelRequest):
+#     """
+#     Receive user profile from StreamLit and return recommendations with explanations
+#     based on the profile. Connects to the two-tower recommendation system and LLM in AWS.
+#     """
+#     start_time = time.time()
+    
+#     try:
+#         # Print received profile for debugging
+#         print(f"Received profile: {profile}")
+
+#         # Handle different input formats
+#         if isinstance(profile, str):
+#             try:
+#                 profile = json.loads(json.loads(profile))
+#                 print("Parsed profile from double-encoded string")
+#             except json.JSONDecodeError:
+#                 profile = json.loads(profile)
+#                 print("Parsed profile from single-encoded string")
+#         elif hasattr(profile, "model_dump"):
+#             # If it's a Pydantic model, convert to dict
+#             profile = profile.model_dump(mode='json')
+#             print("Converted Pydantic model to dict")
+
+#         print(f"Processed profile: {profile}")
+
+#     except Exception as e:
+#         logging.error(f"Error parsing profile: {str(e)}")
+    
+#     HT = {"liked_books":[],
+#           "disliked_books":[],
+#           "liked_genres":[],
+#           "disliked_genres":[],
+#           "liked_authors":[],
+#           "disliked_authors":[],
+#           "liked_ratings":[], 
+#           "disliked_ratings":[],
+#           "recommended_history":[]}
+    
+#     # Convert the profile to the required format
+#     print("Processing profile fields...")
+#     for key in profile['instances'][0].keys():
+#         if key in HT:
+#             HT[key].extend(profile['instances'][0][key])
+            
+#             if key.split("_")[0] == 'liked':
+#                 HT['liked_ratings'].extend([5]*len(profile['instances'][0][key]))
+                
+#             elif key.split("_")[0] == 'disliked':
+#                 HT['disliked_ratings'].extend([1]*len(profile['instances'][0][key]))         
+    
+#     print("Processed hashtable:", HT)
+
+#     HT_string = {"liked_books":"","disliked_books":"","liked_genres":"","disliked_genres":"","liked_authors":"","disliked_authors":"", "recommended_history":""}
+
+#     for key in HT_string.keys():
+#         for i, entry in enumerate(HT[key]):
+#             HT_string[key] += f'"{entry}"'
+#             if i != len(HT[key]) - 1:
+#                 HT_string[key] +=  ", "
+#         HT_string[key] = "[" + HT_string[key] + "]"
+    
+#     constructed_profile = '{\"instances\": [{\"authors\": 0,\"user_id\":["' + str(profile["instances"][0]["user_id"]) + '"],\"liked_books\": ' + HT_string["liked_books"] + ', \"disliked_books\": ' + HT_string["disliked_books"] + ',\"liked_genres\":' + HT_string["liked_genres"] + ',\"disliked_genres\":' + HT_string["disliked_genres"] + ',\"liked_authors\": ' + HT_string["liked_authors"] + ',\"disliked_authors\": ' + HT_string["disliked_authors"] + ',\"liked_ratings\": ' + str(HT["liked_ratings"]) + ',\"disliked_ratings\": ' + str(HT["disliked_ratings"]) + ', \"keep_title\": [],\"keep_author\": [],\"keep_genre_consolidated\": [],\"remove_title\": ' + HT_string["recommended_history"] + ',\"remove_author\": ' + HT_string["disliked_authors"] + ',\"remove_genre_consolidated\":' + HT_string["disliked_genres"] + ',\"categories\": 0,\"description\": 0,\"target_book\": 0,\"target_book_rating\": 0}]}'
+    
+#     print("Constructed profile")
+
+#     dump1 = json.dumps(constructed_profile)
+#     load_1 = json.loads(dump1)
+    
+#     # Wrap constructed_profile as a dictionary with "user" key
+#     constructed_profile_json = {}
+    
+#     load_1 = json.dumps(load_1)
+    
+#     constructed_profile_json["user"] = load_1
+    
+#     # Call the recommendation API
+#     url = "http://3.222.96.42/rec/recommended"
+    
+#     response = requests.post(url, params=constructed_profile_json)
+    
+#     rec_load = json.loads(response.text)
+    
+#     # Extract the components needed for the response
+#     rec_text = rec_load.get('recommendations', [])
+#     pca_book_embeddings = rec_load.get('pca_book_embeddings', [])
+#     pca_user_embeddings = rec_load.get('pca_user_embedding', [])  
+    
+#     recommendations = []
+    
+#     # Process each recommendation through the LLM
+#     for entry in rec_text:
+#         temp = list([entry.get('title'), entry.get('similarity')])
+#         LLM_input = {'input_data': {'user_data':profile, 'recommendation': [temp]}}
+#         expl_rec = requests.post("http://54.211.202.149/recommendation-explanation/", json=LLM_input)
+        
+#         rec_metadata = {}
+        
+#         rec_metadata['title'] = entry['title']
+#         rec_metadata['similarity'] = entry['similarity']
+        
+#         rec_metadata['explanation'] = expl_rec.text
+        
+#         recommendations.append(rec_metadata)
+    
+#     end_time = time.time()
+#     elapsed_time = end_time - start_time
+    
+#     # Return in the NESTED format that matches your Streamlit app's expectations
+#     return {
+#         "recommendations": {
+#             "recommendations": recommendations,
+#             "pca_book_embeddings": pca_book_embeddings,
+#             "pca_user_embeddings": pca_user_embeddings,
+#             "time_elapsed": elapsed_time
+#         }
+#     }

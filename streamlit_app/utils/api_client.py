@@ -4,12 +4,12 @@ import json
 import uuid
 import logging
 
-# Set up logging for this module
+# Set up logging 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Base configuration
-API_BASE_URL = "http://localhost:8000"  # Change for production
+API_BASE_URL = "http://localhost:8000"  
 
 def transform_profile_for_recommendation_api(user_profile):
     """

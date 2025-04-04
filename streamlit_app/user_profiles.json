@@ -5,10 +5,24 @@
       "author": "\"Patrick OBrian\"",
       "description": "Tells the enchanting yet bloodthirsty story of a creature whose father was a giant panda and whose mother was a snow leopard, in a new edition of a book first published in 1930, when the author was fifteen years old. Reprint.",
       "explanation": "Based on your preference for Architecture and Biography & Autobiography genres, and your dislike for Art, the recommended book, \"Caesar: The Life of a Panda Leopard,\" might intrigue you. This book, although categorized under Folk Tales, Legends & Mythology, shares thematic elements with biographies. It's a story about a unique creature, much like architectural marvels or intriguing historical figures. Despite not being a traditional architecture or biography title, its narrative structure and engaging storytelling could appeal to your tastes. Additionally, since you've indicated a dislike for fantasy, this book, being a folk tale, does not contain fantastical elements."
+    },
+    {
+      "title": "Arnhem",
+      "author": "Antony Beevor",
+      "description": "On 17 September 1944, General Kurt Student, the founder of Nazi Germany's parachute forces, heard the growing roar of aero engines. He went out on to his balcony above the flat landscape of southern Holland to watch the vast air armada of Dakotas and gliders,carrying the British 1st Airborne and the American 101st and 82nd Airborne Divisions. He gazed up in envy at the greatest demonstration of paratroop power ever seen. Operation Market Garden, the plan to end the war by capturing the bridges leading to the Lower Rhine and beyond, was a bold concept: the Americans thought it unusually bold for Field Marshal Montgomery. But the cost of failure was horrendous, above all for the Dutch who risked everything to help. German reprisals were cruel and lasted until the end of the war.",
+      "explanation": "Based on your preference for biography & autobiography and architecture genres, and your dislike for art, the recommended book, \"Arnhem\" by Antony Beevor, was suggested. This history book shares themes of historical events and military strategy, aligning with your interests. Additionally, it does not contain fantasy elements, as per your preference."
+    },
+    {
+      "title": "The Awakening and Selected Stories (Modern Library Classics)",
+      "author": "Kate Chopin",
+      "description": "WHEN IT FIRST APPEARED IN 1899, THE AWAKENING WAS GREETED WITH CRIES OF OUTRAGE. THE NOVEL'S FRANK PORTRAYAL OF A WOMAN'S EMOTIONAL, INTELLECTUAL, AND SEXUAL AWAKENING SHOCKED THE SENSIBILITIES OF THE TIME AND DESTROYED THE AUTHOR'S REPUTATION AND CAREER.",
+      "explanation": "Based on your preference for Biography & Autobiography and Architecture genres, and your dislike for Art, the recommended book, \"The Awakening and Selected Stories\" by Kate Chopin, aligns with your interests. This collection of stories doesn't contain fantasy elements, as per your preference, and offers a rich exploration of human emotions and experiences, which resonates with your enjoyed books."
     }
   ],
   "ratings": {},
-  "not_interested": [],
+  "not_interested": [
+    "The Silmarillion"
+  ],
   "recommended_history": [
     "Caesar: The Life of a Panda Leopard",
     "Gift From the Sea - An Answer to the Conflicts in Our Lives",
@@ -18,10 +32,16 @@
     "The Awakening and Selected Stories (Modern Library Classics)"
   ],
   "name": "Benjamin",
-  "genres": [],
-  "disliked_genres": [],
-  "genre_preferences": {},
-  "user_id": "d8c62d04-51ff-415a-ada1-d8254209af99",
+  "genres": [
+    "Architecture / General"
+  ],
+  "disliked_genres": [
+    "Biography & Autobiography / General"
+  ],
+  "genre_preferences": {
+    "Architecture / General": "keep"
+  },
+  "user_id": "44ae1870-c4f7-4799-ba34-d27ce1070581",
   "authors": [],
   "favorite_books": [],
   "additional_preferences": ""
