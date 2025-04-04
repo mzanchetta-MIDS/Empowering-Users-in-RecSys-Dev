@@ -1,7 +1,7 @@
 # utils/data_utils.py
 
 import streamlit as st
-from utils.api_client import get_genres, get_authors, get_books, get_recommendations, get_genre_embeddings, get_genre_embeddings as api_get_genre_embeddings
+from utils.api_client import get_genres, get_authors, get_books, get_recommendations 
 import logging
 
 logger = logging.getLogger(__name__)
@@ -55,33 +55,11 @@ def get_unique_authors():
     return authors
 
 @st.cache_data(ttl=3600, show_spinner=False)
-def get_genre_embeddings():
-    """
-    Get genre embeddings from the API.
-    Falls back to empty list if API call fails.
-    
-    Returns:
-        Dictionary with embeddings data
-    """
-    
-    try:
-        response = api_get_genre_embeddings()
-        if response and "embeddings" in response:
-            return response
-        else:
-            logger.warning("No genre embeddings found in API response")
-            return {"embeddings": []}
-    except Exception as e:
-        logger.error(f"Error fetching genre embeddings: {str(e)}")
-        return {"embeddings": []}
-
-
-@st.cache_data(ttl=3600, show_spinner=False)
 def get_sample_recommendations():
     """
     Get recommendations from the API based on user profile.
     Falls back to hardcoded values if API call fails.
-    """
+    """    
     recommendations = get_recommendations()
     if not recommendations:
         # Fallback to hardcoded recommendations if API call fails

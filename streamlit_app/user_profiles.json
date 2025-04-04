@@ -1,27 +1,35 @@
 {
   "saved_for_later": [],
-  "ratings": {},
+  "ratings": {
+    "In the Buddha's Words: An Anthology of Discourses from the Pali Canon (Teachings of the Buddha)": 3,
+    "Aspects of Semidefinite Programming: Interior Point Algorithms and Selected Applications (Applied Optimization)": 5,
+    "EveryBody : Preventing HIV and Other Sexually Transmitted Diseases, Revised Edition": 3
+  },
   "not_interested": [],
+  "recommended_history": [
+    "Principles of Flat Pattern Design",
+    "The absolute differential calculus (Calculus of tensors)",
+    "In the Buddha's Words: An Anthology of Discourses from the Pali Canon (Teachings of the Buddha)",
+    "Aspects of Semidefinite Programming: Interior Point Algorithms and Selected Applications (Applied Optimization)",
+    "EveryBody : Preventing HIV and Other Sexually Transmitted Diseases, Revised Edition",
+    "Chronic Fatigue and Its Syndromes"
+  ],
   "name": "Zach",
   "genres": [
-    "Bibles / General",
-    "Biography & Autobiography / Personal Memoirs"
+    "Mathematics / General"
   ],
   "disliked_genres": [
-    "Religion / Christian Theology",
-    "Psychology / General"
+    "Fiction / General"
   ],
   "genre_preferences": {
-    "Bibles / General": "default",
-    "Biography & Autobiography / Personal Memoirs": "default"
+    "Mathematics / General": "keep"
   },
-  "user_id": "e3c33538-40bd-408b-8670-a341b0d41903",
+  "user_id": "508da181-2c5d-44a9-b1cb-c29db8c40940",
   "authors": [
-    "Agatha Christie",
-    "R.A. Salvatore"
+    "F. Scott Fitzgerald",
+    "J. D. Salinger",
+    "Harper Lee"
   ],
-  "favorite_books": [
-    "The Jungle Book (Scholastic Junior Classics) - Jane B. Mason"
-  ],
-  "additional_preferences": "Nope"
+  "favorite_books": [],
+  "additional_preferences": "I don't think this will impact the rec system"
 }

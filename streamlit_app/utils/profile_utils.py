@@ -39,10 +39,10 @@ def save_genres(selected_genres, disliked_genres=""):
     updated_preferences = {genre: pref for genre, pref in current_preferences.items() 
                           if genre in selected_genres}
     
-    # Ensure all selected genres have a preference (default if not specified)
+    # Ensure all selected genres have a preference (keep if not specified)
     for genre in selected_genres:
         if genre not in updated_preferences:
-            updated_preferences[genre] = "default"
+            updated_preferences[genre] = "keep"
     
     # Save updated preferences
     st.session_state.user_profile["genre_preferences"] = updated_preferences
@@ -92,3 +92,21 @@ def load_profile():
             st.session_state.user_profile = json.load(f)
     else:
         initialize_user_profile()
+
+def add_to_recommendation_history(book_info):
+    """
+    Adds a book to the user's recommendation history
+    
+    Args:
+        book_info: Dict with at least "title" field
+    """
+    if "recommended_history" not in st.session_state.user_profile:
+        st.session_state.user_profile["recommended_history"] = []
+        
+    # Add to history if not already present (simple string instead of object)
+    book_title = book_info["title"]
+    if book_title not in st.session_state.user_profile["recommended_history"]:
+        st.session_state.user_profile["recommended_history"].append(book_title)
+        
+    # Save updated profile
+    save_profile()

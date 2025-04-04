@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 import time
 
 # Import only the necessary functions
-from src.db_utils import connect_to_db, get_unique_genres, get_unique_authors, get_unique_books, query_to_list, query_to_df, get_genre_embeddings
+from src.db_utils import connect_to_db, get_book_covers_lookup, query_to_list, query_to_df
 
 global conn
 # global curr
@@ -73,11 +73,12 @@ class RecModelInstance(BaseModel):
     user_id: str
     liked_books: Dict[str, int] = {}
     disliked_books: Dict[str, int] = {}
-    liked_genres: Dict[str, float] = {}
+    liked_genres: Dict[str, str] = {}
     disliked_genres: List[str] = []
     liked_authors: List[str] = []
     disliked_authors: List[str] = []
     additional_preferences: Optional[str] = None
+    books_history: List[str] = [] 
     authors: int = 0
     categories: int = 0
     description: int = 0
@@ -194,31 +195,28 @@ async def get_books_endpoint():
         return {"books": books}
 
 
-@rec.get("/genres/embeddings")
-async def get_genre_embeddings_endpoint():
+@rec.get("/book-covers")
+async def get_book_covers_endpoint():
     """
-    Get genre embeddings for visualization
+    Get available book covers from the database
     """
     try:
-        embeddings_df = get_genre_embeddings()
-        
-        if not embeddings_df.empty:
-            # Convert DataFrame to list of dictionaries
-            embeddings = embeddings_df.to_dict(orient='records')
-            return {"embeddings": embeddings}
-        else:
-            # Return empty list if no embeddings found
-            return {"embeddings": []}
+        covers_df = get_book_covers_lookup()
+        if covers_df.empty:
+            logger.warning("No book covers found in database")
+            return {"covers": []}
+        covers = covers_df.to_dict(orient='records')
+        return {"covers": covers}
     except Exception as e:
-        logger.error(f"Error in get_genre_embeddings_endpoint: {str(e)}")
-        return {"embeddings": [], "error": str(e)}
+        logger.error(f"Error in get_book_covers_endpoint: {str(e)}")
+        return {"covers": []}
 
 
 @rec.post("/users/profile")
 async def update_user_profile(data: RecModelRequest):
-    print("\n----- RECEIVED PROFILE UPDATE IN NEW FORMAT -----")
-    print(data.model_dump_json(indent=2))
-    print("-----------------------------------\n")
+    # print("\n----- RECEIVED PROFILE UPDATE IN NEW FORMAT -----")
+    # print(data.model_dump_json(indent=2))
+    # print("-----------------------------------\n")
     return {"message": "Profile updated successfully"}
 
 
@@ -276,7 +274,45 @@ async def get_recommendations(profile):
                 }
             ]
         }
-
+        
+        {
+            "instances": [
+                                {
+                                "user_id": "9df3f814-5e9c-42b9-9e87-9411809154c6",
+                                "liked_books": {
+                                    "Einstein: A Life": 5,
+                                    "George Washington": 5
+                                },
+                                "disliked_books": {},
+                                "liked_genres": {
+                                    "Biography & Autobiography / General": "keep",
+                                    "Biography & Autobiography / Literary Figures": "keep",
+                                    "Biography & Autobiography / Personal Memoirs": "keep"
+                                },
+                                "disliked_genres": [
+                                    "Art / General"
+                                ],
+                                "liked_authors": [
+                                    "Walter Isaacson"
+                                ],
+                                "disliked_authors": [],
+                                "additional_preferences": "I like to read biographies.",
+                                "books_history": [
+                                    "Einstein: A Life",
+                                    "The Master and Margarita",
+                                    "George Washington"
+                                ],
+                                "authors": 0,
+                                "categories": 0,
+                                "description": 0,
+                                "target_book": 0,
+                                "target_book_rating": 0
+                                }
+                        ]
+        }
+        
+        "{'instances': [{'user_id': '0f6b0f4c-c58b-4ecb-b999-79ff8d5c6de4', 'liked_books': {'50 Years of the Desert Boneyard: Davis Monthan A.F.B. Arizona': 5}, 'disliked_books': {}, 'liked_genres': {'Biography & Autobiography / General': 'keep', 'Drama / General': 'keep'}, 'disliked_genres': ['Antiques & Collectibles / General'], 'liked_authors': ['Agatha Christie', 'R.A. Salvatore'], 'disliked_authors': [], 'additional_preferences': 'I like fantasy', 'books_history': ['50 Years of the Desert Boneyard: Davis Monthan A.F.B. Arizona'], 'authors': 0, 'categories': 0, 'description': 0, 'target_book': 0, 'target_book_rating': 0}]}"
+        
     Returns:
         _type_: Returns a JSON object containing the recommendations and explanations.
         The recommendations are based on the user's profile and are structured in a way
@@ -305,8 +341,8 @@ async def get_recommendations(profile):
         }
     """
     
-    # print(f"Received profile: {profile}\n")
-    # print(f"Profile Type: {type(profile)}\n")
+    print(f"Received profile: {profile}\n")
+    print(f"Profile Type: {type(profile)}\n")
     
     start_time = time.time()
     
@@ -324,6 +360,23 @@ async def get_recommendations(profile):
           "liked_ratings":[], 
           "disliked_ratings":[],
           "recommended_history":[]}
+    
+    
+    # Received profile: "{\"instances\": [{\"user_id\": \"b981eda3-0418-4344-9a8d-5abaaed505cb\", 
+    # \"liked_books\": {\"1000 Best Bartender Recipes\": 5}, \"disliked_books\": {}, \"liked_genres\": 
+    # {\"Biography & Autobiography / General\": \"keep\"}, \"disliked_genres\": [\"Art / General\"], 
+    # \"liked_authors\": [\"A. A. Hoehling\"], \"disliked_authors\": [], \"additional_preferences\": 
+    # \"No fantasy\", \"books_history\": [\"1000 Best Bartender Recipes\"], \"authors\": 0, \"categories\": 0, 
+    # \"description\": 0, \"target_book\": 0, \"target_book_rating\": 0}]}"
+    
+    # liked_counter = 0
+    # disliked_counter = 0
+    #liked_books["1000 best barender"]
+    #disliked_books["murder on the orient"]
+    #liked_genres[0, "fantasy"]
+    #disliked_genres[0, "thriller"]
+    #liked_ratings[4, 5]
+    #disliked_ratings[2, 1]
     
     # Convert the profile to the required format
     
@@ -381,15 +434,15 @@ async def get_recommendations(profile):
      
     # print(f"Constructed Profile JSON:\n{constructed_profile_json}\n")
     
-    params = {
-    "user": "{\"instances\":[{\"authors\": 0,\"user_id\":[1],\"liked_books\":[\"Action\"],\"disliked_books\": [],\"liked_genres\":[],\"disliked_genres\":[],\"liked_authors\": [],\"disliked_authors\": [],\"liked_ratings\": [5],\"disliked_ratings\": [],\"categories\": 0,\"description\": 0,\"target_book\": 0,\"target_book_rating\": 0,\"keep_title\": [],\"keep_author\": [],\"keep_genre_consolidated\": [],\"remove_title\": [],\"remove_author\": [],\"remove_genre_consolidated\": []}]}"
-    }
+    # params = {
+    # "user": "{\"instances\":[{\"authors\": 0,\"user_id\":[1],\"liked_books\":[\"Action\"],\"disliked_books\": [],\"liked_genres\":[],\"disliked_genres\":[],\"liked_authors\": [],\"disliked_authors\": [],\"liked_ratings\": [5],\"disliked_ratings\": [],\"categories\": 0,\"description\": 0,\"target_book\": 0,\"target_book_rating\": 0,\"keep_title\": [],\"keep_author\": [],\"keep_genre_consolidated\": [],\"remove_title\": [],\"remove_author\": [],\"remove_genre_consolidated\": []}]}"
+    # }
     
-    # # print(f"params: {params}\n\n")
+    # # # print(f"params: {params}\n\n")
     
-    params_json = params
+    # params_json = params
     
-    params_json["user"] = json.dumps(params_json['user'])
+    # params_json["user"] = json.dumps(params_json['user'])
     
     # print(f"params_json: {params_json}\n\n")
     
@@ -405,15 +458,15 @@ async def get_recommendations(profile):
     # print(response.text)
     rec_load = json.loads(response.text)
     #print(f"Response Text: {rec_text}\n\n")
-    print(f"Response Text Type: {type(rec_load)}\n")
-    print(f"Rec Text Keys: {rec_load.keys()}\n")
+    # print(f"Response Text Type: {type(rec_load)}\n")
+    # print(f"Rec Text Keys: {rec_load.keys()}\n")
     
     rec_text = rec_load['recommendations']
     pca_book_embeddings = rec_load['pca_book_embeddings']
     pca_user_embeddings = rec_load['pca_user_embedding']
     
     
-    print(f"Rec Int: {rec_text}\n")
+    #print(f"Rec Int: {rec_text}\n")
     
     recommendations = []
     
@@ -435,11 +488,11 @@ async def get_recommendations(profile):
         recommendations.append(rec_metadata)
 
           
-    print(f"Expl Rec: {expl_rec}\n")
-    print(f"Expl Rec Type: {type(expl_rec)}\n")
-    print(f"Expl Rec Status Code: {expl_rec.status_code}\n")
-    print(f"Expl Rec Text: {expl_rec.text}\n")
-    print(f"Expl Rec JSON: {expl_rec.json()}\n")
+    # print(f"Expl Rec: {expl_rec}\n")
+    # print(f"Expl Rec Type: {type(expl_rec)}\n")
+    # print(f"Expl Rec Status Code: {expl_rec.status_code}\n")
+    # print(f"Expl Rec Text: {expl_rec.text}\n")
+    # print(f"Expl Rec JSON: {expl_rec.json()}\n")
     
     end_time = time.time()
     
