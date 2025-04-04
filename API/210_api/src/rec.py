@@ -339,7 +339,7 @@ async def get_recommendations(profile):
                 }
             ]
         }
-    """
+    """ 
     
     print(f"Received profile: {profile}\n")
     print(f"Profile Type: {type(profile)}\n")
@@ -351,6 +351,7 @@ async def get_recommendations(profile):
     except json.JSONDecodeError as e:
         pass
     
+    
     HT = {"liked_books":[],
           "disliked_books":[],
           "liked_genres":[],
@@ -359,42 +360,112 @@ async def get_recommendations(profile):
           "disliked_authors":[],
           "liked_ratings":[], 
           "disliked_ratings":[],
-          "recommended_history":[]}
+          "books_history":[],
+          "keep_authors":[],
+          "remove_authors":[],
+          "keep_genres":[],
+          "remove_genres":[]}
     
+    #{"instances": [{
+    # "user_id": "9df3f814-5e9c-42b9-9e87-9411809154c6",
+    # "liked_books": {"Einstein: A Life": {"title": "Einstein: A Life","author": "placeholder_author_1","genre": "placeholder_genre_1","rating": 5},
+    # "George Washington": {"title": "George Washington","author": "placeholder_author_2","genre": "placeholder_genre_2","rating": 5}},
+    # "disliked_books": {"Diary of a Whimpy Kid": {"title": "Diary of a Whimpy Kid","author": "Greg Heffley","genre": "Juvenile Comedy","rating": 2}},
+    # "liked_genres": {"Biography & Autobiography / General": "keep","Biography & Autobiography / Literary Figures": "keep","Biography & Autobiography / Personal Memoirs": "keep"},
+    # "disliked_genres": ["Art / General"],
+    # "liked_authors": ["Walter Isaacson"],
+    # "disliked_authors": [],
+    # "additional_preferences": "I like to read biographies.",
+    # "books_history": [{"title": "Einstein: A Life","author": "placeholder_author_1","genre": "placeholder_genre_1"},
+    # {"title": "The Master and Margarita","author": "placeholder_author_3","genre": "placeholder_genre_3"},
+    # {"title": "George Washington","author": "placeholder_author_2","genre": "placeholder_genre_2"},
+    # {"title": "Diary of a Whimpy Kid","author": "Greg Heffley","genre": "Juvenile Comedy"}],
+    # "authors": 0,"categories": 0,"description": 0,"target_book": 0,"target_book_rating": 0}]}
     
-    # Received profile: "{\"instances\": [{\"user_id\": \"b981eda3-0418-4344-9a8d-5abaaed505cb\", 
-    # \"liked_books\": {\"1000 Best Bartender Recipes\": 5}, \"disliked_books\": {}, \"liked_genres\": 
-    # {\"Biography & Autobiography / General\": \"keep\"}, \"disliked_genres\": [\"Art / General\"], 
-    # \"liked_authors\": [\"A. A. Hoehling\"], \"disliked_authors\": [], \"additional_preferences\": 
-    # \"No fantasy\", \"books_history\": [\"1000 Best Bartender Recipes\"], \"authors\": 0, \"categories\": 0, 
-    # \"description\": 0, \"target_book\": 0, \"target_book_rating\": 0}]}"
-    
-    # liked_counter = 0
-    # disliked_counter = 0
-    #liked_books["1000 best barender"]
-    #disliked_books["murder on the orient"]
-    #liked_genres[0, "fantasy"]
-    #disliked_genres[0, "thriller"]
-    #liked_ratings[4, 5]
-    #disliked_ratings[2, 1]
-    
-    # Convert the profile to the required format
+     # Task: Populate the HT correctly
     
     for key in profile['instances'][0].keys():
         
         if key in HT:
+            
+            if key == "books_history":
+                
+                for book_read in profile['instances'][0][key]:
+                    
+                    HT[key].append(book_read['title'])
+                
+                continue
+            
+            favor, topic = key.split("_")
+            
+            if topic == "books":
+        
+                if favor == "liked":
+                    
+                    for liked_book in profile['instances'][0][key]:
+                        HT['liked_books'].append(profile['instances'][0][key][liked_book]['title'])
+                        HT['liked_authors'].append(profile['instances'][0][key][liked_book]['author'])
+                        HT['liked_genres'].append(profile['instances'][0][key][liked_book]['genre'])
+                        HT['liked_ratings'].append(profile['instances'][0][key][liked_book]['rating'])
+                    
+                    
+                elif favor == "disliked":
+                    
+                    for liked_book in profile['instances'][0][key]:
+                        HT['disliked_books'].append(profile['instances'][0][key][liked_book]['title'])
+                        HT['disliked_authors'].append(profile['instances'][0][key][liked_book]['author'])
+                        HT['disliked_genres'].append(profile['instances'][0][key][liked_book]['genre'])
+                        HT['disliked_ratings'].append(profile['instances'][0][key][liked_book]['rating'])
                         
-            HT[key].extend(profile['instances'][0][key])
+                continue
             
-            if key.split("_")[0] == 'liked':
+        #     HT = {
+        #   "liked_genres":[],
+        #   "disliked_genres":[],
+        #   "liked_authors":[],
+        #   "disliked_authors":[]}
+        
+        # "liked_genres": {"Biography & Autobiography / General": "keep","Biography & Autobiography / Literary Figures": "keep","Biography & Autobiography / Personal Memoirs": "keep"},
+        # "disliked_genres": ["Art / General"],
+        # "liked_authors": ["Walter Isaacson"],
+        # "disliked_authors": [],
+       
+            if topic == "genres":
+                
+                if favor == "liked":
+                    
+                    for genre in profile['instances'][0][key]:
+                        
+                        if profile['instances'][0][key][genre] == "keep":
+                            continue
+                        
+                        HT['remove_genres'].append(genre)
+                    
+                elif favor == "disliked":
+                        
+                    HT['remove_genres'].extend(profile['instances'][0][key])
+                        
+                continue
             
-                HT['liked_ratings'].extend([5]*len(profile['instances'][0][key]))
+            if topic == "authors":
                 
-            elif key.split("_")[0] == 'disliked':
-                
-                HT['disliked_ratings'].extend([1]*len(profile['instances'][0][key]))         
+                if favor == "liked":
+                    
+                    pass
+                    
+                    #HT['keep_authors'].extend(profile['instances'][0][key])
+                    
+                elif favor == "disliked":
+                        
+                    HT['remove_authors'].extend(profile['instances'][0][key])
+                        
+                continue
+            
     
-    HT_string = {"liked_books":"","disliked_books":"","liked_genres":"","disliked_genres":"","liked_authors":"","disliked_authors":"", "recommended_history":""}
+    print(f"Extracted User Profile args:\n\n{HT}\n")      
+    
+    HT_string = {"liked_books":"","disliked_books":"","liked_genres":"","disliked_genres":"","liked_authors":"","disliked_authors":"", "books_history":"",
+                 "keep_authors":"","remove_authors":"","keep_genres":"","remove_genres":""}
 
     for key in HT_string.keys():
         
@@ -412,14 +483,14 @@ async def get_recommendations(profile):
             
         HT_string[key] = "[" + HT_string[key] + "]"
         
-        # print(f"Final HT_string[key]: {HT_string[key]}\n")
+        print(f"Final HT_string[{key}]: {HT_string[key]}\n")
 
     # for key in HT_string.keys():
         # print(f"Final HT_string[key]: {HT_string[key]}\n")
     
-    constructed_profile = '{\"instances\": [{\"authors\": 0,\"user_id\":["' + str(profile["instances"][0]["user_id"]) + '"],\"liked_books\": ' + HT_string["liked_books"] + ', \"disliked_books\": ' + HT_string["disliked_books"] + ',\"liked_genres\":' + HT_string["liked_genres"] + ',\"disliked_genres\":' + HT_string["disliked_genres"] + ',\"liked_authors\": ' + HT_string["liked_authors"] + ',\"disliked_authors\": ' + HT_string["disliked_authors"] + ',\"liked_ratings\": ' + str(HT["liked_ratings"]) + ',\"disliked_ratings\": ' + str(HT["disliked_ratings"]) + ', \"keep_title\": [],\"keep_author\": [],\"keep_genre_consolidated\": [],\"remove_title\": ' + HT_string["recommended_history"] + ',\"remove_author\": ' + HT_string["disliked_authors"] + ',\"remove_genre_consolidated\":' + HT_string["disliked_genres"] + ',\"categories\": 0,\"description\": 0,\"target_book\": 0,\"target_book_rating\": 0}]}'
+    constructed_profile = '{\"instances\": [{\"authors\": 0,\"user_id\":["' + str(profile["instances"][0]["user_id"]) + '"],\"liked_books\": ' + HT_string["liked_books"] + ', \"disliked_books\": ' + HT_string["disliked_books"] + ',\"liked_genres\":' + HT_string["liked_genres"] + ',\"disliked_genres\":' + HT_string["disliked_genres"] + ',\"liked_authors\": ' + HT_string["liked_authors"] + ',\"disliked_authors\": ' + HT_string["disliked_authors"] + ',\"liked_ratings\": ' + str(HT["liked_ratings"]) + ',\"disliked_ratings\": ' + str(HT["disliked_ratings"]) + ', \"keep_title\": [],\"keep_author\": [],\"keep_genre_consolidated\": [],\"remove_title\": ' + HT_string["books_history"] + ',\"remove_author\": ' + HT_string["remove_authors"] + ',\"remove_genre_consolidated\":' + HT_string["remove_genres"] + ',\"categories\": 0,\"description\": 0,\"target_book\": 0,\"target_book_rating\": 0}]}'
     
-    # print(f"Constructed Profile Pre: {constructed_profile}\n")
+    print(f"Constructed Profile Pre: {constructed_profile}\n")
     
     dump1 = json.dumps(constructed_profile)
     # print(f"Dump1 Type: {type(dump1)}\n\n")
@@ -508,7 +579,7 @@ async def get_recommendations(profile):
     # recommendations.append(pca_user_embeddings)
     #recommendations.append(['time elapsed', end_time - start_time])
     
-    print(recommendations)
+    #print(recommendations)
     
     return {"recommendations": recommendations}
     #return {"recommendations": recommendations}
