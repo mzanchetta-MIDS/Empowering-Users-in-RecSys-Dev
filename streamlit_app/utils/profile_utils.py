@@ -7,7 +7,7 @@ from utils.api_client import submit_user_profile
 from utils.book_metadata_cache import update_book_metadata
 
 
-PROFILE_PATH = "user_profiles.json"  # We will change this to a DB/API later
+PROFILE_PATH = "user_profiles.json"  # can change later 
 
 def initialize_user_profile():
     """
@@ -59,33 +59,12 @@ def save_authors(selected_authors):
     st.session_state.user_profile["authors"] = selected_authors
     save_profile()
 
-# def save_favorite_books(favorite_books):
-#     """
-#     Saves the user's list of favorite books.
-#     """
-#     st.session_state.user_profile["favorite_books"] = favorite_books
-#     save_profile()
-
 def save_favorite_books(selected_books):
     """
-    Saves the user's list of favorite books.
+    Saves the user's list of favorite books without modifying metadata cache.
+    Assumes metadata is already loaded via get_unique_books().
     """
     st.session_state.user_profile["favorite_books"] = selected_books
-    
-    # Update metadata for each book
-    for book in selected_books:
-        if " - " in book:
-            parts = book.split(" - ", 1)
-            title = parts[0].strip()
-            author = parts[1].strip() if len(parts) > 1 else "Unknown Author"
-            
-            # Update the metadata cache
-            update_book_metadata(title, {
-                "title": title,
-                "author": author,
-                "genre": "Unknown Genre"  # We don't have this information yet
-            })
-    
     save_profile()
 
 def get_user_profile_json():
@@ -127,7 +106,7 @@ def add_to_recommendation_history(book_info):
     if "recommended_history" not in st.session_state.user_profile:
         st.session_state.user_profile["recommended_history"] = []
         
-    # Add to history if not already present (simple string instead of object)
+    # Add to history if not already present 
     book_title = book_info["title"]
     if book_title not in st.session_state.user_profile["recommended_history"]:
         st.session_state.user_profile["recommended_history"].append(book_title)

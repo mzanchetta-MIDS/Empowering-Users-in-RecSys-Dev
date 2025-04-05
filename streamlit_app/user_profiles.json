@@ -5,23 +5,11 @@
       "author": "\"Patrick OBrian\"",
       "description": "Tells the enchanting yet bloodthirsty story of a creature whose father was a giant panda and whose mother was a snow leopard, in a new edition of a book first published in 1930, when the author was fifteen years old. Reprint.",
       "explanation": "Based on your preference for Architecture and Biography & Autobiography genres, and your dislike for Art, the recommended book, \"Caesar: The Life of a Panda Leopard,\" might intrigue you. This book, although categorized under Folk Tales, Legends & Mythology, shares thematic elements with biographies. It's a story about a unique creature, much like architectural marvels or intriguing historical figures. Despite not being a traditional architecture or biography title, its narrative structure and engaging storytelling could appeal to your tastes. Additionally, since you've indicated a dislike for fantasy, this book, being a folk tale, does not contain fantastical elements."
-    },
-    {
-      "title": "Gift From the Sea - An Answer to the Conflicts in Our Lives",
-      "author": "Candace Fleming",
-      "description": "WINNER OF THE 2021 YALSA AWARD FOR EXCELLENCE IN NONFICTION FOR YOUNG ADULTS! SIX STARRED REVIEWS! Discover the dark side of Charles Lindbergh--one of America's most celebrated heroes and complicated men--in this riveting biography from the acclaimed author of The Family Romanov. First human to cross the Atlantic via airplane; one of the first American media sensations; Nazi sympathizer and anti-Semite; loner whose baby was kidnapped and murdered; champion of Eugenics, the science of improving a human population by controlled breeding; tireless environmentalist. Charles Lindbergh was all of the above and more. Here is a rich, multi-faceted, utterly spellbinding biography about an American hero who was also a deeply flawed man. In this time where values Lindbergh held, like white Nationalism and America First, are once again on the rise, The Rise and Fall of Charles Lindbergh is essential reading for teens and history fanatics alike.",
-      "explanation": "Based on your preference for biography & autobiography and your dislike for art, \"Gift From the Sea\" was recommended. This book, a biography, aligns with your interests. It's about Charles Lindbergh, a complex historical figure, which might appeal to you given your enjoyment of biographies about intriguing individuals. Since you've indicated a dislike for fantasy, rest assured that this book does not contain any fantasy elements."
-    },
-    {
-      "title": "The Awakening and Selected Stories (Modern Library Classics)",
-      "author": "Kate Chopin",
-      "description": "WHEN IT FIRST APPEARED IN 1899, THE AWAKENING WAS GREETED WITH CRIES OF OUTRAGE. THE NOVEL'S FRANK PORTRAYAL OF A WOMAN'S EMOTIONAL, INTELLECTUAL, AND SEXUAL AWAKENING SHOCKED THE SENSIBILITIES OF THE TIME AND DESTROYED THE AUTHOR'S REPUTATION AND CAREER.",
-      "explanation": "Based on your preference for Biography & Autobiography and Architecture genres, and your dislike for Art, the recommended book, \"The Awakening and Selected Stories\" by Kate Chopin, aligns with your interests. This collection of stories doesn't contain fantasy elements, as per your preference, and offers a rich exploration of human emotions and experiences, which resonates with your enjoyed books."
     }
   ],
   "ratings": {
     "The Silmarillion": 2,
-    "A Day of Pleasure: Stories of a Boy Growing up in Warsaw": 5
+    "The Awakening and Selected Stories (Modern Library Classics)": 4
   },
   "not_interested": [
     "Arnhem"
@@ -34,26 +22,20 @@
     "A Day of Pleasure: Stories of a Boy Growing up in Warsaw",
     "The Awakening and Selected Stories (Modern Library Classics)"
   ],
-  "name": "Benjamin",
+  "name": "B",
   "genres": [
-    "Art / General",
     "Biography & Autobiography / General"
   ],
-  "disliked_genres": [
-    "Antiques & Collectibles / General"
-  ],
+  "disliked_genres": [],
   "genre_preferences": {
-    "Art / General": "keep",
     "Biography & Autobiography / General": "keep"
   },
-  "user_id": "c14f2af4-b465-4062-bf71-6bbd0cdc9506",
+  "user_id": "b41b019e-ca33-4b09-8076-5511dbc294ec",
   "authors": [
-    "A Adams"
+    "A. A. Haidari"
   ],
   "favorite_books": [
-    "1000 - Christiane Stakenbrock",
-    "Abraham Lincoln a biography - Abraham Lincoln",
-    "A Boy's Will - Robert Frost"
+    "10,000 White Horses - Betsy B. Lee"
   ],
   "additional_preferences": "Test"
 }

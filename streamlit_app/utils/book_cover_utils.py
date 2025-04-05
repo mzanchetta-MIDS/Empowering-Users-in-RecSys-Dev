@@ -33,22 +33,13 @@ def get_cover_image_url(book_title):
     # Get the lookup table
     covers_df = get_cover_lookup_table()
     
-    print(f"DEBUG: Looking for cover for '{book_title}'")
-    
-    if covers_df.empty:
-        print("DEBUG: Covers dataframe is empty!")
-        return f"{S3_BASE_URL}{DEFAULT_COVER}"
-    
     # Use exact case-sensitive matching
     match = covers_df[covers_df['title'] == book_title]
-    print(f"DEBUG: Found {len(match)} exact matches for title")
     
     if not match.empty:
         image_path = match.iloc[0]['image_path']
         full_url = f"{S3_BASE_URL}{image_path}" if image_path else f"{S3_BASE_URL}{DEFAULT_COVER}"
-        print(f"DEBUG: Using image URL: {full_url}")
         return full_url
     
     # No match found, return default cover
-    print(f"DEBUG: No exact match found for '{book_title}', using default cover")
     return f"{S3_BASE_URL}{DEFAULT_COVER}"
