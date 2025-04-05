@@ -1,35 +1,40 @@
 {
   "saved_for_later": [],
-  "ratings": {
-    "In the Buddha's Words: An Anthology of Discourses from the Pali Canon (Teachings of the Buddha)": 3,
-    "Aspects of Semidefinite Programming: Interior Point Algorithms and Selected Applications (Applied Optimization)": 5,
-    "EveryBody : Preventing HIV and Other Sexually Transmitted Diseases, Revised Edition": 3
-  },
+  "ratings": {},
   "not_interested": [],
   "recommended_history": [
-    "Principles of Flat Pattern Design",
-    "The absolute differential calculus (Calculus of tensors)",
-    "In the Buddha's Words: An Anthology of Discourses from the Pali Canon (Teachings of the Buddha)",
-    "Aspects of Semidefinite Programming: Interior Point Algorithms and Selected Applications (Applied Optimization)",
-    "EveryBody : Preventing HIV and Other Sexually Transmitted Diseases, Revised Edition",
-    "Chronic Fatigue and Its Syndromes"
+    "Caesar: The Life of a Panda Leopard",
+    "The Awakening and Selected Stories (Modern Library Classics)",
+    "Kate Chopin: Complete Novels and Stories: At Fault / Bayou Folk / A Night in Acadie / The Awakening / Uncollected Stories (Library of America)",
+    "Model 1911 Automatic Pistol",
+    "Witches Abroad (Discworld)",
+    "Arnhem"
   ],
-  "name": "Zach",
+  "name": "Zachary Fenton",
   "genres": [
-    "Mathematics / General"
+    "Biography & Autobiography / Literary Figures",
+    "Fiction / Crime",
+    "Fiction / Noir"
   ],
   "disliked_genres": [
-    "Fiction / General"
+    "Young Adult Nonfiction / General",
+    "True Crime / Murder"
   ],
   "genre_preferences": {
-    "Mathematics / General": "keep"
+    "Biography & Autobiography / Literary Figures": "keep",
+    "Fiction / Crime": "keep",
+    "Fiction / Noir": "keep"
   },
-  "user_id": "508da181-2c5d-44a9-b1cb-c29db8c40940",
+  "user_id": "9d28cfc6-3ab1-4bad-a312-ff96f40e044a",
   "authors": [
-    "F. Scott Fitzgerald",
-    "J. D. Salinger",
-    "Harper Lee"
+    "A. Korthals Altes",
+    "Alain De Benoist",
+    "Alain Ursini"
   ],
-  "favorite_books": [],
-  "additional_preferences": "I don't think this will impact the rec system"
+  "favorite_books": [
+    "27 Men Out: Baseball's Perfect Games - Michael Coffey",
+    "303 Tricky Checkmates - Fred Wilson",
+    "33 Uses for a Dad - Harriet Ziefert"
+  ],
+  "additional_preferences": "No thank you"
 }

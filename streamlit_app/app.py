@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import base64
+import requests
 
 # Import your page modules
 from sections.landing import show_landing
@@ -34,6 +35,8 @@ def initialize_session_state():
         st.session_state.user_profile["not_interested"] = []
     if "recommended_history" not in st.session_state.user_profile:
         st.session_state.user_profile["recommended_history"] = []
+    if "book_metadata" not in st.session_state:
+        st.session_state.book_metadata = {}
     
 
 initialize_session_state()

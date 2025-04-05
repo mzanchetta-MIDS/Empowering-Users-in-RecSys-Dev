@@ -8,9 +8,6 @@ from utils.book_cover_utils import get_cover_image_url
 
 def get_new_recommendations():
     """Get new recommendations the user hasn't seen yet"""
-    
-    print("Abbas CheckPoint: Called function get_new_recommendations")
-    
     all_recommendations = get_sample_recommendations()
     
     # Track already seen books by title

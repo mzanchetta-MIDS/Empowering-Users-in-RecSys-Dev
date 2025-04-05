@@ -156,7 +156,7 @@ def get_unique_books() -> List[str]:
     try:
         conn = connect_to_db()
         query = """
-        SELECT DISTINCT title, author 
+        SELECT DISTINCT title, author, genre_consolidated as genre
         FROM books_info 
         ORDER BY title
         """

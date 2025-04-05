@@ -3,6 +3,8 @@ import streamlit as st
 import json
 import uuid
 import logging
+from utils.book_metadata_cache import get_book_metadata, update_book_metadata
+
 
 # Set up logging 
 logging.basicConfig(level=logging.INFO)
@@ -43,17 +45,23 @@ def transform_profile_for_recommendation_api(user_profile):
         ]
     }
     
-    # Helper function to extract just the title from a book entry
     def extract_title(book_entry):
+        """
+        Robustly extract the canonical book title for matching/caching.
+
+        - If it's a dict: assume book_entry['title'] is clean.
+        - If it's a string: look it up in metadata cache and normalize to just the true title.
+        """
         if isinstance(book_entry, dict):
-            # For dictionary objects (like in saved_for_later)
-            return book_entry.get("title", "")
-        elif isinstance(book_entry, str) and " - " in book_entry:
-            # For "Title - Author" format (like in favorite_books)
-            return book_entry.split(" - ", 1)[0].strip()
-        else:
-            # Already just a title or unknown format
-            return book_entry
+            return book_entry.get("title", "").strip()
+        
+        if isinstance(book_entry, str):
+            # Try exact match
+            if book_entry in st.session_state.book_metadata:
+                return st.session_state.book_metadata[book_entry]["title"]
+    
+        return ""
+
     
     # Set to track all unique book titles the user has interacted with
     all_books = set()
@@ -62,41 +70,110 @@ def transform_profile_for_recommendation_api(user_profile):
     for book in user_profile.get("favorite_books", []):
         title = extract_title(book)
         if title:
-            api_format["instances"][0]["liked_books"][title] = 5
+            # Get metadata for this book (or create it if needed)
+            metadata = get_book_metadata(title)
+            
+            # Store enriched book data
+            api_format["instances"][0]["liked_books"][title] = {
+                "title": metadata["title"],
+                "author": metadata["author"],
+                "genre": metadata["genre"],
+                "rating": 5  # Default rating for favorite books
+            }
             all_books.add(title)
     
     # Process ratings - rule #3
     for book, rating in user_profile.get("ratings", {}).items():
         title = extract_title(book)
         if title:
+            # Get metadata for this book
+            metadata = get_book_metadata(title)
+            
+            book_data = {
+                "title": metadata["title"],
+                "author": metadata["author"],
+                "genre": metadata["genre"],
+                "rating": rating  # Include the actual rating
+            }
+            
             if rating >= 3:  # 3, 4, or 5 stars
-                api_format["instances"][0]["liked_books"][title] = rating
+                api_format["instances"][0]["liked_books"][title] = book_data
             else:  # 1 or 2 stars
-                api_format["instances"][0]["disliked_books"][title] = rating
+                api_format["instances"][0]["disliked_books"][title] = book_data
             all_books.add(title)
     
     # Process books marked as "not interested" - rule #2
     for book in user_profile.get("not_interested", []):
         title = extract_title(book)
         if title:
-            api_format["instances"][0]["disliked_books"][title] = 1
+            # Get metadata for this book
+            metadata = get_book_metadata(title)
+            
+            api_format["instances"][0]["disliked_books"][title] = {
+                "title": metadata["title"],
+                "author": metadata["author"],
+                "genre": metadata["genre"],
+                "rating": 1  # Default low rating for "not interested"
+            }
             all_books.add(title)
     
     # Process books saved for later - rule #3 (before rating)
     for book_obj in user_profile.get("saved_for_later", []):
         title = extract_title(book_obj)
         if title and title not in api_format["instances"][0]["liked_books"]:
-            api_format["instances"][0]["liked_books"][title] = 4
+            if isinstance(book_obj, dict) and "author" in book_obj:
+                # Cache with both formats
+                metadata = {
+                    "title": title,
+                    "author": book_obj.get("author", "Unknown Author"),
+                    "genre": book_obj.get("genre", "Unknown Genre")
+                }
+
+                update_book_metadata(title, metadata)
+                display_key = f"{title} - {metadata['author']}"
+                update_book_metadata(display_key, metadata)
+
+            metadata = get_book_metadata(title)
+            api_format["instances"][0]["liked_books"][title] = {
+                "title": metadata["title"],
+                "author": metadata["author"],
+                "genre": metadata["genre"],
+                "rating": 4
+            }
             all_books.add(title)
     
     # Process recommendation history
+    books_history = []
     for book_title in user_profile.get("recommended_history", []):
         title = extract_title(book_title)
         if title:
-            all_books.add(title)
-    
-    # Set books_history from all unique books
-    api_format["instances"][0]["books_history"] = list(all_books)
+            # Try to use metadata from liked/disliked books if available
+            book_data = (
+                api_format["instances"][0]["liked_books"].get(title) or
+                api_format["instances"][0]["disliked_books"].get(title)
+            )
+
+            if book_data:
+                # Copy only title, author, genre (exclude rating)
+                history_entry = {
+                    "title": book_data["title"],
+                    "author": book_data["author"],
+                    "genre": book_data["genre"]
+                }
+            else:
+                # Fallback to cached metadata
+                metadata = get_book_metadata(title)
+                history_entry = {
+                    "title": metadata["title"],
+                    "author": metadata["author"],
+                    "genre": metadata["genre"]
+                }
+
+            books_history.append(history_entry)
+
+
+    # Set books_history with full metadata for each book
+    api_format["instances"][0]["books_history"] = books_history
     
     # Process genres and preferences - using genre_preferences
     for genre in user_profile.get("genres", []):
@@ -106,6 +183,8 @@ def transform_profile_for_recommendation_api(user_profile):
     # Process disliked genres
     for genre in user_profile.get("disliked_genres", []):
         api_format["instances"][0]["disliked_genres"].append(genre)
+        
+    print(f"DEBUG API_FORMAT\n\n {api_format}\n")
     
     return api_format
 
@@ -120,6 +199,7 @@ def get_genres():
         st.error(f"Error connecting to API: {str(e)}")
     return []  # Fallback to empty list if API fails
 
+
 def get_authors():
     """Fetch available authors from API"""
     try:
@@ -131,35 +211,29 @@ def get_authors():
         st.error(f"Error connecting to API: {str(e)}")
     return []
 
+
 def get_books():
     """Fetch available books for selection"""
     try:
         response = requests.get(f"{API_BASE_URL}/rec/books")
         if response.status_code == 200:
-            return response.json()["books"]
+            return response.json()  
         st.error(f"Failed to fetch books: {response.status_code}")
     except Exception as e:
         st.error(f"Error connecting to API: {str(e)}")
-    return []
+    return {}  
+
     
 def get_book_covers():
     """Fetch book covers mapping from API"""
     try:
-        print(f"DEBUG: Requesting book covers from {API_BASE_URL}/rec/book-covers")
         response = requests.get(f"{API_BASE_URL}/rec/book-covers")
-        print(f"DEBUG: Response status: {response.status_code}")
-        print(f"DEBUG: Response content: {response.text[:200]}...")  
-        
         if response.status_code == 200:
-            data = response.json()
-            print(f"DEBUG: Received {len(data.get('covers', []))} covers")
-            return data.get("covers", [])
+            return response.json().get("covers", [])
         logger.error(f"Failed to fetch book covers: {response.status_code}")
     except Exception as e:
         logger.error(f"Error connecting to API: {str(e)}")
-        print(f"DEBUG: Exception in get_book_covers: {str(e)}")
-    return []  # Fallback to empty list if API fails
-
+    return []
 
 def submit_user_profile(profile_data):
     """Submit user profile after onboarding or updates"""
@@ -177,10 +251,6 @@ def submit_user_profile(profile_data):
     except Exception as e:
         st.error(f"Error connecting to API: {str(e)}")
     return {"error": "Failed to submit profile"}
-
-# Setup logger for this file
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 def get_recommendations():
@@ -206,13 +276,9 @@ def get_recommendations():
             # Transform profile into the format the API expects
             api_format = transform_profile_for_recommendation_api(profile_data)
             
-            # print(f"DEBUG: API format for recommendations: {api_format}")
-            
-            # print("api_format type:", type(api_format))
-            
             api_format = json.dumps(api_format)
-            # print(f"DEBUG: JSON formatted API data: {api_format}")
-            # print("api_format type after json.dumps:", type(api_format))
+            
+            print(f"DEBUG: JSON formatted api: {api_format}")
             
             try:
                 # Make the POST request, sending JSON
@@ -221,15 +287,11 @@ def get_recommendations():
                     params = {"profile": json.dumps(api_format)}
                 )
 
-                # Debug prints for troubleshooting
-                # print("DEBUG status code:", response.status_code)
-                # print("DEBUG response text:", response.text)
-
                 if response.status_code == 200:
                     # Parse the JSON
                     response_data = response.json()
                     
-                    # Store the embeddings in session state for later visualization
+                    # Store the embeddings in session state 
                     if "recommendations" in response_data:
                         rec_data = response_data["recommendations"]
                         if "pca_book_embeddings" in rec_data:
@@ -237,7 +299,7 @@ def get_recommendations():
                         if "pca_user_embeddings" in rec_data:
                             st.session_state.pca_user_embeddings = rec_data["pca_user_embeddings"]
                     
-                    # The new structure has recommendations inside a nested "recommendations" object
+                    # Rcommendations inside a nested "recommendations" object
                     raw_recommendations = response_data.get("recommendations", {}).get("recommendations", [])
                     
                     processed_recommendations = []
@@ -247,19 +309,25 @@ def get_recommendations():
                         if isinstance(rec, list) and rec[0] == "time elapsed":
                             continue
 
-                        # Try to parse the string in rec["explanation"]
                         explanation_json_str = rec.get("explanation", "{}")
                         try:
                             explanation_data = json.loads(explanation_json_str)
                             rec_data = explanation_data.get("recommendation_explanation", {})
 
-                            # Build a dict in the shape our UI needs
+                            # Build a dict in the shape UI needs
                             processed_rec = {
                                 "title": rec_data.get("recommended_book", rec.get("title", "Unknown Title")),
                                 "author": rec_data.get("author", "Unknown Author"),
                                 "description": rec_data.get("description", "No description available."),
                                 "explanation": rec_data.get("explanation", "No explanation available.")
                             }
+                            
+                            # Update book metadata cache with information 
+                            update_book_metadata(processed_rec["title"], {
+                                "title": processed_rec["title"],
+                                "author": processed_rec["author"],
+                                "genre": rec_data.get("genre", "Unknown Genre")  # Extract genre 
+                            })
                             
                             processed_recommendations.append(processed_rec)
                         except json.JSONDecodeError:
@@ -274,7 +342,7 @@ def get_recommendations():
                     
                     return processed_recommendations
                 
-                # If status not 200, log an error and fall back
+                # If status not 200, log error 
                 logger.error(f"Failed to get recommendations: {response.status_code} - {response.text}")
             except Exception as e:
                 logger.error(f"Error making recommendation request: {str(e)}")

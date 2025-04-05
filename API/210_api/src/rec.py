@@ -37,8 +37,6 @@ async def lifespan_context_manager(app: FastAPI):
     curr.close()
     conn.close()
     logging.info("Database connection closed")
-    
-    
 
 rec = FastAPI()
 
@@ -54,6 +52,12 @@ class AuthorResponse(BaseModel):
 
 class BookResponse(BaseModel):
     books: List[str]
+    
+class BookMetadata(BaseModel):
+    title: str
+    author: str
+    genre: str
+    rating: Optional[int] = None
 
 class UserProfile(BaseModel):
     name: Optional[str] = None
@@ -71,19 +75,19 @@ class RecommendationResponse(BaseModel):
 # New model for recommendation model input format
 class RecModelInstance(BaseModel):
     user_id: str
-    liked_books: Dict[str, int] = {}
-    disliked_books: Dict[str, int] = {}
-    liked_genres: Dict[str, str] = {}
-    disliked_genres: List[str] = []
-    liked_authors: List[str] = []
-    disliked_authors: List[str] = []
-    additional_preferences: Optional[str] = None
-    books_history: List[str] = [] 
-    authors: int = 0
-    categories: int = 0
-    description: int = 0
-    target_book: int = 0
-    target_book_rating: int = 0
+    liked_books: Dict[str, BookMetadata]
+    disliked_books: Dict[str, BookMetadata]
+    liked_genres: Dict[str, str]
+    disliked_genres: List[str]
+    liked_authors: List[str]
+    disliked_authors: List[str]
+    additional_preferences: Optional[str] = None 
+    books_history: List[BookMetadata]
+    authors: int
+    categories: int
+    description: int
+    target_book: int
+    target_book_rating: int
 
 class RecModelRequest(BaseModel):
     instances: List[RecModelInstance]
@@ -502,21 +506,7 @@ async def get_recommendations(profile):
     load_1 = json.dumps(load_1)
     
     constructed_profile_json["user"] = load_1
-     
-    # print(f"Constructed Profile JSON:\n{constructed_profile_json}\n")
-    
-    # params = {
-    # "user": "{\"instances\":[{\"authors\": 0,\"user_id\":[1],\"liked_books\":[\"Action\"],\"disliked_books\": [],\"liked_genres\":[],\"disliked_genres\":[],\"liked_authors\": [],\"disliked_authors\": [],\"liked_ratings\": [5],\"disliked_ratings\": [],\"categories\": 0,\"description\": 0,\"target_book\": 0,\"target_book_rating\": 0,\"keep_title\": [],\"keep_author\": [],\"keep_genre_consolidated\": [],\"remove_title\": [],\"remove_author\": [],\"remove_genre_consolidated\": []}]}"
-    # }
-    
-    # # # print(f"params: {params}\n\n")
-    
-    # params_json = params
-    
-    # params_json["user"] = json.dumps(params_json['user'])
-    
-    # print(f"params_json: {params_json}\n\n")
-    
+      
      # ----------------------------------------------
     url = "http://3.222.96.42/rec/recommended"
     
@@ -574,157 +564,7 @@ async def get_recommendations(profile):
         "pca_user_embeddings": pca_user_embeddings,
         "time_elapsed": end_time - start_time
     }
-    
-    # recommendations.append(pca_book_embeddings)
-    # recommendations.append(pca_user_embeddings)
-    #recommendations.append(['time elapsed', end_time - start_time])
-    
-    #print(recommendations)
+
     
     return {"recommendations": recommendations}
     #return {"recommendations": recommendations}
-
-
-    
-    # recommendations = [
-    # {
-    #     "id": "book-001",
-    #     "title": "The Master and Margarita",
-    #     "author": "Mikhail Bulgakov",
-    #     "description": "A 50th-anniversary Deluxe Edition of the incomparable 20th-century masterpiece of satire and fantasy. "
-    #     " One spring afternoon, the Devil, trailing fire and chaos in his wake, weaves himself out of the "
-    #     "shadows and into Moscow. This fantastical, funny, and devastating satire of Soviet life combines two distinct yet "
-    #     "interwoven parts, one set in contemporary Moscow, the other in ancient Jerusalem, each brimming with historical, imaginary, frightful, "
-    #     "and wonderful characters. Written during the darkest days of Stalin's reign, The Master and Margarita "
-    #     "became a literary phenomenon, signaling artistic and spiritual freedom for Russians everywhere.",
-    #     "explanation": "This recommendation bridges your love of magical realism from García Márquez with "
-    #                   "the philosophical depth you enjoy in Rushdie's work. The novel's non-linear structure "
-    #                   "and blend of fantasy with harsh reality mirrors elements you appreciated in 'One "
-    #                   "Hundred Years of Solitude' while introducing you to a different cultural context. " 
-    #                   "Based on your preference for 'books that blur the line between reality and fantasy,' "
-    #                   "this Russian classic should resonate deeply."
-    # },
-    #     {
-    #     "id": "book-007",
-    #     "title": "The Wind-Up Bird Chronicle",
-    #     "author": "Haruki Murakami",
-    #     "description": "Japan's most highly regarded novelist now vaults into the first ranks of international "
-    #                 "fiction writers with this heroically imaginative novel, which is at once a detective "
-    #                 "story, an account of a disintegrating marriage, and an excavation of the buried "
-    #                 "secrets of World War II. In a Tokyo suburb a young man named Toru Okada searches for "
-    #                 "his wife's missing cat. Soon he finds himself looking for his wife as well in a "
-    #                 "netherworld that lies beneath the placid surface of Tokyo. As these searches intersect, "
-    #                 "Okada encounters a bizarre group of allies and antagonists. Gripping, prophetic, suffused with comedy "
-    #                 "and menace, The Wind-Up Bird Chronicle is a tour de force equal in scope to the "
-    #                 "masterpieces of Mishima and Pynchon.",
-    #     "explanation": "Since you've enjoyed Murakami's 'Hard-boiled Wonderland' but marked 'After Dark' "
-    #                   "as not interesting, I'm recommending what many consider his definitive work. "
-    #                   "'The Wind-Up Bird Chronicle' offers the dream-like qualities and philosophical "
-    #                   "depth you appreciated in 'Hard-boiled Wonderland' but with a more "
-    #                   "historical dimension through its exploration of Japan's wartime past. This "
-    #                   "recommendation respects your Murakami preferences while offering of his most "
-    #                   "celebrated works."
-    # },
-    #  {
-    #     "id": "book-009",
-    #     "title": "Pachinko",
-    #     "author": "Min Jin Lee",
-    #     "description": "This sweeping historical epic follows four generations of a Korean family who "
-    #                   "move to Japan in the early 20th century. Beginning in 1910 with a pregnancy "
-    #                   "outside of marriage, the novel traces the family's struggles with identity, "
-    #                   "belonging, and survival through colonization, war, and persistent discrimination "
-    #                   "in their adopted country.",
-    #     "explanation": "You've shown interest in multi-generational family sagas through your appreciation "
-    #                   "of 'One Hundred Years of Solitude.' 'Pachinko' offers a similar scope but focuses "
-    #                   "on the Korean-Japanese experience. The " 
-    #                   "rich character development and exploration of cultural identity should resonate "
-    #                   "with your interest in books that teach you about 'different historical periods or "
-    #                   "cultures.' This recommendation expands your literary horizons while staying true "
-    #                   "to your core interests."
-    # },
-    #     {
-    #     "id": "book-005",
-    #     "title": "The Brief Wondrous Life of Oscar Wao",
-    #     "author": "Junot Díaz",
-    #     "description": "Oscar is a sweet but disastrously overweight ghetto nerd who—from the New Jersey "
-    #                 "home he shares with his old world mother and rebellious sister—dreams of becoming "
-    #                 "the Dominican J.R.R. Tolkien and, most of all, finding love. But Oscar may never "
-    #                 "get what he wants. Blame the curse that has haunted Oscar's family for "
-    #                 "generations, following them on their epic journey from Santo Domingo to the USA. "
-    #                 "Encapsulating Dominican-American history, The Brief Wondrous Life of Oscar Wao "
-    #                 "opens our eyes to an astonishing vision of the contemporary American experience "
-    #                 "and explores the endless human capacity to persevere—and risk it all—in the "
-    #                 "name of love.",
-    #     "explanation": "Based on your interest in authors like García Márquez and Rushdie, this novel "
-    #                 "should appeal to you with its blend of cultural history and elements of the "
-    #                 "supernatural. The family curse mentioned in the description echoes the magical "
-    #                 "elements you enjoy, while the Dominican-American experience offers a fresh "
-    #                 "cultural perspective. The book's focus on a character who loves fantasy literature "
-    #                 "adds a unique dimension that connects with your appreciation for rich, imaginative "
-    #                 "storytelling across different cultures."
-    # },
-    # {
-    #     "id": "book-002",
-    #     "title": "A Tale for the Time Being",
-    #     "author": "Ruth Ozeki",
-    #     "description": "A compelling dual narrative that connects a novelist in British Columbia with a "
-    #                   "teenage girl in Tokyo through a diary washed ashore after the 2011 tsunami. The "
-    #                   "novel explores quantum physics, Zen Buddhism, suicide, bullying, and the slippery "
-    #                   "nature of time while weaving a deeply human story across cultures and generations.",
-    #     "explanation": "Since you rated 'The Wind-Up Bird Chronicle' highly, this novel offers similar "
-    #                   "elements of Japanese culture with magical elements, but through a female author's "
-    #                   "perspective. The book's meditation on time and interconnectedness mirrors themes "
-    #                   "you've enjoyed in Murakami's work, while its structural experimentation aligns "
-    #                   "with your stated appreciation for 'stories that challenge conventional narrative "
-    #                   "structures.' Your interest in cross-cultural stories makes this an excellent next step."
-    # },
-    # {
-    #     "id": "book-010",
-    #     "title": "The Unbearable Lightness of Being",
-    #     "author": "Milan Kundera",
-    #     "description": "In *The Unbearable Lightness of Being*, Milan Kundera tells the story of a "
-    #                 "young woman in love with a man torn between his love for her and his incorrigible "
-    #                 "womanizing and one of his mistresses and her humbly faithful lover. This "
-    #                 "magnificent novel juxtaposes geographically distant places, brilliant and playful "
-    #                 "reflections, and a variety of styles, to take its place as perhaps the major "
-    #                 "achievement of one of the world's truly great writers.",
-    #     "explanation": "While you enjoy the rich, complex worlds of García Márquez and Rushdie, this "
-    #                 "novel offers a perfect change of pace. Kundera's literary style remains "
-    #                 "sophisticated but with a more playful approach that should serve as the 'palate "
-    #                 "cleanser' you mentioned sometimes needing. The European setting expands the "
-    #                 "cultural range of your reading, while its exploration of relationships and "
-    #                 "philosophy provides the depth you value without the intensity of magical realism. "
-    #                 "A thoughtful but refreshing addition to your reading journey."
-    # },
-    # {
-    #     "id": "book-006",
-    #     "title": "Homegoing",
-    #     "author": "Yaa Gyasi",
-    #     "description": "A novel of breathtaking sweep and emotional power that traces three hundred years "
-    #                 "in Ghana and along the way also becomes a truly great American novel. Extraordinary "
-    #                 "for its exquisite language, its implacable sorrow, its soaring beauty, and for its "
-    #                 "monumental portrait of the forces that shape families and nations, Homegoing "
-    #                 "heralds the arrival of a major new voice in contemporary fiction.",
-    #     "explanation": "This novel aligns with your interest in literary works that span generations "
-    #                 "and cultures. The description mentions its 'exquisite language' and 'soaring beauty,' "
-    #                 "which connects with your appreciation for beautiful prose. As someone who enjoys "
-    #                 "books that explore different historical periods and cultures, this story that traces "
-    #                 "three hundred years in Ghana while also engaging with American experiences should "
-    #                 "provide the kind of rich cultural exploration you value in your reading."
-    # },
-    #     {
-    #     "id": "book-003",
-    #     "title": "The God of Small Things",
-    #     "author": "Arundhati Roy",
-    #     "description": "Set in Kerala, India, this novel tells the story of twins Rahel and Estha whose "
-    #                   "lives are destroyed by the 'Love Laws' that dictate 'who should be loved, and how, "
-    #                   "and how much.' The narrative shifts between 1969 and 1993, unraveling a family "
-    #                   "tragedy against the backdrop of India's caste system, politics, and social taboos.",
-    #     "explanation": "You marked 'Midnight's Children' as a favorite, and this Booker Prize-winning "
-    #                   "novel offers another powerful exploration of post-colonial India but through a "
-    #                   "more intimate, family-focused lens. Roy's lush, poetic prose will appeal to your "
-    #                   "appreciation for 'beautiful prose' mentioned in your preferences. The novel's "
-    #                   "exploration of forbidden love and social constraints echoes themes in 'Beloved' "
-    #                   "by Toni Morrison, which you rated 5 stars."
-    # }
-    # ]
