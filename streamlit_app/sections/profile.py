@@ -24,10 +24,7 @@ def create_profile_visualization(profile):
         # If no embeddings are available yet, inform the user
         st.info("Genre visualization is not available yet. Please get recommendations first to see how your preferences align with different genres.")
         return None, None
-    
-    # Use the embeddings from the session state
-    logging.info(f"Using {len(book_embeddings)} genre embeddings from API response")
-    
+        
     # Create a genre to coordinates mapping
     genre_coords = {}
     all_db_genres = []

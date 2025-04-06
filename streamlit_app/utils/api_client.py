@@ -273,10 +273,7 @@ def get_recommendations():
 
             # Transform profile into the format the API expects
             api_format = transform_profile_for_recommendation_api(profile_data)
-            
             api_format = json.dumps(api_format)
-            
-            print(f"DEBUG: JSON formatted api: {api_format}")
             
             try:
                 # Make the POST request, sending JSON
