@@ -3,7 +3,7 @@ import psycopg2 as ps
 import pandas as pd
 
 # LLM Params
-MODEL_NAME = "mistral.mistral-7b-instruct-v0:2"
+MODEL_NAME = "mistral.mistral-large-2402-v1:0"
 
 
 # SQL Params
@@ -41,8 +41,38 @@ def fetch_books_data():
         raise RuntimeError("Database connection failed.")
 
     query = """
-        SELECT title, author, publish_year, genre_consolidated, description
-        FROM books_info;
+        WITH ranked_reviews AS (
+            SELECT
+                title,
+                review_text,
+                review_score,
+                review_helpfulness,
+                ROW_NUMBER() OVER (PARTITION BY title ORDER BY review_helpfulness DESC) AS RankNum
+            FROM books_info
+        ),
+    
+        top_reviews AS (
+            SELECT
+                title,
+                CONCAT(review_text, ' (Score: ', review_score, ', Helpful: ', review_helpfulness, ')') AS formatted_review
+            FROM ranked_reviews
+            WHERE RankNum = 1
+        )
+    
+        SELECT 
+            b.title,
+            b.author,
+            b.publish_year,
+            b.genre_consolidated,
+            b.description,
+            STRING_AGG(t.formatted_review, ' ') AS reviews
+        FROM (
+            SELECT DISTINCT title, author, publish_year, genre_consolidated, description
+            FROM books_info
+        ) b
+        JOIN top_reviews t ON b.title = t.title
+        GROUP BY 
+            b.title, b.author, b.publish_year, b.genre_consolidated, b.description;
     """
     books_df = pd.read_sql_query(query, conn)
 
