@@ -345,7 +345,8 @@ async def get_recommendations(profile):
         pass
     
     
-    HT = {"liked_books":[],
+    HT = {# User Embedding info
+          "liked_books":[],
           "disliked_books":[],
           "liked_genres":[],
           "disliked_genres":[],
@@ -353,6 +354,7 @@ async def get_recommendations(profile):
           "disliked_authors":[],
           "liked_ratings":[], 
           "disliked_ratings":[],
+          # Filteration info
           "books_history":[],
           "keep_authors":[],
           "remove_authors":[],
@@ -392,7 +394,13 @@ async def get_recommendations(profile):
             favor, topic = key.split("_")
             
             if topic == "books":
-        
+                
+                # Check to see if user already has some books in their history
+                
+                #if len(profile['instances'][0]['books_history']) ==  0:
+                    
+                    # If the user has no books read yet, look to liked/disliked books to extract data 
+                    
                 if favor == "liked":
                     
                     for liked_book in profile['instances'][0][key]:
@@ -404,25 +412,52 @@ async def get_recommendations(profile):
                     
                 elif favor == "disliked":
                     
-                    for liked_book in profile['instances'][0][key]:
-                        HT['disliked_books'].append(profile['instances'][0][key][liked_book]['title'])
-                        HT['disliked_authors'].append(profile['instances'][0][key][liked_book]['author'])
-                        HT['disliked_genres'].append(profile['instances'][0][key][liked_book]['genre'])
-                        HT['disliked_ratings'].append(profile['instances'][0][key][liked_book]['rating'])
+                    for disliked_book in profile['instances'][0][key]:
+                        HT['disliked_books'].append(profile['instances'][0][key][disliked_book]['title'])
+                        HT['disliked_authors'].append(profile['instances'][0][key][disliked_book]['author'])
+                        HT['disliked_genres'].append(profile['instances'][0][key][disliked_book]['genre'])
+                        HT['disliked_ratings'].append(profile['instances'][0][key][disliked_book]['rating'])
                         
                 continue
-            
-        #     HT = {
-        #   "liked_genres":[],
-        #   "disliked_genres":[],
-        #   "liked_authors":[],
-        #   "disliked_authors":[]}
-        
-        # "liked_genres": {"Biography & Autobiography / General": "keep","Biography & Autobiography / Literary Figures": "keep","Biography & Autobiography / Personal Memoirs": "keep"},
-        # "disliked_genres": ["Art / General"],
-        # "liked_authors": ["Walter Isaacson"],
-        # "disliked_authors": [],
-       
+                
+                # else:
+                    
+                #     # If the user has some books read, look to books_history to extract data
+                    
+                #     if favor == "liked":
+                        
+                #         all_liked_books = []
+                        
+                #         for hist_book in profile['instances'][0]['books_history']:
+                            
+                #             if hist_book['rating'] >= 3:
+                #                 all_liked_books.append(hist_book)
+                        
+                        
+                #         for liked_book in all_liked_books:
+                #             HT['liked_books'].append(profile['instances'][0][key][liked_book]['title'])
+                #             HT['liked_authors'].append(profile['instances'][0][key][liked_book]['author'])
+                #             HT['liked_genres'].append(profile['instances'][0][key][liked_book]['genre'])
+                #             HT['liked_ratings'].append(profile['instances'][0][key][liked_book]['ratings'])
+                        
+                        
+                #     elif favor == "disliked":
+                        
+                #         all_disliked_books = []
+                        
+                #         for hist_book in profile['instances'][0]['books_history']:
+                            
+                #             if hist_book['rating'] < 3:
+                #                 all_disliked_books.append(hist_book)
+                        
+                #         for liked_book in all_disliked_books:
+                #             HT['disliked_books'].append(profile['instances'][0][key][liked_book]['title'])
+                #             HT['disliked_authors'].append(profile['instances'][0][key][liked_book]['author'])
+                #             HT['disliked_genres'].append(profile['instances'][0][key][liked_book]['genre'])
+                #             HT['disliked_ratings'].append(profile['instances'][0][key][liked_book]['ratings'])
+                            
+                #     continue
+                           
             if topic == "genres":
                 
                 if favor == "liked":
@@ -453,9 +488,82 @@ async def get_recommendations(profile):
                     HT['remove_authors'].extend(profile['instances'][0][key])
                         
                 continue
-            
     
-    print(f"Extracted User Profile args:\n\n{HT}\n")      
+    # Implement stacking onboarding info algo + sliding window to retrieve the 20 most recent items
+    # Order of importance (least to greatest): onboarding authors + rating, onboarding genres + rating, full book metadata + rating
+    # We wanna sent back the last (most recent 20 items) via a sliding window
+    
+    print(f"Extracted HT of book info:\n\n{HT}\n")
+    
+    onboarding_HT = {
+          # Embedding Info
+          "liked_books":[],
+          "disliked_books":[],
+          "liked_genres":[],
+          "disliked_genres":[],
+          "liked_authors":[],
+          "disliked_authors":[],
+          "liked_ratings":[], 
+          "disliked_ratings":[]}
+    
+    # Create stacked rows for liked authors first
+    
+    for liked_author in profile['instances'][0]['liked_authors']:
+        
+        onboarding_HT['liked_authors'].append(liked_author)
+        onboarding_HT['liked_ratings'].append(5)
+        
+        for key in onboarding_HT:
+            
+            if key != 'liked_authors' and key != 'liked_ratings':
+                
+                onboarding_HT[key].append(0)
+                
+    print(f"Onboarding profile after 'LIKED AUTHORS':\n\n{onboarding_HT}\n")
+    # Create stacked rows for liked genres second
+    
+    for liked_genre in profile['instances'][0]['liked_genres']:
+        
+        onboarding_HT['liked_genres'].append(liked_genre)
+        onboarding_HT['liked_ratings'].append(5)
+        
+        for key in onboarding_HT:
+            
+            if key != 'liked_genres' and key != 'liked_ratings':
+                
+                onboarding_HT[key].append(0)
+                
+    print(f"Onboarding profile after 'LIKED GENRES':\n\n{onboarding_HT}\n")       
+      
+    # Update the rows of data we have for the user profile (onboarding + normal books)
+    
+    for key in onboarding_HT:
+        
+        print(f"HT[{key}] = {HT[key]} | onboarding_HT[{key}] = {onboarding_HT[key]}\n")
+        print(f"onboarding_HT[key].extend(HT[key]) = {onboarding_HT[key].extend(HT[key])}\n")
+        
+        onboarding_HT[key].extend(HT[key])
+        HT[key] = onboarding_HT[key]
+        
+    
+    # Implement a sliding window to limit entries to 20 length; We wanna only keep the last 20 items in circulation
+        
+    # HT['liked_books'] = [0,..,0, title_1, ... ,title_n] -> Keep the last ~20 entries in all columns
+    
+    print(f"HT before:\n\n{HT}\n")
+    
+    n = 20 # Define context max length based on the expected size of inputs to user embedding towe (20)
+    
+    for key in HT:
+        
+        favor, topic = key.split("_")
+        
+        if favor == "liked" or favor == "disliked":
+            
+            HT[key] = HT[key][-n:]
+        
+    print(f"HT after:\n\n{HT}\n")
+        
     
     HT_string = {"liked_books":"","disliked_books":"","liked_genres":"","disliked_genres":"","liked_authors":"","disliked_authors":"", "books_history":"",
                  "keep_authors":"","remove_authors":"","keep_genres":"","remove_genres":""}
@@ -556,4 +664,3 @@ async def get_recommendations(profile):
 
     
     return {"recommendations": recommendations}
-    #return {"recommendations": recommendations}
