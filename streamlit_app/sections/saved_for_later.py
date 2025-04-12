@@ -3,7 +3,7 @@ from streamlit_star_rating import st_star_rating
 from utils.book_cover_utils import get_cover_image_url
 
 def show_saved_for_later():
-    st.subheader("Your Library")
+    st.markdown("<h1 style='font-size: 38px; margin-bottom: 20px;'>Your Library</h1>", unsafe_allow_html=True)
 
     # Ensure user_profile and saved_for_later exist
     if "user_profile" not in st.session_state:

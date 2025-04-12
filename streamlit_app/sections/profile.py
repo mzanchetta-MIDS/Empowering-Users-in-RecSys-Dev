@@ -4,170 +4,17 @@ import json
 import numpy as np
 import pandas as pd
 import logging 
-import plotly.graph_objects as go
+import streamlit.components.v1 as components
+import tempfile
+import json
+
 from utils.profile_utils import save_profile
-from utils.data_utils import get_unique_genres, get_unique_authors, get_unique_books 
+from utils.data_utils import get_unique_genres, get_unique_authors, get_unique_books, load_chord_viz_data, create_genre_chord_diagram
 from streamlit_extras.stylable_container import stylable_container
-
-def create_profile_visualization(profile):
-    """Create a 3D visualization using genre embeddings from recommendations"""
-
-    # Get user's selected genres
-    user_genres = profile.get("genres", [])
-    
-    # Get embeddings from session state
-    book_embeddings = st.session_state.get("pca_book_embeddings", [])
-    user_embedding = st.session_state.get("pca_user_embeddings", [])
-    
-    # Check if we have valid embeddings data
-    if not book_embeddings:
-        # If no embeddings are available yet, inform the user
-        st.info("Genre visualization is not available yet. Please get recommendations first to see how your preferences align with different genres.")
-        return None, None
-        
-    # Create a genre to coordinates mapping
-    genre_coords = {}
-    all_db_genres = []
-    
-    for item in book_embeddings:
-        genre = item.get("genre", "")  # Use the genre field 
-        if not genre and "genre" in item:
-            genre = item["genre"]
-            
-        # Get the PCA coordinates - should be a list of 3 values
-        coords = item.get("PCA_book_embeddings", [0, 0, 0])
-        if coords and len(coords) == 3:
-            genre_coords[genre] = np.array(coords)
-            all_db_genres.append(genre)
-    
-    # If we couldn't extract any valid genre coordinates, return early
-    if not genre_coords:
-        st.warning("Could not process genre embeddings from the API. Visualization is not available.")
-        return None, None
-    
-    # Compile the final list of genres to visualize
-    all_genres = []
-    
-    # Add user genres first (only those that exist in our embeddings)
-    for genre in user_genres:
-        if genre in genre_coords and genre not in all_genres:
-            all_genres.append(genre)
-    
-    # Add remaining genres from API response
-    for genre in all_db_genres:
-        if genre not in all_genres:
-            all_genres.append(genre)
-    
-    # Get user coordinates from API response if available
-    if user_embedding and len(user_embedding) > 0 and len(user_embedding[0]) == 3:
-        user_coords = np.array(user_embedding[0])
-    else:
-        # If no user embeddings are available, calculate as average of selected genres
-        if all_genres:
-            genres_to_average = [g for g in user_genres if g in genre_coords]
-            if not genres_to_average:
-                genres_to_average = all_genres[:min(5, len(all_genres))]
-            
-            user_coords = np.mean([genre_coords[g] for g in genres_to_average], axis=0)
-        else:
-            st.warning("No genre data available for visualization.")
-            return None, None
-    
-    # Create a DataFrame with the genre data
-    genres_data = []
-    for genre in all_genres:
-        if genre in genre_coords:  
-            coords = genre_coords[genre]
-            genres_data.append({
-                'name': genre,
-                'x': coords[0],
-                'y': coords[1], 
-                'z': coords[2],
-                'type': 'Genre',
-                'is_selected': genre in user_genres
-            })
-    
-    if not genres_data:
-        st.warning("No visualizable genre data available.")
-        return None, None
-    
-    df = pd.DataFrame(genres_data)
-    
-    # Add user profile to the DataFrame
-    user_data = {
-        'name': 'Your Profile',
-        'x': user_coords[0],
-        'y': user_coords[1],
-        'z': user_coords[2],
-        'type': 'User Profile',
-        'is_selected': False
-    }
-    df = pd.concat([df, pd.DataFrame([user_data])], ignore_index=True)
-    
-    # Create different colors based on type and selection
-    colors = []
-    for _, row in df.iterrows():
-        if row['type'] == 'User Profile':
-            colors.append('#4e7694')  # User profile in blue
-        elif row['is_selected']:
-            colors.append('#9C897E')  # Selected genres in brown
-        else:
-            colors.append('#C0C0C0')  # Other genres in light gray
-    
-    # Create a 3D scatter plot
-    fig = go.Figure(data=[go.Scatter3d(
-        x=df['x'],
-        y=df['y'],
-        z=df['z'],
-        mode='markers',
-        marker=dict(
-            size=5,
-            color=colors,
-            opacity=0.8
-        ),
-        text=df['name'],
-        hoverinfo='text',
-        showlegend=False
-    )])
-    
-    # Highlight the user's position
-    fig.add_trace(go.Scatter3d(
-        x=[user_coords[0]],
-        y=[user_coords[1]],
-        z=[user_coords[2]],
-        mode='markers',
-        marker=dict(
-            size=10,
-            color='#4e7694',
-            symbol='circle',
-            line=dict(
-                color='white',
-                width=2
-            )
-        ),
-        text=['Your Profile'],
-        hoverinfo='text',
-        showlegend=False
-    ))
-    
-    fig.update_layout(
-        scene=dict(
-            xaxis=dict(title='', showticklabels=False),
-            yaxis=dict(title='', showticklabels=False),
-            zaxis=dict(title='', showticklabels=False),
-            bgcolor='#F5F2EB'
-        ),
-        margin=dict(l=0, r=0, b=0, t=0),
-        height=600,  
-        paper_bgcolor='#F5F2EB',
-        showlegend=False
-    )
-    
-    return fig, df
 
 
 def show_profile():
-    st.subheader("Your Reading Profile")
+    st.markdown("<h1 style='font-size: 38px; margin-bottom: 20px;'>Your Reading Profile</h1>", unsafe_allow_html=True)
     
     if "user_profile" not in st.session_state:
         st.warning("Profile data not found. Please complete the onboarding process.")
@@ -209,11 +56,11 @@ def show_profile():
     """, unsafe_allow_html=True)
     
     # Create two permanent columns for the entire page layout
-    left_col, spacer_col, right_col = st.columns([1, 0.05, 1.2])
+    left_col, spacer_col, right_col = st.columns([0.6, 0.05, 1.5])
 
     # LEFT COLUMN: Preferences
     with left_col:
-        st.markdown("### Your Preferences")
+        st.markdown("### Preferences")
         st.markdown("""
         <div style="background-color: #e8f4f8; padding: 10px; border-left: 4px solid #4e7694; margin-bottom: 15px;">
             <p style="margin: 0;"><strong>💡 Tip:</strong> You can pause selections from your favorite genres to temporarily exclude them from your recommendations.</p>
@@ -566,37 +413,53 @@ def show_profile():
         st.empty()
 
     # RIGHT COLUMN: Visualization - kept separate from left column
+
+
+
     with right_col:
-        st.markdown("### Profile Visualization")
-        st.write("This visualization shows how your reading profile relates to different book genres in 3D space.")
-        
-        viz_fig, viz_data = create_profile_visualization(profile)
-        st.plotly_chart(viz_fig, use_container_width=True)
-        
-        # Show closest genres if user has selected genres
-        if profile.get("genres"):
-            # User coordinates
-            user_coords = viz_data[viz_data['type'] == 'User Profile'][['x', 'y', 'z']].values[0]
+        st.markdown("### Genre Map")
+        st.markdown(
+            """
+            Your selections are mapped alongside genre linkages derived from the habits of tens of thousands of other readers—revealing how your reading identity fits into the bigger picture. 
+            In this diagram, each arc represents a genre, and the connecting chords show how often those genres co-occur in others’ reading histories. 
+            Thicker chords indicate stronger connections. Hover to explore, or click the 
+            <strong style="color: #4e7694;">Show All Genre Connections</strong> button below to see the entire reading web.
+            """,
+            unsafe_allow_html=True
+        )
+        # Load the genre data
+        try:
+            genre_metadata, genre_connections = load_chord_viz_data()
             
-            # Euclidean distance
-            def calc_distance(row):
-                genre_coords = row[['x', 'y', 'z']].values
-                return np.sqrt(np.sum((genre_coords - user_coords)**2))
+            # Get user's selected genres for highlighting
+            user_genres = profile.get("genres", [])
             
-            genres_df = viz_data[viz_data['type'] == 'Genre'].copy()
-            genres_df['distance'] = genres_df.apply(calc_distance, axis=1)
+            # Generate chord diagram HTML with user preferences included
+            chord_html = create_genre_chord_diagram(
+                genre_metadata=genre_metadata,
+                genre_connections=genre_connections,
+                top_n_genres=30,
+                top_n_connections=100,
+                user_genres=user_genres  # Pass user genres to highlight them
+            )
+
+            # Display the chord diagram with appropriate height
+            components.html(chord_html, height=1200, scrolling=True)
             
-            # Sort by distance and show top 5
-            closest_genres = genres_df.sort_values('distance').head(5)
+            # Add instructions for using the visualization
+            with st.expander("How to use this visualization"):
+                st.markdown("""
+                - **Hover** over a genre segment to highlight all its connections
+                - **Click** on a genre segment to focus exclusively on its connections
+                - **Hover** over a connection to see details about the strength of relationship
+                
+                In the tooltip, Connection Strength shows how frequently readers who enjoy one genre also read books from the other genre. 
+                A higher percentage means a stronger pattern of these genres appearing together in readers' libraries.
+
+                Genres you've selected in your profile are highlighted with a black border.
+                """)
             
-            st.markdown("#### Your profile is most aligned with:")
-            
-            # Instead of using columns, create a formatted HTML display
-            genre_html = '<div style="display: flex; flex-wrap: wrap;">'
-            
-            for i, (_, genre) in enumerate(closest_genres.iterrows()):
-                # Add each genre as a div that takes roughly half the width
-                genre_html += f'<div style="flex: 0 0 50%; margin-bottom: 8px;">• {genre["name"]}</div>'
-            
-            genre_html += '</div>'
-            st.markdown(genre_html, unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"Unable to display genre visualization: {str(e)}")
+            st.info("Please ensure you have the genre data files in the correct location.")
+

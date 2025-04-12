@@ -98,18 +98,18 @@ def get_image_base64(image_path: str) -> str:
         return base64.b64encode(image_file.read()).decode()
 
 # API Status Display
-def show_api_status():
-    """Show API connection status in a small badge"""
-    api_connected = check_api_connection()
-    connection_status = "🟢 API Connected" if api_connected else "🔴 API Offline"
+# def show_api_status():
+#     """Show API connection status in a small badge"""
+#     api_connected = check_api_connection()
+#     connection_status = "" if api_connected else "🔴 API Offline"
     
-    st.markdown(f"""
-        <div style="position: absolute; top: 10px; right: 10px; 
-                    background-color: {'rgba(46, 204, 113, 0.2)' if api_connected else 'rgba(231, 76, 60, 0.2)'};
-                    padding: 5px 10px; border-radius: 5px; font-size: 12px;">
-            {connection_status}
-        </div>
-    """, unsafe_allow_html=True)
+#     st.markdown(f"""
+#         <div style="position: absolute; top: 10px; right: 10px; 
+#                     background-color: {'rgba(46, 204, 113, 0.2)' if api_connected else 'rgba(231, 76, 60, 0.2)'};
+#                     padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+#             {connection_status}
+#         </div>
+#     """, unsafe_allow_html=True)
 
 # BOOK ACTION CALLBACKS
 def save_book_for_later(book_title):
@@ -153,7 +153,7 @@ def main():
     # load_profile()
 
     # Show API status in the corner
-    show_api_status()
+    #show_api_status()
 
     # STEP-BASED ONBOARDING
     if not st.session_state.profile_completed:

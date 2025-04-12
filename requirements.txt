@@ -10,7 +10,6 @@ joblib
 plotly 
 scikit-learn
 
-
 # Other utilities
 requests
 python-dotenv

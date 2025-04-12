@@ -355,3 +355,29 @@ def get_recommendations():
             "explanation": "We're sorry, but we encountered an error retrieving your personalized recommendations."
         }
     ]
+
+
+# def get_recommendations():
+#     """
+#     Get personalized recommendations based on user profile.
+    
+#     Returns a list of book recommendations in the shape:
+#     [
+#       {
+#         "title": "...",
+#         "author": "...",
+#         "description": "...",
+#         "explanation": "..."
+#       },
+#       ...
+#     ]
+#     """
+#     return [
+#         {
+#             "title": "The Master and Margarita",
+#             "author": "Mikhail Bulgakov",
+#             "description": "A masterpiece of satire and fantasy about the Devil visiting Soviet Moscow.",
+#             "explanation": "We're sorry, but we encountered an error retrieving your personalized recommendations."
+#         }
+#     ]
+    

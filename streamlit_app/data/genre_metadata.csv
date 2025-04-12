@@ -1,0 +1,41 @@
+Genre ID,Genre Name,Parent Category,Color Code,Position,Segment Width,Genre Rank,Count
+1,Fiction / World Literature,Fiction,tab:blue,0.0,0.13040714785981192,1,32212
+2,Fiction / Mystery & Detective,Fiction,tab:blue,9.0,0.07461206181101246,2,18430
+3,Fiction / Literary,Fiction,tab:blue,18.0,0.05967750424070183,3,14741
+5,Fiction / Thrillers,Fiction,tab:blue,27.0,0.04286853621903478,5,10589
+6,Fiction / General,Fiction,tab:blue,36.0,0.0421924529676816,6,10422
+10,Fiction / Sea Stories,Fiction,tab:blue,45.0,0.03097028067575938,10,7650
+12,Fiction / Science Fiction,Fiction,tab:blue,54.0,0.028597916691969184,12,7064
+13,"Fiction / Fairy Tales, Folk Tales, Legends & Mythology",Fiction,tab:blue,63.0,0.02792588184331872,13,6898
+15,Fiction / Romance,Fiction,tab:blue,72.0,0.023347138386549587,15,5767
+19,Fiction / Occult & Supernatural,Fiction,tab:blue,81.0,0.01707211419734344,19,4217
+25,Fiction / Short Stories,Fiction,tab:blue,90.0,0.012699839278412702,25,3137
+31,Fiction / War & Military,Fiction,tab:blue,99.0,0.011100720210840813,31,2742
+37,Fiction / Erotica,Fiction,tab:blue,108.0,0.008963163583808009,37,2214
+39,Fiction / Action & Adventure,Fiction,tab:blue,117.0,0.008582613729752926,39,2120
+9,Juvenile Fiction / General,Juvenile Fiction,tab:orange,126.0,0.04108319062713806,9,10148
+28,Juvenile Fiction / Nursery Rhymes,Juvenile Fiction,tab:orange,135.0,0.012145208108140933,28,3000
+40,Juvenile Fiction / Fairy Tales & Folklore,Juvenile Fiction,tab:orange,144.0,0.008303273943265684,40,2051
+27,Young Adult Fiction / General,Young Adult Fiction,tab:green,153.0,0.01220998255138435,27,3016
+8,Biography & Autobiography / Personal Memoirs,Biography & Autobiography,tab:red,162.0,0.041528514924436565,8,10258
+11,Biography & Autobiography / General,Biography & Autobiography,tab:red,171.0,0.030083680483865092,11,7431
+14,History / General,History,tab:purple,180.0,0.023533364910874415,14,5813
+20,History / Wars & Conflicts,History,tab:purple,189.0,0.01646080538923368,20,4066
+30,History / Social History,History,tab:purple,198.0,0.011950884778410678,30,2952
+22,Science / General,Science,tab:brown,207.0,0.015201752148689735,22,3755
+7,Business & Economics / General,Business & Economics,tab:pink,216.0,0.04188882276497808,7,10347
+24,Philosophy / General,Philosophy,tab:gray,225.0,0.013906263283821368,24,3435
+26,Psychology / General,Psychology,tab:olive,234.0,0.012513612754087874,26,3091
+33,Literary Criticism / General,Literary Criticism,tab:cyan,243.0,0.00996311905137828,33,2461
+38,Art / General,Art,aliceblue,252.0,0.008594758937861068,38,2123
+17,Computers / General,Computers,antiquewhite,261.0,0.017772487864912898,17,4390
+4,Religion / General,Religion,aqua,270.0,0.04476723708660748,4,11058
+34,Religion / Theology,Religion,aqua,279.0,0.009776892527053452,34,2415
+16,Social Science / General,Social Science,aquamarine,288.0,0.02068733781086672,16,5110
+18,Political Science / General,Political Science,azure,297.0,0.017768439462210184,18,4389
+21,"Body, Mind & Spirit / General","Body, Mind & Spirit",beige,306.0,0.01568351207031266,21,3874
+23,Juvenile Nonfiction / General,Juvenile Nonfiction,bisque,315.0,0.014505426883822987,23,3583
+29,Sports & Recreation / General,Sports & Recreation,black,324.0,0.012023756027059523,29,2970
+32,Family & Relationships / General,Family & Relationships,blanchedalmond,333.0,0.010141248770297678,32,2505
+35,Health & Fitness / General,Health & Fitness,blue,342.0,0.00929918100813324,35,2297
+36,Language Arts & Disciplines / General,Language Arts & Disciplines,blueviolet,351.0,0.009189874135159972,36,2270

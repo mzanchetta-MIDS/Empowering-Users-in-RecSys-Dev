@@ -66,7 +66,7 @@ def show_ratings(book_title, key_prefix):
 
 
 def show_recommendations():
-    st.subheader("Your Book Recommendations")
+    st.markdown("<h1 style='font-size: 38px; margin-bottom: 20px;'>Your Book Recommendations</h1>", unsafe_allow_html=True)
 
     if "recommendations_list" not in st.session_state:
         st.session_state.recommendations_list = get_new_recommendations()
