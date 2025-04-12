@@ -125,6 +125,7 @@ class ExplainBot:
                 "    - A summary of your response.\n"
                 "    - Meta information (e.g., 'This explanation is under 300 tokens').\n"
                 "    - Any mention of task constraints.\n"
+                "    - Do **not** use asterisks around book titles (e.g., *Book Title*). Instead, refer to titles in plain text, or if clarity is needed, use quotation marks only for **titles**, not emphasis.\n\n"
 
                 "Additionally, you may incorporate insights from the **top reader review** of the recommended book to support the reasoning. The top review is selected based on a combination of review score and helpfulness, and includes:\n"
                 "  - **review_text** (reader's written thoughts),\n"
