@@ -204,7 +204,7 @@ def create_genre_chord_diagram(genre_metadata, genre_connections, top_n_genres=3
         # Convert data to JSON for JavaScript
         chord_json_str = json.dumps(chord_data)
         
-        # D3.js Chord Diagram HTML template
+        # D3.js Chord Diagram 
         html_template = """
         <!DOCTYPE html>
         <html>
@@ -590,7 +590,7 @@ def create_genre_chord_diagram(genre_metadata, genre_connections, top_n_genres=3
         </html>
         """
         
-        # Insert the data into the template
+        # Insert the data 
         html_content = html_template.replace("CHORD_DATA_PLACEHOLDER", chord_json_str)
         
         return html_content

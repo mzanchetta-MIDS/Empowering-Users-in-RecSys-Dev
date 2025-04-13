@@ -30,7 +30,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Running the Application
+### Running the Application Locally 
 
 #### Step 1: Start the FastAPI Backend
 ```bash
@@ -51,9 +51,9 @@ The Streamlit app will open in your browser at http://localhost:8501
 
 1. When a user first opens the app, they'll be prompted to complete a short onboarding process
 2. They provide information about reading preferences, favorite authors, genres, and additional context. 
-3. Once complete, a user receives personalized book recommendations. Right now, these are hard-coded, but we will integrate the two-tower model and LLM to get recs.
+3. Once complete, a user receives personalized book recommendations. 
 4. Users interact with recommendations by saving, rating, or marking them as "not interested"
-5. Every time the user profile changes in any way due to user feedback, the API receives the updated JSON. 
+5. Every time the user generates a new batch of recommendations, their updated user profile information is sent to the recommendation model, and an explainable recommendation is received in return. 
 
 ## Development Notes
 
@@ -61,10 +61,3 @@ The Streamlit app will open in your browser at http://localhost:8501
 - The Streamlit frontend handles the user interface and interactions
 - User profile information is stored locally and sent to the API for recommendation processing
 
-## Future Enhancements
-
-- User account creation and authentication
-- Improving the JSON so we have book and user IDs 
-- Persistent data storage (?) 
-- Integration of two-tower rec system and LLM for explainable recs 
-- Some UI changes to the app 

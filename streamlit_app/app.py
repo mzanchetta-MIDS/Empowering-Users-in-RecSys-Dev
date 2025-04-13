@@ -149,11 +149,6 @@ def main():
             save_book_for_later(action["title"])
         
     initialize_user_profile()
-    # Keep load_profile() commented out for local development:
-    # load_profile()
-
-    # Show API status in the corner
-    #show_api_status()
 
     # STEP-BASED ONBOARDING
     if not st.session_state.profile_completed:
