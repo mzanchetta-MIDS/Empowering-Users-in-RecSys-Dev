@@ -144,34 +144,6 @@ def get_unique_authors() -> List[str]:
         if conn:
             conn.close()
 
-# def get_unique_books() -> List[str]:
-#     """
-#     Get unique books with their authors from the database
-    
-#     Returns:
-#         List of books in "Title - Author" format, alphabetically sorted by title
-#     """
-#     conn = None
-#     cursor = None
-#     try:
-#         conn = connect_to_db()
-#         query = """
-#         SELECT DISTINCT title, author 
-#         FROM books_info 
-#         ORDER BY title
-#         """
-#         df = query_to_df(query, conn)
-#         # Format as "Title - Author"
-#         books = [f"{row['title']} - {row['author']}" for _, row in df.iterrows()]
-#         return books
-#     except Exception as e:
-#         logging.error(f"Error retrieving books: {str(e)}")
-#         return []
-#     finally:
-#         if cursor:
-#             cursor.close()
-#         if conn:
-#             conn.close()
 
 def get_unique_books() -> pd.DataFrame:
   """
@@ -226,5 +198,54 @@ def get_book_covers_lookup() -> pd.DataFrame:
     finally:
         if cursor:
             cursor.close()
+        if conn:
+            conn.close()
+
+
+def get_genre_metadata():
+    """
+    Get genre metadata from the database
+    
+    Returns:
+        DataFrame with genre metadata information
+    """
+    conn = None
+    try:
+        conn = connect_to_db()
+        query = """
+        SELECT * 
+        FROM genre_metadata
+        """
+        metadata_df = query_to_df(query, conn)
+        logging.info(f"Retrieved {len(metadata_df)} genre metadata records from database")
+        return metadata_df
+    except Exception as e:
+        logging.error(f"Error retrieving genre metadata: {str(e)}")
+        return pd.DataFrame()  # Return empty DataFrame on error
+    finally:
+        if conn:
+            conn.close()
+
+def get_genre_connections():
+    """
+    Get genre connections from the database
+    
+    Returns:
+        DataFrame with genre connection information
+    """
+    conn = None
+    try:
+        conn = connect_to_db()
+        query = """
+        SELECT * 
+        FROM genre_connections
+        """
+        connections_df = query_to_df(query, conn)
+        logging.info(f"Retrieved {len(connections_df)} genre connection records from database")
+        return connections_df
+    except Exception as e:
+        logging.error(f"Error retrieving genre connections: {str(e)}")
+        return pd.DataFrame()  # Return empty DataFrame on error
+    finally:
         if conn:
             conn.close()

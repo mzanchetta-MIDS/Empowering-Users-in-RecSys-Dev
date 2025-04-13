@@ -2,7 +2,7 @@
 
 import streamlit as st
 import streamlit.components.v1 as components
-from utils.api_client import get_genres, get_authors, get_books, get_recommendations 
+from utils.api_client import get_genres, get_authors, get_books, get_recommendations, get_genre_metadata_from_api, get_genre_connections_from_api
 import logging
 import requests
 
@@ -93,18 +93,17 @@ def get_unique_authors():
 
 @st.cache_data(ttl=3600)
 def load_chord_viz_data():
-    """Load genre metadata and connections for chord visualization"""
-    data_dir = "data"  # Top-level data directory
-    metadata_path = os.path.join(data_dir, "genre_metadata.csv")
-    connections_path = os.path.join(data_dir, "genre_connections.csv")
+    """Load genre metadata and connections for chord visualization from API"""
     
-    # Load dataframes
-    genre_metadata = pd.read_csv(metadata_path)
-    genre_connections = pd.read_csv(connections_path)
-    
+    genre_metadata = get_genre_metadata_from_api()
+    genre_connections = get_genre_connections_from_api()
+        
+    # Check if we got valid data
+    if genre_metadata.empty or genre_connections.empty:
+        raise ValueError("Failed to retrieve visualization data from API")
+        
     return genre_metadata, genre_connections
-
-
+    
 
 def prepare_chord_data(genre_metadata, genre_connections, top_n_genres=30, top_n_connections=100, user_genres=None):
     """

@@ -3,6 +3,7 @@ import streamlit as st
 import json
 import uuid
 import logging
+import pandas as pd 
 from utils.book_metadata_cache import get_book_metadata, update_book_metadata
 
 
@@ -186,6 +187,7 @@ def transform_profile_for_recommendation_api(user_profile):
     
     return api_format
 
+
 def get_genres():
     """Fetch available genres from API"""
     try:
@@ -196,6 +198,36 @@ def get_genres():
     except Exception as e:
         st.error(f"Error connecting to API: {str(e)}")
     return []  # Fallback to empty list if API fails
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_genre_metadata_from_api():
+    """Fetch genre metadata from API"""
+    try:
+        response = requests.get(f"{API_BASE_URL}/rec/genre-metadata")
+        if response.status_code == 200:
+            data = response.json()
+            metadata_df = pd.DataFrame(data["metadata"])
+            return metadata_df
+        logger.error(f"Failed to fetch genre metadata: {response.status_code}")
+    except Exception as e:
+        logger.error(f"Error connecting to API: {str(e)}")
+    return pd.DataFrame()  # Return empty DataFrame on error
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_genre_connections_from_api():
+    """Fetch genre connections from API"""
+    try:
+        response = requests.get(f"{API_BASE_URL}/rec/genre-connections")
+        if response.status_code == 200:
+            data = response.json()
+            connections_df = pd.DataFrame(data["connections"])
+            return connections_df
+        logger.error(f"Failed to fetch genre connections: {response.status_code}")
+    except Exception as e:
+        logger.error(f"Error connecting to API: {str(e)}")
+    return pd.DataFrame()  # Return empty DataFrame on error
 
 
 def get_authors():
@@ -232,6 +264,7 @@ def get_book_covers():
     except Exception as e:
         logger.error(f"Error connecting to API: {str(e)}")
     return []
+
 
 def submit_user_profile(profile_data):
     """Submit user profile after onboarding or updates"""

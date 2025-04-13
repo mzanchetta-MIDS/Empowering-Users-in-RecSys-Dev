@@ -9,7 +9,7 @@ import json
 
 
 # Import only the necessary functions
-from src.db_utils import get_unique_genres, get_unique_authors, get_unique_books, get_book_covers_lookup
+from src.db_utils import get_unique_genres, get_unique_authors, get_unique_books, get_book_covers_lookup, get_genre_metadata, get_genre_connections 
 
 
 global conn
@@ -117,6 +117,37 @@ async def get_genres_endpoint():
                   'Science Fiction', 'Romance', 'History']
         return {"genres": genres}
 
+
+@rec.get("/genre-metadata")
+async def get_genre_metadata_endpoint():
+    """
+    Get genre metadata for visualization
+    """
+    try:
+        metadata = get_genre_metadata()
+        if metadata.empty:
+            return {"error": "No genre metadata available"}
+        return {"metadata": metadata.to_dict(orient='records')}
+    except Exception as e:
+        logger.error(f"Error in get_genre_metadata_endpoint: {str(e)}")
+        return {"error": str(e)}
+
+
+@rec.get("/genre-connections")
+async def get_genre_connections_endpoint():
+    """
+    Get genre connections for visualization
+    """
+    try:
+        connections = get_genre_connections()
+        if connections.empty:
+            return {"error": "No genre connections available"}
+        return {"connections": connections.to_dict(orient='records')}
+    except Exception as e:
+        logger.error(f"Error in get_genre_connections_endpoint: {str(e)}")
+        return {"error": str(e)}
+
+
 @rec.get("/authors", response_model=AuthorResponse)
 async def get_authors_endpoint():
     """
@@ -137,31 +168,6 @@ async def get_authors_endpoint():
                   'Agatha Christie', 'Neil Gaiman', 'George R.R. Martin']
         return {"authors": authors}
 
-# @rec.get("/books", response_model=BookResponse)
-# async def get_books_endpoint():
-#     """
-#     Get available books from the database
-#     """
-#     try:
-#         books = get_unique_books()
-#         if not books:
-#             # Fallback to hardcoded books if database query fails
-#             logger.warning("Using fallback hardcoded books due to empty result from database")
-#             books = [
-#                 "To Kill a Mockingbird - Harper Lee",
-#                 "1984 - George Orwell",
-#                 "Pride and Prejudice - Jane Austen"
-#             ]
-#         return {"books": books}
-#     except Exception as e:
-#         logger.error(f"Error in get_books_endpoint: {str(e)}")
-#         # Fallback to hardcoded books
-#         books = [
-#             "To Kill a Mockingbird - Harper Lee",
-#             "1984 - George Orwell",
-#             "Pride and Prejudice - Jane Austen"
-#         ]
-#         return {"books": books}
 
 @rec.get("/books")
 async def get_books_endpoint():
