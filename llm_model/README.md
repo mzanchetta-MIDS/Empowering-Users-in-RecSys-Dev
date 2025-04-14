@@ -17,7 +17,7 @@ cd <Empowering-Users-in-RecSys-Dev/llm_model>
 
 ### 2. Poetry Setup
 
-Install the required dependencies using Poetry. If you don't have Poetry installed, you can follow the [official installation guide](https://python-poetry.org/docs/#installation).
+Install the required dependencies using Poetry. If you don't have Poetry installed, you can follow the [official installation guide](https://pypi.org/project/poetry/).
 
 Once Poetry is installed, run the following command to install the project dependencies:
 
