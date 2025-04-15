@@ -10,4 +10,11 @@
 env/
 venv/
 ENV/
+book-rec-venv/
+
+__pycache__/
+*.pyc
+
+
+
 

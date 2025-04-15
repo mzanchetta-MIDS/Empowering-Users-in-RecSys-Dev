@@ -1,0 +1,15 @@
+# Streamlit dependencies
+streamlit
+streamlit_extras
+st-star-rating
+
+# Data processing and viz 
+pandas
+numpy
+joblib
+plotly 
+scikit-learn
+
+# Other utilities
+requests
+python-dotenv
