@@ -16,7 +16,7 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 
-def recommend(user_embedding, filter=filter, top_k=6, path='embeddings/book_embeddings.npy'):
+def recommend(user_embedding, filter_info, top_k=6, path='embeddings/book_embeddings.npy'):
     """
     Recommend top_k books based on cosine similarity using book embeddings.
     :param filter: Dictionary with 'keep' and 'remove' filters.
@@ -52,13 +52,13 @@ def recommend(user_embedding, filter=filter, top_k=6, path='embeddings/book_embe
     #print(f"full_book_embeddings_copy columns: {full_book_embeddings_copy.columns}")
     
     # Apply 'keep' filters
-    for key, value_set in filter.get('keep', {}).items():
+    for key, value_set in filter_info.get('keep', {}).items():
         if value_set:
             full_book_embeddings_copy = full_book_embeddings_copy[
                 full_book_embeddings_copy[key].isin(value_set)]
     
     # Apply 'remove' filters
-    for key, value_set in filter.get('remove', {}).items():
+    for key, value_set in filter_info.get('remove', {}).items():
         if value_set:
             full_book_embeddings_copy = full_book_embeddings_copy[
                 ~full_book_embeddings_copy[key].isin(value_set)]
@@ -69,19 +69,22 @@ def recommend(user_embedding, filter=filter, top_k=6, path='embeddings/book_embe
 
     # Compute Cosine Similarity between user and book embeddings
     similarity_scores = cosine_similarity(user_embedding_2d, book_embeddings)
+    print(f"Similarity Scores: \n{similarity_scores}\n")
+    print(f"Similarity Scores Shape: {similarity_scores.shape}\n")
+    
+    top_k_indices = np.argsort(similarity_scores[0])[-40:][::-1]  # Top 6 indices with highest similarity
+
+# Print the results (book indices and cosine similarity scores)
+    for i, idx in enumerate(top_k_indices):
+
+        print(f"{full_book_embeddings_copy.iloc[idx]['title']} | {full_book_embeddings_copy.iloc[idx]['genre_consolidated']} | {similarity_scores[0][idx]}")
 
     # Add similarity scores to the dataframe
     full_book_embeddings_copy['similarity'] = similarity_scores.mean(axis=0)
+    print(f"Book Embeddings DF: \n{full_book_embeddings_copy.head()}\n")
 
     # Get Top-K Recommendations
     recommendations = full_book_embeddings_copy.sort_values(by='similarity', ascending=False).head(top_k)
-    
-    # output = {}
-    # output['recommendations'] = recommendations[['title', 'similarity']]
-    # output['pca_book_embeddings'] = pca_transformed_book_embeddings
-    # output['pca_user_embedding'] = calculate_user_pca_embeddings(user_embedding)
-
-    #print(pca_transformed_book_embeddings.head())
     
     response_data = {
         'recommendations':  recommendations[['title', 'similarity']].to_dict(orient="records"),  # Convert DataFrame to list of dicts

@@ -244,7 +244,7 @@ async def recommended(user):
     # filter = user_json["filter"]
     # print(f'Filter: {filter}')
     #myJSON = json.dumps(user_json)
-    
+    print(f"User Profile: \n {user_input}\n")
     model_request = requests.post('https://f1bfm11ckf.execute-api.us-east-1.amazonaws.com/dev', json=user_input)
 
     model_return = json.loads(model_request.text)
@@ -252,6 +252,7 @@ async def recommended(user):
     model_body = json.loads(model_return["body"])
     print(f'model_body: {model_body}')
     user_embedding = model_body["result"]["predictions"][0] # Our User Embedding
+    print(f"User Embedding: {user_embedding}\n")
 
     recommendation = recommend(user_embedding, filter_info)
     
